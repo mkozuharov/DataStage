@@ -67,6 +67,7 @@ setup(
     packages=packages,
     long_description=open('README.rst').read(),
     classifiers=['Development Status :: 4 - Beta',
+                 'License :: OSI Approved :: MIT License',
                  'Intended Audience :: Science/Research',
                  'Natural Language :: English',
                  'Operating System :: OS Independent',
