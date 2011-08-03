@@ -65,6 +65,8 @@ setup(
     author_email='jisc.dataflow@gmail.com',
     version='0.1',
     packages=packages,
+    license='MIT License',
+    url='https://github.com/dataflow/DataStage',
     long_description=open('README.rst').read(),
     classifiers=['Development Status :: 4 - Beta',
                  'License :: OSI Approved :: MIT License',
