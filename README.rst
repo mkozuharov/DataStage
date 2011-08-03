@@ -16,3 +16,8 @@ The developer mailing list is hosted `by Google Groups
 <http://groups.google.com/group/dataflow-devel>`_. You can subscribe by
 e-mailing `dataflow-devel+subscribe@googlegroups.com
 <mailto:dataflow-devel+subscribe@googlegroups.com>`_.
+
+Real-time discussion takes place on `freenode IRC
+<http://freenode.net/using_the_network.shtml>`_ in the ``#umf-dataflow``
+channel.
+
