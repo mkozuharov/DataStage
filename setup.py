@@ -1,11 +1,12 @@
+from __future__ import with_statement
 from distutils.core import setup
 from distutils.command.install import INSTALL_SCHEMES
 import functools
 import os
 
 #################################
-# BEGIN borrowed from Django #
-# licensed under the BSD #
+# BEGIN borrowed from Django    #
+# licensed under the BSD        #
 # http://www.djangoproject.com/ #
 #################################
 
