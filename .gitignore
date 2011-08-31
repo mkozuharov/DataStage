@@ -5,6 +5,7 @@ dist
 build
 flot
 jquery-ui
+jquery-ui.zip
 MANIFEST
 MANIFEST.in
 datastage/flot
@@ -12,4 +13,9 @@ datastage/jquery
 datastage/jquery-treeview
 datastage/jquery-ui
 datastage/mochikit
+
+debian/debhelper.log
+debian/files
+debian/substvars
+debian/tmp/
 
