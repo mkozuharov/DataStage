@@ -3,4 +3,13 @@
 *.pyo
 dist
 build
+flot
+jquery-ui
 MANIFEST
+MANIFEST.in
+datastage/flot
+datastage/jquery
+datastage/jquery-treeview
+datastage/jquery-ui
+datastage/mochikit
+

@@ -9,13 +9,26 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
+export DISTUTILS_ARGS=--root=debian/tmp \
+                      --install-layout=deb \
+                      --install-lib=/usr/share/dataflow \
+                      --install-scripts=/usr/share/dataflow \
+                      --install-data=/usr/share/dataflow
+
+
 %:
 	dh $@
 
 override_dh_auto_install:
-	python setup.py install --root=debian/tmp --install-layout=deb \
-	                        --install-lib=/usr/share/dataflow \
-	                        --install-scripts=/usr/share/dataflow \
-	                        --install-data=/usr/share/dataflow
-# --root=debian/datastage-dataflow 
+	python setup.py install --root=debian/tmp ${DISTUTILS_ARGS}
+
+	# These JS libraries are already packaged for Debian, so use those instead.
+	( cd debian/tmp/usr/share/dataflow/datastage ; \
+	  rm -R flot jquery jquery-ui mochikit ; \
+	  ln -s ../../javascript/flot flot ; \
+	  ln -s ../../javascript/jquery jquery ; \
+	  ln -s ../../javascript/jquery-ui jquery-ui ; \
+	  ln -s ../../javascript/mochikit mochikit ; \
+	)
+
 override_dh_auto_build:

@@ -5,7 +5,8 @@ Maintainer: DataFlow <jisc.dataflow@gmail.com>
 Build-Depends: debhelper (>= 7.0.50~),
                python-all (>= 2.5),
                python-setuptools,
-               python-support
+               python-support,
+               default-jre
 Standards-Version: 3.9.2
 Vcs-Git: git://github.com/dataflow/DataStage.git
 Homepage: https://github.com/dataflow/DataStage
@@ -15,5 +16,9 @@ Uploaders: Alexander Dutton <alexander.dutton@zoo.ox.ac.uk>
 
 Package: datastage-dataflow
 Architecture: all
-Depends: ${python:Depends}
+Depends: ${python:Depends},
+         libjs-flot,
+         libjs-jquery,
+         libjs-jquery-ui,
+         libjs-mochikit
 
