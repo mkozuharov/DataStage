@@ -20,4 +20,6 @@ Depends: ${python:Depends},
          libjs-jquery,
          libjs-jquery-ui,
          libjs-mochikit
+Description: DataStage allows research groups to manage research data locally,
+             which can then be pushed to an institutional data repository.
 
