@@ -20,7 +20,7 @@ export DISTUTILS_ARGS=--root=debian/tmp \
 	dh $@
 
 override_dh_auto_install:
-	python setup.py install --root=debian/tmp ${DISTUTILS_ARGS}
+	python setup.py install ${DISTUTILS_ARGS}
 
 	# These JS libraries are already packaged for Debian, so use those instead.
 	( cd debian/tmp/usr/share/dataflow/datastage ; \
