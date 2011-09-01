@@ -78,11 +78,20 @@ class sdist(_sdist):
             self.retrieve_jquery_ui()
             self.copy_jslibs()
             self.generate_manifest_in()
+
+            # Remove broken symlinks. See http://bugs.python.org/issue12885 for
+            # an explanation.
+            for root, dirs, files in os.walk(os.curdir):
+                for name in files:
+                    name = os.path.join(root, name)
+                    if os.path.islink(name) and not os.path.exists(os.path.join(name, os.readlink(name))):
+                        os.unlink(name)
+
+            _sdist.run(self)
         except:
             import traceback
             traceback.print_exc()
             raise
-        _sdist.run(self)
 
     def compile_jquery(self):
         subprocess.call(['make'], cwd=self.relative_path('jquery'))
