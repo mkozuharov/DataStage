@@ -24,7 +24,7 @@ override_dh_auto_install:
 
 	# These JS libraries are already packaged for Debian, so use those instead.
 	( cd debian/tmp/usr/share/dataflow/datastage ; \
-	  rm -R flot jquery jquery-ui mochikit ; \
+	  rm -Rf flot jquery jquery-ui mochikit ; \
 	  ln -s ../../javascript/flot flot ; \
 	  ln -s ../../javascript/jquery jquery ; \
 	  ln -s ../../javascript/jquery-ui jquery-ui ; \
