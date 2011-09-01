@@ -200,6 +200,8 @@ class clean(_clean):
     paths_to_remove = [
         ('jquery', 'dist'),
         ('jquery', 'speed'),
+        ('jquery-ui',),
+        ('jquery-ui.zip',),
         ('datastage', 'jquery'),
         ('datastage', 'jquery-ui'),
         ('datastage', 'mochikit'),
