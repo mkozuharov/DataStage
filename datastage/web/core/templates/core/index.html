@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>{{ settings.SITE_NAME }}</h1>
+
+<p>This server hosts research data files created by
+{% if settings.GROUP_URL %}<a href="{{ settings.GROUP_URL }}">{{ settings.GROUP_NAME }}</a>{% else %}{{ settings.GROUP_NAME }}{% endif %}.</p>
+
+<section>
+  <h2>Data in the local file store</h2>
+  
+  <ul>
+    <li><a href="{% url browse:index "" %}">All data</a></li>
+    <li><a href="{% url browse:index "private" %}">Private data</a> — visible to the user who creates it, and to the research group leader(s).</li>
+    <li><a href="{% url browse:index "shared" %}">Shared data</a> — readable by all research group members.</li>
+    <li><a href="{% url browse:index "collab" %}">Collaborative data</a> — readable and writable by all research group members and outside collaborators.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Documentation</h2>
+
+  <ul>
+    <li><a href="docs/fileorganization.html">Data file organization</a></li>
+	<li><a href="">How to create a data package of data files for submission to the Oxford DataBank</a></li>
+    <li><a href="docs/accesswindows.html">Local network file access (Windows)</a></li>
+    <li><a href="docs/accessmacos.html">Local network file access (MacOS)</a></li>
+    <li><a href="docs/accesslinux.html">Local network file access (Linux)</a></li>
+    <li><a href="docs/accesshttp.html">Web broswer access</a></li>
+    <li><a href="docs/accesswebdav.html">Web file system file access (WebDAV)</a></li>
+    <li><a href="docs/accessdirect.html">Secured direct file access (SSH, SCP)</a></li>
+    <li><a href="docs/adminusers.html">User administration: add, remove and password change</a></li>
+  </ul>
+</section>
+
+{% endblock %}

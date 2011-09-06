@@ -1,0 +1,20 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+
+<head>
+  <title>{% block title %}{% endblock %} | {{ settings.SITE_NAME }}</title>
+  <meta charset="utf-8">
+  
+</head>
+
+<body>
+  <div id="body">
+    <header>
+      <div id="site-name">{{ settings.SITE_NAME }}</div>
+    </header>
+    <nav/>
+    <article>{% block content %}{% endblock %}</article>
+  </div>
+</body>
+</html>

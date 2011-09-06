@@ -1,0 +1,49 @@
+{% extends "browse/base.html" %}{% load datastage_browse %}
+
+{% block title %}Index of /{{ path }}{% endblock %}
+
+{% block content %}
+<h1>Index of /{{ path }}</h1>
+
+<p>
+  <a href="?action=zip" title="Download directory as ZIP archive">ZIP</a>
+</p>
+
+<table>
+  <thead>
+    <tr>
+      <th/>
+      <th>Name</th>
+      <th>Last modified</th>
+      <th>Size</th>
+    </tr>
+  </thead>
+  <tbody>
+{% if parent_url %}
+    <tr>
+      <td>UP</td>
+      <td><a href="{{ parent_url }}">Parent directory</a></td>
+      <td/>
+      <td/>
+    </tr>
+{% endif %}
+{% for subpath in subpaths %}
+    <tr>
+      <td>{{ subpath.type|upper }}</td>
+      <td>
+        {% if subpath.link %}<a href="{{ subpath.url }}"{% else %}<span{% endif %} title="{{ subpath.name }}">{{ subpath.name|truncatechars:30 }}{% if subpath.type == "dir" %}/{% endif %}{% if subpath.link %}</a>{% else %}</span>{% endif %}
+      </td>
+      <td>{{ subpath.last_modified }}</td>
+      <td>{% if subpath.type == "file" %}
+        <span title="{{ subpath.stat.st_size }} bytes">{{ subpath.stat.st_size|filesizeformat }}</span>
+          {% else %}—{% endif %}</td>
+    </tr>
+{% empty %}
+    <tr>
+      <td colspan="3">This directory is empty.</td>
+    </tr>
+{% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}
