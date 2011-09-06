@@ -5,14 +5,18 @@ import itertools
 import mimetypes
 import os
 import shutil
+import StringIO
 import subprocess
 import sys
 import tempfile
 from wsgiref.handlers import format_date_time
 
+import DAV.WebDAVServer
+import DAVServer.fshandler
 from django.core.exceptions import PermissionDenied
+from django.core.servers.basehttp import is_hop_by_hop
 from django.core.urlresolvers import reverse
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse, Http404, HttpResponsePermanentRedirect
 from django.views.generic import View
 from django_conneg.decorators import renderer
 from django_conneg.views import ContentNegotiatedView, HTMLView, JSONView, TextView
@@ -45,6 +49,8 @@ class DirectoryView(HTMLView, JSONView):
                 'permissions': permissions,
                 'link': ('execute' if os.path.isdir(subpath_on_disk) else 'read') in permissions,
             })
+            if subpath['type'] == 'dir':
+                subpath['url'] += '/'
         subpaths.sort(key=lambda sp: (sp['type'] != 'dir', sp['name'].lower()))
         
         if path:
@@ -78,14 +84,13 @@ class FileView(View):
         return response
 
 class ForbiddenView(HTMLView, JSONView, TextView):
-    def get(self, request, path):
+    def dispatch(self, request, path):
         context = {
             'path': path,
             'message': 'Access to this path is forbidden.',
             'status_code': httplib.FORBIDDEN,
         }
         return self.render(request, context, 'browse/forbidden')
-    post = put = delete = options = get
 
 class ZipView(ContentNegotiatedView):
     _default_format = 'zip'
@@ -130,16 +135,83 @@ class ZipView(ContentNegotiatedView):
             shutil.rmtree(tempdir)
             sink_file.close()
 
-class IndexView(ContentNegotiatedView):
+class DAVView(View):
+    http_method_names = ['propfind', 'proppatch', 'mkcol', 'copy',
+                         'move', 'lock', 'unlock']
+    
+    class RequestHeaders(dict):
+        def __init__(self, meta):
+            meta = dict((self.norm_key(k[5:]), meta[k]) for k in meta if k.startswith('HTTP_'))
+            super(DAVView.RequestHeaders, self).__init__(meta)
+        def norm_key(self, key):
+            return key.lower().replace('-', '_')
+        def __getitem__(self, key):
+            return super(DAVView.RequestHeaders, self).__getitem__(self.norm_key(key))
+        def get(self, key, default=None):
+            return super(DAVView.RequestHeaders, self).get(self.norm_key(key), default)
+        def __setitem__(self, key, value):
+            return super(DAVView.RequestHeaders, self).__setitem__(self.norm_key(key), value)
+        def __contains__(self, key):
+            return super(DAVView.RequestHeaders, self).__contains__(self.norm_key(key))
+        has_key = __contains__
+
+    class DAVConfig(object):
+        def __init__(self):
+            self.DAV = self
+        def getboolean(self, name):
+            return getattr(self, name)
+        chunked_http_response = False
+    
+    class DAVHandler(DAV.WebDAVServer.DAVRequestHandler):
+        def __init__(self, request):
+            self._request, self._response = request, HttpResponse()
+            self.headers = DAVView.RequestHeaders(request.META)
+            self.request_version = 'HTTP/1.1'
+            self._config = DAVView.DAVConfig()
+            self.command = request.method
+            self.path = request.path
+            self.rfile = StringIO.StringIO(request.raw_post_data)
+            self.headers['Content-Length'] = str(len(request.raw_post_data))
+            self.IFACE_CLASS = DAVServer.fshandler.FilesystemHandler(settings.DATA_DIRECTORY,
+                                                                     request.build_absolute_uri(reverse('browse:index', kwargs={'path':''})))
+            self.IFACE_CLASS._get_dav_getetag = lambda uri: "F"
+            self.wfile = self._response
+            self._BufferedHTTPRequestHandler__buffer = ""
+            self.wfile.write = lambda :1
+        def send_response(self, code, message):
+            self._response.status_code = code
+        def send_header(self, header, value):
+            if not is_hop_by_hop(header):
+                self._response[header] = value
+        def end_headers(self):
+            pass
+        def get_response(self):
+            self._response.content = self._BufferedHTTPRequestHandler__buffer
+            return self._response
+    
+    def dispatch(self, request, path, permissions):
+        if posix1e.ACL_EXECUTE not in permissions:
+            raise PermissionDenied
+        self.dav_hander = DAVView.DAVHandler(request)
+        return super(DAVView, self).dispatch(request)
+    
+    def propfind(self, request):
+        self.dav_hander.do_PROPFIND()
+        return self.dav_hander.get_response()
+
+
+class IndexView(DAVView, ContentNegotiatedView):
 
     directory_view = staticmethod(DirectoryView.as_view())
     file_view = staticmethod(FileView.as_view())
     forbidden_view = staticmethod(ForbiddenView.as_view())
     
     zip_view = staticmethod(ZipView.as_view())
+    
+    http_method_names = ContentNegotiatedView.http_method_names + DAVView.http_method_names
 
     def dispatch(self, request, path):
-        path_parts = path.split('/')
+        path_parts = path.rstrip('/').split('/')
         if path and any(part in ('.', '..', '') for part in path_parts):
             raise Http404
         
@@ -155,13 +227,26 @@ class IndexView(ContentNegotiatedView):
             raise
 
         view = self.directory_view if os.path.isdir(path_on_disk) else self.file_view
+        if view == self.directory_view and path and not path.endswith('/'):
+            return HttpResponsePermanentRedirect(reverse('browse:index', kwargs={'path':path+'/'}))
         
-        action = request.REQUEST.get('action')
-        if action == 'zip' and view == self.directory_view:
-            view = self.zip_view
-
         try:
-            return view(request, path_on_disk, path, permissions)
+            action = request.REQUEST.get('action')
+            if action == 'zip' and os.path.isdir(path_on_disk):
+                return self.zip_view(request, path_on_disk, path, permissions)
+            elif request.method.lower() == 'get':
+                view = self.directory_view if os.path.isdir(path_on_disk) else self.file_view
+                response = view(request, path_on_disk, path, permissions)
+            else:
+                response = super(IndexView, self).dispatch(request, path, permissions)
+            response['Allow'] = ','.join(m.upper() for m in self.http_method_names)
+            response['DAV'] = "1,2"
+            response['MS-Author-Via'] = 'DAV'
+            return response
         except PermissionDenied:
             return self.forbidden_view(request, path)
+        except:
+            import traceback
+            traceback.print_exc()
+            raise
         
