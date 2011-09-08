@@ -11,7 +11,7 @@
 <body>
   <div id="body">
     <header>
-      <div id="site-name">{{ settings.SITE_NAME }}</div>
+      <div id="site-name"><a href="{% url core:index %}">{{ settings.SITE_NAME }}</a></div>
     </header>
     <nav/>
     <article>{% block content %}{% endblock %}</article>
