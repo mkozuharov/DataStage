@@ -30,8 +30,21 @@ class DirectoryView(HTMLView, JSONView):
         if posix1e.ACL_EXECUTE not in permissions:
             raise PermissionDenied
         return super(DirectoryView, self).dispatch(request, path_on_disk, path, permissions)
+    
+    sorts = {
+        'size': lambda sp: (sp['stat']['st_size'] if sp['type'] == 'file' else 0),
+        'name': lambda sp: (sp['type'] != 'dir', sp['name'].lower()),
+        'modified': lambda sp: sp['last_modified'],
+    }
         
     def get(self, request, path_on_disk, path, permissions):
+        
+        try:
+            sort_name = request.GET.get('sort') or 'name'
+            sort_function = self.sorts[request.GET.get('sort', 'name')]
+            sort_reverse = {'true': True, 'false': False}[request.GET.get('reverse', 'false')]
+        except KeyError:
+            raise Http404
 
         stat = os.stat(path_on_disk)
         subpaths = [{'name': name} for name in os.listdir(path_on_disk) if not name.startswith('.')]
@@ -51,14 +64,15 @@ class DirectoryView(HTMLView, JSONView):
             })
             if subpath['type'] == 'dir':
                 subpath['url'] += '/'
-        subpaths.sort(key=lambda sp: (sp['type'] != 'dir', sp['name'].lower()))
-        
+
+        subpaths.sort(key=sort_function, reverse=sort_reverse)
+
         if path:
             parent_url = request.build_absolute_uri(reverse('browse:index',
                                                     kwargs={'path': ''.join(p+'/' for p in path.split('/')[:-2])}))
         else:
             parent_url = None
-        
+
         context = {
             'path': path,
             'parent_url': parent_url,
@@ -66,7 +80,10 @@ class DirectoryView(HTMLView, JSONView):
             'stat': statinfo_to_dict(stat),
             'additional_headers': {
                 'Last-Modified': format_date_time(stat.st_mtime),
-            }
+            },
+            'sort_name': sort_name,
+            'sort_reverse': sort_reverse,
+            'column_names': (('name', 'Name'), ('modified', 'Last modified'), ('size', 'Size')),
         }
 
         return self.render(request, context, 'browse/directory')
