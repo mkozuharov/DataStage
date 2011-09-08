@@ -38,7 +38,7 @@ class DirectoryView(HTMLView, JSONView):
         for subpath in subpaths:
             subpath_on_disk = os.path.join(path_on_disk, subpath['name'])
             subpath_stat = os.lstat(subpath_on_disk)
-            subpath['path'] = '%s/%s' % (path, subpath['name']) if path else subpath['name']
+            subpath['path'] = '%s%s' % (path, subpath['name']) if path else subpath['name']
             permissions = map(permission_map.get, get_permissions(subpath_on_disk, request.user.username))
             subpath.update({
                 'type': 'dir' if os.path.isdir(subpath_on_disk) else 'file',
@@ -55,7 +55,7 @@ class DirectoryView(HTMLView, JSONView):
         
         if path:
             parent_url = request.build_absolute_uri(reverse('browse:index',
-                                                    kwargs={'path': '/'.join(path.split('/')[:-1])}))
+                                                    kwargs={'path': ''.join(p+'/' for p in path.split('/')[:-2])}))
         else:
             parent_url = None
         
