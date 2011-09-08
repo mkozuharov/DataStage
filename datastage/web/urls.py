@@ -5,7 +5,7 @@ from django.conf.urls.defaults import patterns, include, url
 # admin.autodiscover()
 
 urlpatterns = patterns('',
-    url(r'^browse/', include('datastage.web.browse.urls', 'browse')),
+    url(r'^data/', include('datastage.web.browse.urls', 'browse')),
     url(r'^dataset/', include('datastage.web.dataset.urls', 'dataset')),
     url(r'^', include('datastage.web.core.urls', 'core')),
 )
