@@ -4,7 +4,10 @@
 
 <head>
   <title>{% block title %}{% endblock %} | {{ settings.SITE_NAME }}</title>
-  <meta charset="utf-8">
+  <meta charset="utf-8"/>
+  <link rel="stylesheet" href="{{ STATIC_URL }}base.css" type="text/css"/>
+  <script type="application/javascript" src="http://code.jquery.com/jquery-1.6.4.min.js"></script>
+  <script type="application/javascript" src="{{ STATIC_URL }}base.js"></script>
   
 </head>
 

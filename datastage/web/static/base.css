@@ -1,0 +1,45 @@
+body {
+  font-family: "Liberation Sans", Arial, sans-serif;
+}
+
+.meta-title {
+  width:200px;
+  display: block;
+  padding:5px;
+  cursor: pointer;
+  height:100%;
+}
+
+.meta-title:hover {
+  background-color: #eea;
+}
+
+table.directory-listing {
+  border:1px solid #888;
+  border-collapse: collapse;
+  width:100%;
+}
+
+table.directory-listing td, table.directory-listing th {
+  padding: 5px;
+}
+
+table.directory-listing tr:hover {
+  background-color: #ee8;
+}
+
+th, th a, th a:hover {
+  background-color: #444;
+  color: #eee;
+}
+
+tr.row-odd {
+  background-color: #eee;
+}
+tr.row-even {
+  background-color: #ddd;
+}
+
+td.directory-empty {
+  text-align:center;
+}

@@ -4,11 +4,14 @@ import httplib
 import itertools
 import mimetypes
 import os
+import pwd
 import shutil
 import StringIO
 import subprocess
 import sys
 import tempfile
+import urllib
+import xattr
 from wsgiref.handlers import format_date_time
 
 import DAV.WebDAVServer
@@ -18,6 +21,7 @@ from django.core.servers.basehttp import is_hop_by_hop
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, Http404, HttpResponsePermanentRedirect
 from django.views.generic import View
+from django_conneg.http import HttpResponseSeeOther
 from django_conneg.decorators import renderer
 from django_conneg.views import ContentNegotiatedView, HTMLView, JSONView, TextView
 import posix1e
@@ -36,9 +40,8 @@ class DirectoryView(HTMLView, JSONView):
         'name': lambda sp: (sp['type'] != 'dir', sp['name'].lower()),
         'modified': lambda sp: sp['last_modified'],
     }
-        
-    def get(self, request, path_on_disk, path, permissions):
-        
+    
+    def get_subpath_data(self, request, path_on_disk, path):
         try:
             sort_name = request.GET.get('sort') or 'name'
             sort_function = self.sorts[request.GET.get('sort', 'name')]
@@ -46,7 +49,6 @@ class DirectoryView(HTMLView, JSONView):
         except KeyError:
             raise Http404
 
-        stat = os.stat(path_on_disk)
         subpaths = [{'name': name} for name in os.listdir(path_on_disk) if not name.startswith('.')]
         for subpath in subpaths:
             subpath_on_disk = os.path.join(path_on_disk, subpath['name'])
@@ -62,17 +64,36 @@ class DirectoryView(HTMLView, JSONView):
                 'permissions': permissions,
                 'link': ('execute' if os.path.isdir(subpath_on_disk) else 'read') in permissions,
             })
+            try:
+                pw_user = pwd.getpwuid(subpath_stat.st_uid)
+                subpath.update({'owner_name': pw_user.pw_gecos,
+                                'owner_username': pw_user.pw_name})
+            except KeyError:
+                subpath['owner'] = None
+            for permission in permissions:
+                subpath['can_%s' % permission] = True
             if subpath['type'] == 'dir':
                 subpath['url'] += '/'
+            if subpath['link']:
+                subpath['xattr'] = dict((k, v) for k,v in xattr.get_all(subpath_on_disk) if k.startswith('user.'))
+                subpath['title'] = subpath['xattr'].get('user.dublincore.title')
+                subpath['description'] = subpath['xattr'].get('user.dublincore.description')
 
         subpaths.sort(key=sort_function, reverse=sort_reverse)
-
+        
+        return subpaths, sort_name, sort_reverse
+        
+        
+    def get(self, request, path_on_disk, path, permissions):
         if path:
             parent_url = request.build_absolute_uri(reverse('browse:index',
                                                     kwargs={'path': ''.join(p+'/' for p in path.split('/')[:-2])}))
         else:
             parent_url = None
-
+            
+        subpaths, sort_name, sort_reverse = self.get_subpath_data(request, path_on_disk, path)
+        
+        stat = os.stat(path_on_disk)
         context = {
             'path': path,
             'parent_url': parent_url,
@@ -83,10 +104,27 @@ class DirectoryView(HTMLView, JSONView):
             },
             'sort_name': sort_name,
             'sort_reverse': sort_reverse,
-            'column_names': (('name', 'Name'), ('modified', 'Last modified'), ('size', 'Size')),
+            'column_names': (('name', 'Name'), ('modified', 'Last modified'), ('size', 'Size'), ('owner_name', 'Owner')),
         }
 
         return self.render(request, context, 'browse/directory')
+    
+    def post(self, request, path_on_disk, path, permissions):
+        subpaths, sort_name, sort_reverse = self.get_subpath_data(request, path_on_disk, path)
+
+        for subpath in subpaths:
+            subpath_on_disk = os.path.join(path_on_disk, subpath['name'])
+            if 'write' not in subpath['permissions']:
+                continue
+            part = urllib.quote(subpath['name'])
+            for field in ('title', 'description'):
+                value = request.POST.get('meta-%s-%s' % (field, part))
+                if value == "":
+                    xattr.removexattr(subpath_on_disk, 'user.dublincore.' + field)
+                elif value:
+                    xattr.setxattr(subpath_on_disk, 'user.dublincore.' + field, request.POST['meta-%s-%s' % (field, part)])
+        return HttpResponseSeeOther('')
+                
 
 class FileView(View):
     def get(self, request, path_on_disk, path, permissions):
@@ -251,7 +289,7 @@ class IndexView(DAVView, ContentNegotiatedView):
             action = request.REQUEST.get('action')
             if action == 'zip' and os.path.isdir(path_on_disk):
                 return self.zip_view(request, path_on_disk, path, permissions)
-            elif request.method.lower() == 'get':
+            elif request.method.lower() in ('get', 'post'):
                 view = self.directory_view if os.path.isdir(path_on_disk) else self.file_view
                 response = view(request, path_on_disk, path, permissions)
             else:
