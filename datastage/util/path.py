@@ -77,7 +77,7 @@ def get_permissions(path, user, check_prefixes=False):
             if not _check_permission(acl, user, st, (posix1e.ACL_EXECUTE,)):
                 raise IOError(errno.EACCES, None, prefix)
     
-    acl = posix1e.ACL(file=path)
+    acl = posix1e.ACL(file=path.encode('utf-8'))
     st = os.stat(path)
     
     return set(p for p in (posix1e.ACL_READ, posix1e.ACL_WRITE, posix1e.ACL_EXECUTE) if \

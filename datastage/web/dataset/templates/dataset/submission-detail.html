@@ -1,0 +1,19 @@
+{% extends "dataset/base.html" %}
+
+{% block content %}
+<article>
+  <h1>Dataset submission: {{ dataset_submission.title }}</h1>
+  
+  <table>
+    <tbody>
+      <tr><th>Title:</th><td>{{ dataset_submission.title }}</td></tr>
+      <tr><th>Description:</th><td>{{ dataset_submission.description }}</td></tr>
+      <tr><th>Identifier:</th><td>{{ dataset_submission.identifier }}</td></tr>
+      <tr><th>Repository:</th><td>{{ dataset_submission.repository }}</td></tr>
+      <tr><th>Status:</th><td>{{ dataset_submission.get_status_display }}</td></tr>
+      <tr><th>Queued by:</th><td>{{ dataset_submission.submitting_user }}</td></tr>
+      <tr><th>Queued at:</th><td>{{ dataset_submission.queued_at }}</td></tr>
+      <tr><th>Last updated:</th><td>{{ dataset_submission.last_updated }}</td></tr>
+      <tr><th>Remote URL:</th><td><a href="{{ dataset_submission.remote_url }}">{{ dataset_submission.remote_url }}</a></td></tr>
+</article>
+{% endblock %}

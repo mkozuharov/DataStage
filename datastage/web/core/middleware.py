@@ -33,4 +33,5 @@ class DataStageUser(object):
     
 class UserMiddleware(object):
     def process_request(self, request):
-        request.user = DataStageUser(request)
+        pass
+        #request.user = DataStageUser(request)

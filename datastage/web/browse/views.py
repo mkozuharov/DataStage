@@ -21,6 +21,8 @@ from django.core.servers.basehttp import is_hop_by_hop
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, Http404, HttpResponsePermanentRedirect
 from django.views.generic import View
+from django.utils.decorators import method_decorator
+from django.contrib.auth.decorators import login_required
 from django_conneg.http import HttpResponseSeeOther
 from django_conneg.decorators import renderer
 from django_conneg.views import ContentNegotiatedView, HTMLView, JSONView, TextView
@@ -265,6 +267,7 @@ class IndexView(DAVView, ContentNegotiatedView):
     
     http_method_names = ContentNegotiatedView.http_method_names + DAVView.http_method_names
 
+    @method_decorator(login_required)
     def dispatch(self, request, path):
         path_parts = path.rstrip('/').split('/')
         if path and any(part in ('.', '..', '') for part in path_parts):

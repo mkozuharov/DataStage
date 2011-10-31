@@ -13,8 +13,8 @@ MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': '',                      # Or path to database file if using sqlite3.
+        'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
+        'NAME': 'web.sqlite',                      # Or path to database file if using sqlite3.
         'USER': '',                      # Not used with sqlite3.
         'PASSWORD': '',                  # Not used with sqlite3.
         'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
@@ -124,14 +124,22 @@ TEMPLATE_DIRS = (
 
 INSTALLED_APPS = (
     'django.contrib.auth',
+    'django.contrib.admin',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_conneg',
+    'django_longliving',
     'datastage.web.core',
     'datastage.web.browse',
+    'datastage.web.dataset',
+    'datastage.web.user',
 )
+
+LOGIN_URL = '/login/'
+LOGOUT_URL = '/logout/'
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
@@ -155,3 +163,10 @@ LOGGING = {
         },
     }
 }
+
+# For django_longliving
+LONGLIVING_CLASSES = set(['datastage.dataset.longliving.submission.SubmissionThread'])
+
+REDIS_PARAMS = {'host': 'localhost',
+                'port': 6379,
+                'db': 15}
