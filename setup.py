@@ -255,6 +255,6 @@ setup(
     data_files=data_files,
     install_requires=install_requires,
     dependency_links=dependency_links,
-    cmdclass={'sdist': sdist,
-              'clean': clean},
+    #cmdclass={'sdist': sdist,
+    #          'clean': clean},
 )
