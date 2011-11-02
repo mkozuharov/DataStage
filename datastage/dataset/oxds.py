@@ -75,7 +75,7 @@ class OXDSDataset(Dataset):
                     self._manifest.add((uri, RDF.type, FOAF.Document))
                 
                 
-                xattr_data = dict(xattr.get_all(filename))
+                xattr_data = dict(xattr.xattr(filename))
                 self._update_field(uri, DCTERMS['title'], xattr_data.get('user.dublincore.title'))
                 self._update_field(uri, DCTERMS.description, xattr_data.get('user.dublincore.description'))
         for uri in self._manifest.subjects(RDF.type, FOAF.Document):

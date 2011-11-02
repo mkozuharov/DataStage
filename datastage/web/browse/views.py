@@ -77,7 +77,11 @@ class DirectoryView(HTMLView, JSONView):
             if subpath['type'] == 'dir':
                 subpath['url'] += '/'
             if subpath['link']:
-                subpath['xattr'] = dict((k, v) for k,v in xattr.get_all(subpath_on_disk) if k.startswith('user.'))
+                subpath['xattr'] = dict(xattr.xattr(subpath_on_disk))
+                # Only expose user-space extended attributes
+                for k in list(subpath['xattr']):
+                    if not k.startswith('user.'):
+                        del subpath['xattr'][k]
                 subpath['title'] = subpath['xattr'].get('user.dublincore.title')
                 subpath['description'] = subpath['xattr'].get('user.dublincore.description')
 
@@ -119,12 +123,14 @@ class DirectoryView(HTMLView, JSONView):
             if 'write' not in subpath['permissions']:
                 continue
             part = urllib.quote(subpath['name'])
+            subpath_xattr = xattr.xattr(subpath_on_disk)
             for field in ('title', 'description'):
+                key = 'user.dublincore.' + field
                 value = request.POST.get('meta-%s-%s' % (field, part))
-                if value == "":
-                    xattr.removexattr(subpath_on_disk, 'user.dublincore.' + field)
+                if value == "" and field in subpath_xattr:
+                    del subpath_xattr[field]
                 elif value:
-                    xattr.setxattr(subpath_on_disk, 'user.dublincore.' + field, request.POST['meta-%s-%s' % (field, part)])
+                    subpath_xattr[field] = value
         return HttpResponseSeeOther('')
                 
 
