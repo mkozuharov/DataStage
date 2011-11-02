@@ -71,7 +71,7 @@ ADMIN_MEDIA_PREFIX = '/static/admin/'
 
 # Additional locations of static files
 STATICFILES_DIRS = (
-    os.path.join(os.path.dirname(__name__), 'static'),
+    os.path.join(os.path.dirname(__file__), 'static'),
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
@@ -170,3 +170,8 @@ LONGLIVING_CLASSES = set(['datastage.dataset.longliving.submission.SubmissionThr
 REDIS_PARAMS = {'host': 'localhost',
                 'port': 6379,
                 'db': 15}
+
+AUTHENTICATION_BACKENDS = (
+    'dpam.backends.PAMBackend',
+)
+
