@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}Unauthorized{% endblock %}
+
+{% block content %}
+
+<article>
+  <h1>Unauthorized</h1>
+  
+  <p>You need to supply valid credentials to view this resource, either:</p>
+  
+  <ul>
+    <li>using HTTP Basic Auth, or</li>
+    <li>by using the <a href="{{ login_url }}?next={{ next|urlencode }}">login form</a></li>
+  </ul>
+</article>
+
+{% endblock %}
