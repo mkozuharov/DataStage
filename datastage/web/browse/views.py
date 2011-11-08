@@ -224,23 +224,21 @@ class IndexView(DAVView, ContentNegotiatedView):
         try:
             permissions = get_permissions(path_on_disk, request.user.username, check_prefixes=True)
         except IOError, e:
-            if e.errno == errno.ENOENT:
+            if e.errno == errno.ENOENT and request.method not in ('PUT',):
                 raise Http404
             elif e.errno == errno.EACCES:
                 return self.forbidden_view(request, path)
             raise
 
-        view = self.directory_view if os.path.isdir(path_on_disk) else self.file_view
-        if view == self.directory_view and path and not path.endswith('/'):
-            return HttpResponsePermanentRedirect(reverse('browse:index', kwargs={'path':path+'/'}))
-        
         try:
             # action views are additional bits of behaviour for a location
             action_view = self.action_views.get(request.REQUEST.get('action'))
             if action_view:
                 return action_view(request, path_on_disk, path, permissions)
-            elif request.method.lower() in ('get', 'post'):
+            elif request.method.lower() in ('get', 'head', 'post'):
                 view = self.directory_view if os.path.isdir(path_on_disk) else self.file_view
+                if view == self.directory_view and path and not path.endswith('/'):
+                    return HttpResponsePermanentRedirect(reverse('browse:index', kwargs={'path':path+'/'}))
                 response = view(request, path_on_disk, path, permissions)
             else:
                 response = super(IndexView, self).dispatch(request, path, permissions)
