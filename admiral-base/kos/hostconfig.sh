@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Configuration parameters for host Zakynthos
+# Configuration parameters for host Kos
 #
 # (See also: admiralconfig.sh)
 #
@@ -8,7 +8,7 @@
 RESEARCHGROUPNAME="ADMIRAL Test System"
 
 ADMIRALDOMAINDC="zoo ox ac uk"
-ADMIRALHOSTNAME="zakynthos"
+ADMIRALHOSTNAME="kos"
 
 # Samba/Windows workgroup name for research group files
 WORKGROUP="TestGroup"

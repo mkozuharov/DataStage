@@ -61,8 +61,10 @@ addorphanedtestuser.sh /root/addorphanedtestuser.sh
 apache2.conf /root/apache2.conf
 createapacheuserconfig.sh /root/createapacheuserconfig.sh
 www/index.html /var/www/index.html
+www/images /var/www/images
 www/images/Admiral-logo-284x100.png /var/www/images/Admiral-logo-284x100.png
 www/images/AdmiralToDataBank-284x100.png /var/www/images/AdmiralToDataBank-284x100.png
+www/docs /var/www/docs
 www/docs/accessdirect.html /var/www/docs/accessdirect.html
 www/docs/accesshttp.html /var/www/docs/accesshttp.html
 www/docs/accesslinux.html /var/www/docs/accesslinux.html
@@ -71,10 +73,13 @@ www/docs/accesswebdav.html /var/www/docs/accesswebdav.html
 www/docs/accesswindows.html /var/www/docs/accesswindows.html
 www/docs/adminusers.html /var/www/docs/adminusers.html
 www/docs/fileorganization.html /var/www/docs/fileorganization.html
+www/js /var/www/js
 www/js/admiral-config.js /var/www/js/admiral-config.js
 www/js/jquery-1.4.2.min.js /var/www/js/jquery-1.4.2.min.js
 www/js/jquery.treeview.min.js /var/www/js/jquery.treeview.min.js
+www/css /var/www/css
 www/css/jquery.treeview.css /var/www/css/jquery.treeview.css
+www/css/images /var/www/css/images
 www/css/images/file.gif /var/www/css/images/file.gif
 www/css/images/folder-closed.gif /var/www/css/images/folder-closed.gif
 www/css/images/folder.gif /var/www/css/images/folder.gif
