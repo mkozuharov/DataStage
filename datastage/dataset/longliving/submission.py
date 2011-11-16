@@ -36,9 +36,11 @@ class SubmissionThread(LonglivingThread):
         opener = openers.get_opener(dataset_submission.repository,
                                     dataset_submission.submitting_user)
         
-        for status in dataset.complete_submission(opener, dataset_submission.repository):
+        def update_status(status):
             logger.debug("Status updated to %r", status)
             dataset_submission.status = status
             dataset_submission.save()
-        
+
+        dataset.complete_submission(opener, dataset_submission.repository, update_status)
+
         logger.info("Submission completed")

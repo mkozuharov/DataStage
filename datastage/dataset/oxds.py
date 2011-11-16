@@ -105,6 +105,7 @@ class OXDSDataset(Dataset):
             raise self.DatasetIdentifierAlreadyExists
         else:
             try:
+                # Attempt to create new dataset
                 response = opener.open(repository.homepage + 'datasets/' + self.identifier,
                                        urllib.urlencode({'title': self.title}))
             except urllib2.HTTPError, e:
@@ -117,8 +118,8 @@ class OXDSDataset(Dataset):
 
             return response.headers.get('Location', response.url)
     
-    def complete_submission(self, opener, repository):
-        yield 'started'
+    def complete_submission(self, opener, repository, update_status):
+        update_status('started')
         
         logger.debug("Updating manifest in readiness for submitting dataset")
         self.save()
@@ -155,7 +156,7 @@ class OXDSDataset(Dataset):
             
             zip.close()
             
-            yield 'transfer'
+            update_status('transfer')
             logger.debug("Starting transfer to repository")
             
             stat_info = os.stat(filename)
@@ -184,6 +185,6 @@ class OXDSDataset(Dataset):
             os.unlink(filename)
         
         
-        yield 'submitted'
+        update_status('submitted')
             
 
