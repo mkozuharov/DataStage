@@ -1,3 +1,6 @@
+# This will monkey-patch django.contrib.auth.models.User
+__import__("datastage.web.user.models")
+
 from django.conf.urls.defaults import patterns, include, url
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 

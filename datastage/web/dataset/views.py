@@ -108,11 +108,11 @@ class SubmitView(HTMLView, RedisView):
             
         else:
             form.instance.status = 'queued'
-        
-            self.redis.rpush(SUBMISSION_QUEUE, self.pack(form.instance.id))
             form.instance.queued_at = datastage.util.datetime.now()
             form.instance.save()
-        
+
+            self.redis.rpush(SUBMISSION_QUEUE, self.pack(form.instance.id))
+
         
         return HttpResponseSeeOther(redirect_url)
 

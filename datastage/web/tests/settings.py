@@ -1,0 +1,1 @@
+from datastage.web.settings import *
