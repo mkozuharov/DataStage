@@ -12,3 +12,4 @@ else:
 
 def now():
     return pytz.utc.localize(datetime.datetime.utcnow()).astimezone(timezone)
+

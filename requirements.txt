@@ -1,0 +1,12 @@
+oauth2
+rdflib
+pylibacl
+Django>=1.3.1
+django-conneg>=0.5
+django-longliving
+lxml
+pytz
+xattr
+pam
+-e hg+https://bitbucket.org/maze/django-pam#egg=dpam
+

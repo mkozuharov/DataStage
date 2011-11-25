@@ -96,11 +96,11 @@ TEMPLATE_LOADERS = (
 )
 
 MIDDLEWARE_CLASSES = (
-    'datastage.web.core.middleware.UserMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'datastage.web.auth.middleware.BasicAuthMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
 )
 
@@ -132,6 +132,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django_conneg',
     'django_longliving',
+    'datastage.web.auth',
     'datastage.web.core',
     'datastage.web.browse',
     'datastage.web.dataset',
@@ -174,3 +175,4 @@ REDIS_PARAMS = {'host': 'localhost',
 AUTHENTICATION_BACKENDS = (
     'dpam.backends.PAMBackend',
 )
+
