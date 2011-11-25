@@ -77,7 +77,7 @@ class DirectoryView(HTMLView, JSONView):
             if subpath['type'] == 'dir':
                 subpath['url'] += '/'
             if subpath['link']:
-                subpath['xattr'] = dict((k, v) for k,v in xattr.get_all(subpath_on_disk) if k.startswith('user.'))
+                subpath['xattr'] = dict((k, xattr.getxattr(subpath_on_disk, k)) for k in xattr.listxattr(subpath_on_disk) if k.startswith('user.'))
                 subpath['title'] = subpath['xattr'].get('user.dublincore.title')
                 subpath['description'] = subpath['xattr'].get('user.dublincore.description')
 
@@ -121,7 +121,7 @@ class DirectoryView(HTMLView, JSONView):
             part = urllib.quote(subpath['name'])
             for field in ('title', 'description'):
                 value = request.POST.get('meta-%s-%s' % (field, part))
-                if value == "":
+                if value == "" and ('user.dublincore.' + field) in xattr.listxattr(subpath_on_disk):
                     xattr.removexattr(subpath_on_disk, 'user.dublincore.' + field)
                 elif value:
                     xattr.setxattr(subpath_on_disk, 'user.dublincore.' + field, request.POST['meta-%s-%s' % (field, part)])

@@ -11,5 +11,4 @@ else:
     timezone = pytz.timezone(settings.TIME_ZONE)
 
 def now():
-    print datetime.datetime
     return pytz.utc.localize(datetime.datetime.utcnow()).astimezone(timezone)
