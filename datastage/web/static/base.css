@@ -28,10 +28,10 @@ table.directory-listing tr:hover {
   background-color: #ee8;
 }
 
-th, th a, th a:hover {
-  background-color: #444;
-  color: #eee;
+table.directory-listing th a {
+  color:#ffffff;
 }
+
 
 tr.row-odd {
   background-color: #eee;
