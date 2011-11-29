@@ -1,17 +1,13 @@
 import datetime
 import errno
 import httplib
-import itertools
 import mimetypes
 import os
 import pwd
-import shutil
-import subprocess
-import sys
 import tempfile
-import traceback
 import urllib
 import xattr
+import zipfile
 from wsgiref.handlers import format_date_time
 
 from django.core.exceptions import PermissionDenied
@@ -158,11 +154,6 @@ class ZipView(ContentNegotiatedView):
     _default_format = 'zip'
     _force_fallback_format = 'zip'
 
-    _sink_filename = {'linux2': '/dev/null',
-                      'win32': 'NUL:',
-                      'cygwin': 'NUL:',
-                      'darwin': 'dev/null'}[sys.platform]
-
     def get(self, request, path_on_disk, path, permissions):
         if posix1e.ACL_EXECUTE not in permissions:
             raise PermissionDenied
@@ -172,35 +163,40 @@ class ZipView(ContentNegotiatedView):
 
     @renderer(format='zip', mimetypes=('application/zip',), name='ZIP archive')
     def render_zip(self, request, context, template_name):
-        tempdir = tempfile.mkdtemp()
-        sink_file = open(self._sink_filename, 'w')
 
-        parent_dir = os.path.dirname(context['path_on_disk'])
+        temp_file = tempfile.TemporaryFile()
+        basename = os.path.basename(context['path_on_disk'])
+
         try:
-            filename = os.path.join(tempdir, 'temp.zip')
-            zip_process = subprocess.Popen(['zip', filename, '-@'],
-                                           cwd=parent_dir,
-                                           stdin=subprocess.PIPE,
-                                           stdout=sink_file)
-            for root, dirs, files in os.walk(context['path_on_disk']):
-                dirs[:] = [d for d in dirs if has_permission(os.path.join(root, d), request.user.username, posix1e.ACL_EXECUTE)]
-                files[:] = [f for f in files if has_permission(os.path.join(root, f), request.user.username, posix1e.ACL_READ)]
-                paths = itertools.chain([root], files)
-                for path in paths:
-                    zip_process.stdin.write(os.path.relpath(os.path.join(root, path), parent_dir) + '\n')
-            zip_process.stdin.close()
-            zip_process.wait()
+            zip_file = zipfile.ZipFile(temp_file, 'w', compression=zipfile.ZIP_DEFLATED)
+        except:
+            zip_file = zipfile.ZipFile(temp_file, 'w')
 
-            response = HttpResponse(open(filename, 'rb'), mimetype='application/zip')
-            response['Content-Length'] = os.stat(filename).st_size
-            response['Content-Disposition'] = 'attachment;filename=%s.zip' % os.path.basename(context['path_on_disk'])
-            return response
-        finally:
-            shutil.rmtree(tempdir)
-            sink_file.close()
+        for root, dirs, files in os.walk(context['path_on_disk']):
+            dirs[:] = [d for d in dirs if has_permission(os.path.join(root, d), request.user.username, posix1e.ACL_EXECUTE)]
+            files[:] = [f for f in files if has_permission(os.path.join(root, f), request.user.username, posix1e.ACL_READ)]
+            for fn in files:
+                fn = os.path.join(root, fn)
+                zip_file.write(fn,
+                               os.path.join(basename,
+                                            os.path.relpath(fn, context['path_on_disk'])))
 
+        # This is a bit of a hack as ZipFile won't write anything if we
+        # haven't added any files
+        zip_file._didModify = True
 
+        # We've finished adding files. Flush everything, work out how much has
+        # been written and return to the start so we can serve the file back
+        # to the user.
+        zip_file.close()
+        temp_file.flush()
+        content_length = temp_file.tell()
+        temp_file.seek(0)
 
+        response = HttpResponse(temp_file, mimetype='application/zip')
+        response['Content-Length'] = content_length
+        response['Content-Disposition'] = 'attachment;filename=%s.zip' % urllib.quote(basename)
+        return response
 
 class IndexView(DAVView, ContentNegotiatedView):
 
