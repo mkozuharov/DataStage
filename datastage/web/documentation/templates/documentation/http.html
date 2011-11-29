@@ -1,0 +1,22 @@
+{% extends "documentation/base.html" %}
+
+{% block title %}Web browser access{% endblock %}
+
+{% block content %}
+
+<h1>Web browser access</h1>
+
+<p>Files are available for browsing and download using a web browser at
+   <a href="{% url browse:index "" %}">http{{ is_secure|yesno:"s," }}://{{ hostname }}{% url browse:index "" %}</a>.</p>
+
+<p>A username and password will be required to access the information. For
+   files in a user's private area, that particular user's credentials must be
+   used.</p>
+
+<p>For files in the <code>shared</code> area, any research group member's
+   credentials may be used.</p>
+
+<p>For <code>collab</code> files any group member's or recognised
+   collaborator's credentials may be used.</p>
+
+{% endblock %}
