@@ -1,0 +1,67 @@
+{% extends "documentation/base.html" %}
+
+{% block title %}Accessing data using WebDAV{% endblock %}
+
+{% block content %}
+
+<h1>Accessing data using WebDAV</h1>
+
+<p>Selected ADMIRAL data files may be accessed using the web file access
+   protocol, using one of the following forms of URL:
+
+<ul id="webdav-urls">
+  <li><a href="http{{ is_secure|yesno:"s," }}://{{ hostname }}{% url browse:index "private/" %}">http{{ is_secure|yesno:"s," }}://{{ hostname }}{% url browse:index "private/" %}</a></li>
+  <li><a href="http{{ is_secure|yesno:"s," }}://{{ hostname }}{% url browse:index "shared/" %}">http{{ is_secure|yesno:"s," }}://{{ hostname }}{% url browse:index "shared/" %}</a></li>
+  <li><a href="http{{ is_secure|yesno:"s," }}://{{ hostname }}{% url browse:index "collab/" %}">http{{ is_secure|yesno:"s," }}://{{ hostname }}{% url browse:index "collab/" %}</a></li>
+</ul>
+
+<p>A username and password will be required.  Access controls are enforced as
+   described for local network file access page.</p>
+
+<p>Web file access (WebDAV) support is slower and sometimes less reliable than
+   local network file sharing. It is provided for two main reasons:</p>
+
+<ol>
+  <li>It can be used from a system outside the Zoology Department network.</li>
+  <li>It can be used by web browser based applications used for annotation,
+      visualization and other tasks.</li>
+</ol>
+
+<section>
+  <h2>Web file access using Windows</h2>
+
+  <p>Currently, the Windows web file access software does not work with the
+     ADMIRAL server and file protection arrangements &mdash; we'll be looking
+     in to this.</p>
+</section>
+
+<section>
+  <h2>Web file access using MacOS</h2>
+
+  <p>To connect a web file system share from MacOS, use the Finder "Go →
+     Connect to server&hellip;" menu command (or ⌘-K shortcut), and enter one
+     of the <a href="#webdav-urls">URLs shown above</a> as the server address.</p>
+
+  <p>The system will then prompt for a username and password.</p>
+</section>
+
+<section>
+  <h2>Web file access using Linux</h2>
+
+  <p>Under Linux with GNOME, the ADMIRAL web file system content can be
+     accessed in similar fashion to a local file system, but using the web
+     address.</p>
+
+  <p>Use the "Places → Connect to server&hellip;" menu command. In the pop-up
+     window, from the "Service type" drop-down menu, select
+     "{% if is_secure %}Secure WebDAV (HTTPS){% else %}WebDAV (HTTP){% endif %}".
+     Under "Server" enter <code>{{ hostname }}</code> and under "Folder" enter
+     <code>data/</code>. Fill in the username and password fields with your
+     local credentials for this site.</p>
+
+  <p>An alternative mechanism for reading and writing files under Linux is to
+     use the <code>cadaver</code> command-line utility, specifying one of the
+     URL forms listed above.</p>
+</section>
+
+{% endblock %}

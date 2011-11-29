@@ -137,6 +137,7 @@ INSTALLED_APPS = (
     'datastage.web.browse',
     'datastage.web.dataset',
     'datastage.web.user',
+    'datastage.web.documentation',
 )
 
 LOGIN_URL = '/login/'
