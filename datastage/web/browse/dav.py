@@ -42,14 +42,14 @@ class FilesystemHandler(DAVServer.fshandler.FilesystemHandler):
         local = os.path.relpath(urlparse.urlparse(uri)[2],
                                 urlparse.urlparse(self.baseuri)[2])
         local = os.path.normpath(os.path.join(self.directory, local))
-        
+
         #root = os.path.normpath(self.directory).split(os.path.sep)
         #if local.split(os.path.sep)[:len(root)] != root:
         #    print self.directory, local
         #    raise PermissionDenied
 
         return local
-    
+
     def local2uri(self, local):
         print local, urlparse.urljoin(self.baseuri,
                                 os.path.relpath(local, self.directory))
@@ -91,16 +91,16 @@ class DAVView(View):
 
     http_method_names = ['propfind', 'proppatch', 'mkcol', 'copy',
                          'move', 'lock', 'unlock', 'put']
-    
+
     data_directory = None
-    
+
     def dispatch(self, request, path, permissions):
         self.filesystem_handler = FilesystemHandler(self.data_directory,
                                                     request.build_absolute_uri(reverse('browse:index', kwargs={'path':''})))
         self.dav_hander = DAVHandler(request,
                                      self.filesystem_handler)
         return super(DAVView, self).dispatch(request, path, permissions)
-    
+
     def get_permissions(self, uri):
         return get_permissions(self.filesystem_handler.uri2local(uri),
                                self.request.user.username,
@@ -114,7 +114,7 @@ class DAVView(View):
             raise PermissionDenied
         elif not os.path.isdir(self.path_on_disk) and posix1e.ACL_READ not in permissions:
             raise PermissionDenied
-        
+
         self.dav_hander.do_PROPFIND()
         return self.dav_hander.get_response()
 
@@ -124,7 +124,7 @@ class DAVView(View):
         except KeyError:
             return HttpResponseBadRequest()
 
-        # Check that the user can write
+        # Check that the user can write 
 
         # Check that the destination isn't outside of the data directory
         destination = self.filesystem_handler.uri2local(destination)

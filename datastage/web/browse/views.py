@@ -6,7 +6,6 @@ import mimetypes
 import os
 import pwd
 import shutil
-import StringIO
 import subprocess
 import sys
 import tempfile
@@ -36,13 +35,13 @@ class DirectoryView(HTMLView, JSONView):
         if posix1e.ACL_EXECUTE not in permissions:
             raise PermissionDenied
         return super(DirectoryView, self).dispatch(request, path_on_disk, path, permissions)
-    
+
     sorts = {
         'size': lambda sp: (sp['stat']['st_size'] if sp['type'] == 'file' else 0),
         'name': lambda sp: (sp['type'] != 'dir', sp['name'].lower()),
         'modified': lambda sp: sp['last_modified'],
     }
-    
+
     def get_subpath_data(self, request, path_on_disk, path):
         try:
             sort_name = request.GET.get('sort') or 'name'
@@ -86,19 +85,19 @@ class DirectoryView(HTMLView, JSONView):
                 subpath['description'] = subpath['xattr'].get('user.dublincore.description')
 
         subpaths.sort(key=sort_function, reverse=sort_reverse)
-        
+
         return subpaths, sort_name, sort_reverse
-        
-        
+
+
     def get(self, request, path_on_disk, path, permissions):
         if path:
             parent_url = request.build_absolute_uri(reverse('browse:index',
-                                                    kwargs={'path': ''.join(p+'/' for p in path.split('/')[:-2])}))
+                                                    kwargs={'path': ''.join(p + '/' for p in path.split('/')[:-2])}))
         else:
             parent_url = None
-            
+
         subpaths, sort_name, sort_reverse = self.get_subpath_data(request, path_on_disk, path)
-        
+
         stat = os.stat(path_on_disk)
         context = {
             'path': path,
@@ -114,7 +113,7 @@ class DirectoryView(HTMLView, JSONView):
         }
 
         return self.render(request, context, 'browse/directory')
-    
+
     def post(self, request, path_on_disk, path, permissions):
         subpaths, sort_name, sort_reverse = self.get_subpath_data(request, path_on_disk, path)
 
@@ -132,7 +131,7 @@ class DirectoryView(HTMLView, JSONView):
                 elif value:
                     subpath_xattr[field] = value
         return HttpResponseSeeOther('')
-                
+
 
 class FileView(View):
     def get(self, request, path_on_disk, path, permissions):
@@ -158,19 +157,19 @@ class ForbiddenView(HTMLView, JSONView, TextView):
 class ZipView(ContentNegotiatedView):
     _default_format = 'zip'
     _force_fallback_format = 'zip'
-    
+
     _sink_filename = {'linux2': '/dev/null',
                       'win32': 'NUL:',
                       'cygwin': 'NUL:',
-                      'darwin': 'dev/null'}[sys.platform] 
-    
+                      'darwin': 'dev/null'}[sys.platform]
+
     def get(self, request, path_on_disk, path, permissions):
         if posix1e.ACL_EXECUTE not in permissions:
             raise PermissionDenied
         if not os.path.isdir(path_on_disk):
             raise Http404
         return self.render(request, {'path_on_disk': path_on_disk}, 'browse/zip')
-    
+
     @renderer(format='zip', mimetypes=('application/zip',), name='ZIP archive')
     def render_zip(self, request, context, template_name):
         tempdir = tempfile.mkdtemp()
@@ -191,7 +190,7 @@ class ZipView(ContentNegotiatedView):
                     zip_process.stdin.write(os.path.relpath(os.path.join(root, path), parent_dir) + '\n')
             zip_process.stdin.close()
             zip_process.wait()
-            
+
             response = HttpResponse(open(filename, 'rb'), mimetype='application/zip')
             response['Content-Length'] = os.stat(filename).st_size
             response['Content-Disposition'] = 'attachment;filename=%s.zip' % os.path.basename(context['path_on_disk'])
@@ -208,9 +207,9 @@ class IndexView(DAVView, ContentNegotiatedView):
     directory_view = staticmethod(DirectoryView.as_view())
     file_view = staticmethod(FileView.as_view())
     forbidden_view = staticmethod(ForbiddenView.as_view())
-    
+
     action_views = {'zip': ZipView.as_view()}
-    
+
     http_method_names = ContentNegotiatedView.http_method_names + DAVView.http_method_names
 
     @method_decorator(login_required)
@@ -218,9 +217,11 @@ class IndexView(DAVView, ContentNegotiatedView):
         path_parts = path.rstrip('/').split('/')
         if path and any(part in ('.', '..', '') for part in path_parts):
             raise Http404
-        
+
+        print "UA", request.META['HTTP_USER_AGENT']
+
         self.path_on_disk = path_on_disk = os.path.normpath(os.path.join(settings.DATA_DIRECTORY, *path_parts))
-        
+
         try:
             permissions = get_permissions(path_on_disk, request.user.username, check_prefixes=True)
         except IOError, e:
@@ -238,7 +239,7 @@ class IndexView(DAVView, ContentNegotiatedView):
             elif request.method.lower() in ('get', 'head', 'post'):
                 view = self.directory_view if os.path.isdir(path_on_disk) else self.file_view
                 if view == self.directory_view and path and not path.endswith('/'):
-                    return HttpResponsePermanentRedirect(reverse('browse:index', kwargs={'path':path+'/'}))
+                    return HttpResponsePermanentRedirect(reverse('browse:index', kwargs={'path':path + '/'}))
                 response = view(request, path_on_disk, path, permissions)
             else:
                 response = super(IndexView, self).dispatch(request, path, permissions)
@@ -247,9 +248,9 @@ class IndexView(DAVView, ContentNegotiatedView):
             response['MS-Author-Via'] = 'DAV'
             return response
         except PermissionDenied:
+            traceback.print_exc()
             return self.forbidden_view(request, path)
         except:
-            import traceback
             traceback.print_exc()
             raise
-        
+
