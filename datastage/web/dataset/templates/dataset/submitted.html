@@ -10,6 +10,6 @@
   <p>This data package is already being submitted.</p>
 {% endif %}
 
-  <p>You can follow its progress <a href="{% url dataset:submission-detail dataset_submission.id %}">here</a>.</p>
+  <p><a href="{% url dataset:submission-detail dataset_submission.id %}">View submission progess</a></p>
 </article>
 {% endblock %}
