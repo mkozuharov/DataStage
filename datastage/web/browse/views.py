@@ -214,8 +214,6 @@ class IndexView(DAVView, ContentNegotiatedView):
         if path and any(part in ('.', '..', '') for part in path_parts):
             raise Http404
 
-        print "UA", request.META['HTTP_USER_AGENT']
-
         self.path_on_disk = path_on_disk = os.path.normpath(os.path.join(settings.DATA_DIRECTORY, *path_parts))
 
         try:
@@ -244,9 +242,7 @@ class IndexView(DAVView, ContentNegotiatedView):
             response['MS-Author-Via'] = 'DAV'
             return response
         except PermissionDenied:
-            traceback.print_exc()
             return self.forbidden_view(request, path)
         except:
-            traceback.print_exc()
             raise
 

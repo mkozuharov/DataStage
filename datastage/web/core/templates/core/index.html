@@ -6,31 +6,51 @@
 <p>This server hosts research data files created by
 {% if settings.GROUP_URL %}<a href="{{ settings.GROUP_URL }}">{{ settings.GROUP_NAME }}</a>{% else %}{{ settings.GROUP_NAME }}{% endif %}.</p>
 
-<section>
-  <h2>Data in the local file store</h2>
-  
-  <ul>
-    <li><a href="{% url browse:index "" %}">All data</a></li>
-    <li><a href="{% url browse:index "private/" %}">Private data</a> — visible to the user who creates it, and to the research group leader(s).</li>
-    <li><a href="{% url browse:index "shared/" %}">Shared data</a> — readable by all research group members.</li>
-    <li><a href="{% url browse:index "collab/" %}">Collaborative data</a> — readable and writable by all research group members and outside collaborators.</li>
-  </ul>
-</section>
-
-<section>
-  <h2>Documentation</h2>
-
-  <ul>
-    <li><a href="{% url documentation:page "file-organization" %}">Data file organization</a></li>
-	<li><a href="">How to create a data package of data files for submission to the Oxford DataBank</a></li>
+<div class="panelSet threePanel">
+	<section class="panel">
+	  <h2>Browse data</h2>
+	  
+	  <ul>
+		<li><a href="{% url browse:index "" %}">All data</a></li>
+		<li><a href="{% url browse:index "private/" %}">Private data</a> — visible to the user who creates it, and to the research group leader(s).</li>
+		<li><a href="{% url browse:index "shared/" %}">Shared data</a> — readable by all research group members.</li>
+		<li><a href="{% url browse:index "collab/" %}">Collaborative data</a> — readable and writable by all research group members and outside collaborators.</li>
+	  </ul>
+	</section>
+	
+	<section class="panel">
+	  <h2>Upload data</h2>
+	
+	  <ul>
+	
+		<li>Local file access
+		<ul>
     <li><a href="{% url documentation:page "access/windows" %}">Local network file access (Windows)</a></li>
     <li><a href="{% url documentation:page "access/mac-os-x" %}">Local network file access (MacOS)</a></li>
     <li><a href="{% url documentation:page "access/linux" %}">Local network file access (Linux)</a></li>
+		</ul>
+                </li>
     <li><a href="{% url documentation:page "access/http" %}">Web browser access</a></li>
     <li><a href="{% url documentation:page "access/webdav" %}">Web file system file access (WebDAV)</a></li>
     <li><a href="{% url documentation:page "access/direct" %}">Secured direct file access (SSH, SCP)</a></li>
+	  </ul>
+	  
+	  
+	  
+	</section>
+	
+	
+	<section class="panel">
+	  <h2>About DataStage</h2>
+	
+	  <ul>
+    <li><a href="{% url documentation:page "file-organization" %}">Data file organization</a></li>
+	<li><a href="">How to create a data package of data files for submission to the Oxford DataBank</a></li>
     <li><a href="{% url documentation:page "user-administration" %}">User administration: add, remove and password change</a></li>
-  </ul>
-</section>
+	  </ul>
+	  
+	  
+	</section>
+</div>
 
 {% endblock %}
