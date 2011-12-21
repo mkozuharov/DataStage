@@ -123,9 +123,9 @@ class DirectoryView(HTMLView, JSONView):
                 key = 'user.dublincore.' + field
                 value = request.POST.get('meta-%s-%s' % (field, part))
                 if value == "" and field in subpath_xattr:
-                    del subpath_xattr[field]
+                    del subpath_xattr[key]
                 elif value:
-                    subpath_xattr[field] = value
+                    subpath_xattr[key] = value
         return HttpResponseSeeOther('')
 
 

@@ -57,14 +57,15 @@ API for performing dataset submissions:
    
       :param opener: a :py:class:`urllib2.OpenerDirector` instance
       :param repository: a :py:class:`datastage.web.dataset.models.Repository` instance
+      :param update_status: a function that can be called to report the status of the submission
    
-      This should be a generator (i.e. with yield statements) that completes
-      the dataset submission.
+      This method complete the dataset submission.
       
       The ``opener`` and ``repository`` arguments have the same requirements
       as for :py:meth:`preflight_submission`.
       
-      At appropriate points in time it should yield the following strings:
+      At appropriate points in time it should call ``update_status`` with an appropriate
+      status from the following list:
       
       * ``"started"``
       * ``"transfer"``
