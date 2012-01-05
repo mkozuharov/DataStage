@@ -56,7 +56,7 @@
 
     <ul id="mainnav">
       <li><a href="/" id="nav-index">Home</a></li>
-      <li><a href="/about">about</a></li> 
+      <li><a href="{% url core:about %}">about</a></li> 
       <li><a href="/admin">admin</a></li>
       
 
@@ -74,8 +74,7 @@
     <div class="siteAdmin">
       <ul>
         <li><a href="/login">login</a></li>
-
-        <li><a href="/contact">contact</a></li>
+        <li><a href="{% url core:contact %}">contact</a></li>
       </ul>
     </div>
 
