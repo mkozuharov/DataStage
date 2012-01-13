@@ -1,3 +1,4 @@
+
 {% extends "dataset/base.html" %}
 
 {% block title %}Submit dataset{% endblock %}
@@ -6,21 +7,23 @@
 
 <article>
   <h1>Submit as data package</h1>
-  
+
   <p>Submitting <tt>{{ path }}</tt> as a data package.</p>
-  
+
   <form method="post" action="">{% csrf_token %}
-  
+
   <table>
     {{ form }}
     <tfoot>
       <tr>
-        <td colspan="2"><input type="submit"/></td>
+        <td colspan="2"><input type="submit" value="Submit"/></td>
       </tr>
     </tfoot>
   </table>
-  
-  
+
+
 </article>
 
 {% endblock %}
+
+
