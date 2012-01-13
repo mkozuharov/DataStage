@@ -9,7 +9,7 @@
 <p>Data files can be accessed from Linux as a network share:</p>
 
 <p>If using GNOME, use the "Places &gt; Connect to server ..." menu command.  A popup window will appear.  From the "Service type"
-drop-down menu, select "Windows share".  Under "Server" enter <code>%{HOSTFULLNAME}</code> and under
+drop-down menu, select "Windows share".  Under "Server" enter <code>{{ hostname }}</code> and under
 "Share" enter <code>data</code>.  Under "Username" enter <cite>username</cite> and under "Domain" enter
 <code>%{WORKGROUP}</code> and then click on "Connect".  Another popup window will then appear,
 into which the password for <cite>username</cite> should be entered.</p>
@@ -21,7 +21,7 @@ and also to read all files in the <code>shared</code> and <code>collab</code> ar
 <p><strong>For advanced users</strong>, it is also possible to mount the filesystem directly, using the command:
 <blockquote>
 <code>
-mount.cifs //${HOSTNAME}/data <cite>mountpoint</cite> -o rw,user=<cite>username</cite>,password=<cite>userpass</cite>,nounix,forcedirectio
+mount.cifs //{{ hostname }}/data <cite>mountpoint</cite> -o rw,user=<cite>username</cite>,password=<cite>userpass</cite>,nounix,forcedirectio
 </code>
 </blockquote>
 

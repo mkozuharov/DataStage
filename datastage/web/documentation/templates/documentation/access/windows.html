@@ -8,10 +8,10 @@
 
 <p>Data files are accessed from Windows as a network share:
 <blockquote>
-<code>\\%{HOSTFULLNAME}\data</code>
+<code>\\{{ hostname }}\data</code>
 </blockquote>
 A username and password will be required to complete a connection.
-The username entered should be in workgroup <code>%{WORKGROUP}</code>; e.g. <code>%{WORKGROUP}\<cite>username</cite></code>.
+The username entered should be in workgroup <code>{{ settings.GROUP_NAME }}</code>; e.g. <code>{{ settings.GROUP_NAME }}\<cite>username</cite></code>.
 </p>
 
 <p>There are many ways to connect a share in Windows.
