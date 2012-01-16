@@ -25,7 +25,15 @@ from datastage.dataset import Dataset, SUBMISSION_QUEUE
 
 class IndexView(HTMLView):
     def get(self, request):
-        return self.render(request, {}, 'dataset/index')
+        dataset_submissions = DatasetSubmission.objects.all()
+        if 'path' in request.GET:
+            path_parts = request.GET['path'].rstrip('/').split('/')
+            path_on_disk = os.path.normpath(os.path.join(settings.DATA_DIRECTORY, *path_parts))
+            dataset_submissions = dataset_submissions.filter(path_on_disk=path_on_disk)
+        context = {
+            'dataset_submissions': dataset_submissions,
+        }
+        return self.render(request, context, 'dataset/index')
 
 class SubmitView(HTMLView, RedisView):
     @method_decorator(login_required)

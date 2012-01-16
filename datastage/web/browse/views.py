@@ -21,6 +21,7 @@ from django_conneg.views import ContentNegotiatedView, HTMLView, JSONView, TextV
 import posix1e
 
 from datastage.web.auth.decorators import login_required
+from datastage.web.dataset.models import DatasetSubmission
 from datastage.config import settings
 from datastage.util.path import get_permissions, statinfo_to_dict, permission_map, has_permission
 
@@ -106,6 +107,7 @@ class DirectoryView(HTMLView, JSONView):
             'sort_name': sort_name,
             'sort_reverse': sort_reverse,
             'column_names': (('name', 'Name'), ('modified', 'Last modified'), ('size', 'Size'), ('owner_name', 'Owner')),
+            'dataset_submissions': DatasetSubmission.objects.filter(path_on_disk=path_on_disk),
         }
 
         return self.render(request, context, 'browse/directory')

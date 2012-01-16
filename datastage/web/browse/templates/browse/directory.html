@@ -9,6 +9,7 @@
   <a class="action" href="?action=upload" title="Upload a file to this directory">Upload a file</a>
   <a class="action" href="?action=zip" title="Download directory as ZIP archive">Download as ZIP</a>
   <a class="action" href="{% url dataset:submit %}?path=/{{ path|urlencode }}" title="Submit this directory as a dataset">Submit as data package</a>
+  <a class="action" href="{% url dataset:index %}?path=/{{ path|urlencode }}">Submitted {{ dataset_submissions.count }} times</a>
 </p>
 
 <form method="post" action="">{% csrf_token %}
