@@ -51,8 +51,14 @@ class SubmitView(HTMLView, RedisView):
 
         previous_submissions = DatasetSubmission.objects.filter(path_on_disk=path_on_disk)
         
-        dataset_submission = DatasetSubmission(path_on_disk=path_on_disk)
-        dataset_submission.submitting_user = request.user
+        if 'id' in request.REQUEST:
+            dataset_submission = get_object_or_404(DatasetSubmission,
+                                                   id=request.REQUEST['id'],
+                                                   status='new',
+                                                   submitting_user=request.user)
+        else:
+            dataset_submission = DatasetSubmission(path_on_disk=path_on_disk,
+                                                   submitting_user=request.user)
 
         form = forms.DatasetSubmissionForm(request.POST or None, instance=dataset_submission)
         
@@ -95,10 +101,12 @@ class SubmitView(HTMLView, RedisView):
             opener = openers.get_opener(repository, request.user)
             form.instance.remote_url = dataset.preflight_submission(opener, repository)
         except openers.SimpleCredentialsRequired:
+            form.instance.status = 'new'
+            form.instance.save()
             url = '%s?%s' % (
                 reverse('dataset:simple-credentials'),
                 urllib.urlencode({'next': '%s?%s' % (request.path, urllib.urlencode({'path': context['path'],
-                                                                                     'repository': repository.id})),
+                                                                                     'id': form.instance.id})),
                                   'repository': repository.id}),
             )
             return HttpResponseSeeOther(url)

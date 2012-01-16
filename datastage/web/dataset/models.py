@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
 
 from datastage.dataset import OXDSDataset, Sword2Dataset
 
@@ -72,6 +73,9 @@ class DatasetSubmission(models.Model):
     
     def __unicode__(self):
         return self.title
+    
+    def get_absolute_url(self):
+        return reverse('dataset:submission-detail', args=[self.id])
     
     _dataset_types = {'sword2': Sword2Dataset,
                       'databank': OXDSDataset}
