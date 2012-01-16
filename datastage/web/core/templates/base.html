@@ -57,13 +57,7 @@
     <ul id="mainnav">
       <li><a href="/" id="nav-index">Home</a></li>
       <li><a href="{% url core:about %}">about</a></li> 
-      <li><a href="/admin">admin</a></li>
-      {% if user.is_authenticated %}
-      <li><a href="{% url logout %}">log out</a></li>
-      {% else %}
-      <li><a href="{% url login %}">log in</a></li>
-      {% endif %}      
-
+      <li><a href="/admin">admin</a></li>    
     </ul>
     </nav>
 </header>
