@@ -49,10 +49,9 @@ class SubmitView(HTMLView, RedisView):
         if posix1e.ACL_WRITE not in permissions:
             raise PermissionDenied
 
-        try:
-            dataset_submission = DatasetSubmission.objects.get(path_on_disk=path_on_disk)
-        except DatasetSubmission.DoesNotExist:
-            dataset_submission = DatasetSubmission(path_on_disk=path_on_disk)
+        previous_submissions = DatasetSubmission.objects.filter(path_on_disk=path_on_disk)
+        
+        dataset_submission = DatasetSubmission(path_on_disk=path_on_disk)
         dataset_submission.submitting_user = request.user
 
         form = forms.DatasetSubmissionForm(request.POST or None, instance=dataset_submission)
@@ -60,6 +59,7 @@ class SubmitView(HTMLView, RedisView):
         return {'path': path,
                 'form': form,
                 'path_on_disk': path_on_disk,
+                'previous_submissions': previous_submissions,
                 'dataset_submission': dataset_submission,
                 'queued': request.GET.get('queued') == 'true'}
 
