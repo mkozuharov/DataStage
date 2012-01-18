@@ -13,8 +13,8 @@ class TestConfig:
     #hostname         = "zoo-samos.zoo.ox.ac.uk"
      
     cifssharename    = "data"
-    cifsmountpoint   = "mountadmiral"
-    webdavmountpoint = "mountadmiralwebdav"
+    cifsmountpoint   = "mountdatastage"
+    webdavmountpoint = "mountdatastagewebdav"
     webdavbaseurl    = "http://"+hostname+"/data/"
     readmefile       = "ADMIRAL.README"
     readmetext       = "This directory is the root of the ADMIRAL shared file system.\n"

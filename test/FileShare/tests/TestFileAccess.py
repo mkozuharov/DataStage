@@ -11,7 +11,7 @@ import unittest
 sys.path.append("../..")
 
 readmetext="This directory is the root of the ADMIRAL shared file system.\n"
-mountpoint="mountadmiral"
+mountpoint="mountdatastage"
 readmefile="ADMIRAL.README"
 hostname="zoo-admiral-silk.zoo.ox.ac.uk"
 
