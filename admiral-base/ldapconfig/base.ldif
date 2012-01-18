@@ -1,7 +1,0 @@
-dn: cn=admin,dc=%{HOSTNAME},dc=zoo,dc=ox,dc=ac,dc=uk
-objectClass: simpleSecurityObject
-objectClass: organizationalRole
-cn: admin
-userPassword: %{MD5PASS}
-description: LDAP administrator
-

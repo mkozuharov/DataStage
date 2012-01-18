@@ -17,7 +17,7 @@ fi
 # Functions
 function migrate()
 {
-    # $1 = filename in admiral-base directory
+    # $1 = filename in datastage-base directory
     # $2 = target directory or file in system
     cp="cp -f $SRCDIR/$1 $2"
     echo "$cp"
