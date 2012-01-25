@@ -1,7 +1,4 @@
 sudoers /root/sudoers
-listAdmiralUsers.sh /root/listAdmiralUsers.sh
-admiralupdateuserinfo.sh /root/admiralupdateuserinfo.sh
-admiraladdnewuser.sh /root/admiraladdnewuser.sh
 smb.conf /etc/samba/smb.conf
 krb5.conf /etc/krb5.conf
 ssh_config /root/ssh_config

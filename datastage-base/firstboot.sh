@@ -7,10 +7,6 @@ mv /etc/sudoers /etc/sudoers-orig
 chmod 440 /root/sudoers
 cp /root/sudoers /etc/sudoers
 #chmod 440 /etc/sudoers
-cp /root/listAdmiralUsers.sh /usr/local/sbin
-chmod 755 /usr/local/sbin/listAdmiralUsers.sh
-cp /root/admiraladdnewuser.sh /usr/local/sbin
-chmod 755 /usr/local/sbin/admiraladdnewuser.sh
 smbpasswd -s -a admiral <<END
 %{PASSWORD}
 %{PASSWORD}

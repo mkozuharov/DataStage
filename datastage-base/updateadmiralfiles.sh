@@ -50,15 +50,6 @@ migrate postboot-4.sh              /root
 #chmod -f 640 /etc/sudoers
 migrate sudoers /etc/sudoers
 chmod 440 /etc/sudoers
-chmod -f 755 /usr/local/sbin/listAdmiralUsers.sh
-migrate listAdmiralUsers.sh /usr/local/sbin
-chmod 755 /usr/local/sbin/listAdmiralUsers.sh
-chmod -f 755 /usr/local/sbin/admiralupdateuserinfo.sh
-migrate admiralupdateuserinfo.sh /usr/local/sbin
-chmod 755 /usr/local/sbin/admiralupdateuserinfo.sh
-chmod -f 755 /usr/local/sbin/admiraladdnewuser.sh
-migrate admiraladdnewuser.sh /usr/local/sbin
-chmod 755 /usr/local/sbin/admiraladdnewuser.sh
 
 migrate etcldap.conf               /etc
 migrate krb5.conf                  /etc
