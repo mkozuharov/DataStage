@@ -2,12 +2,10 @@
 
 source /root/admiralconfig.d/admiralconfig.sh
 
-smbldap-groupadd -a -g $RGLeaderGID RGLeader
-smbldap-groupadd -a -g $RGMemberGID RGMember
-smbldap-groupadd -a -g $RGCollabGID RGCollaborator
-smbldap-groupadd -a -g $RGOrphanGID RGOrphan
-
-smbldap-useradd -a -P -m -g $RGMemberGID test_admiral
+groupadd -g $RGLeaderGID RGLeader
+groupadd -g $RGMemberGID RGMember
+groupadd -g $RGCollabGID RGCollaborator
+groupadd -g $RGOrphanGID RGOrphan
 
 echo =========================
 echo Allowing file access

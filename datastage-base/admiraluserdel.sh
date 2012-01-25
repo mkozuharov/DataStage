@@ -42,8 +42,9 @@ else
     mkdir -p /root/admiralconfig.d/admiralresearchgrouporphans
     mv /root/admiralconfig.d/admiralresearchgroupmembers/$1.sh /root/admiralconfig.d/admiralresearchgrouporphans/
   fi
-   
-  smbldap-userdel -r $1
+  
+  smbpasswd -x $1
+  userdel -r $1
  
 fi
 

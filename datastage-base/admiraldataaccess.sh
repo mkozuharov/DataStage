@@ -5,8 +5,8 @@
 
 source /root/admiralconfig.d/admiralconfig.sh
 
-chgrp "RGMember" /home/data
-chown test_admiral: ADMIRAL.README
+# chgrp "RGMember" /home/data
+# chown test_admiral: ADMIRAL.README
 
 # Add ACLs to prevent unauthenticated access?
 
