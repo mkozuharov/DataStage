@@ -39,7 +39,6 @@ migrate admiralmigrateusers.sh     /root
 migrate admiraltoolsetup.sh        /root
 migrate admiraluseradd.sh          /root
 migrate admiraluserdel.sh          /root
-migrate admiraluserlist.sh         /root
 migrate admiralusermanagement.sh   /root
 migrate deltestusers.sh            /root
 migrate lvmconfig.sh               /root
@@ -54,9 +53,6 @@ chmod 440 /etc/sudoers
 chmod -f 755 /usr/local/sbin/listAdmiralUsers.sh
 migrate listAdmiralUsers.sh /usr/local/sbin
 chmod 755 /usr/local/sbin/listAdmiralUsers.sh
-chmod -f 755 /usr/local/sbin/admiraluserinfo.sh
-migrate admiraluserinfo.sh /usr/local/sbin
-chmod 755 /usr/local/sbin/admiraluserinfo.sh
 chmod -f 755 /usr/local/sbin/admiralupdateuserinfo.sh
 migrate admiralupdateuserinfo.sh /usr/local/sbin
 chmod 755 /usr/local/sbin/admiralupdateuserinfo.sh
