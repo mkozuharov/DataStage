@@ -59,7 +59,6 @@ addtestusers.sh /root/addtestusers.sh
 deltestusers.sh /root/deltestusers.sh
 addorphanedtestuser.sh /root/addorphanedtestuser.sh
 apache2.conf /root/apache2.conf
-createapacheuserconfig.sh /root/createapacheuserconfig.sh
 www/index.html /var/www/index.html
 www/images /var/www/images
 www/images/Admiral-logo-284x100.png /var/www/images/Admiral-logo-284x100.png

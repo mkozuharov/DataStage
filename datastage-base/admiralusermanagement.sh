@@ -83,16 +83,25 @@ function generatesystemuser()
     password=$2
     echo $username \"$userfullname\" $userrole \"$userroom\" \"$userphone\" $password
 
-    # Create new user account
+   # Create new user account
+    useradd -m -g $userrole $username
     if [[ "$password" == "" ]]; then
-        smbldap-useradd -a -P -m -g $userrole $username
+        echo "Creating UNIX password"
+        passwd  $username
+        echo "Creating SAMBA password"
+        smbpasswd -a $username
     else
-        smbldap-useradd -a -P -m -g $userrole $username <<END
+        passwd  $username <<END
 $password
 $password
 END
+        smbpasswd -a $username <<END
+$password
+$password
+END
+
     fi
-    smbldap-userinfo -f "$userfullname" -r "$userroom" -w "$userphone" $username    
+    chfn -f "$userfullname" -r "$userroom" -w "$userphone" $username    
 
     # For non-collaborators, create user directories and set permissions
     if [[ "$userrole" != "RGCollaborator" ]]; then
@@ -105,8 +114,8 @@ END
         # Set user data area owner and ACLs
         setdataownerandaccess $username $username $userrole
       
-        # Set up Apache access control configuration
-        /root/createapacheuserconfig.sh $username    
+        # Not setting up the Apache access control configuration
+        # /root/createapacheuserconfig.sh $username    
     fi
 }
 

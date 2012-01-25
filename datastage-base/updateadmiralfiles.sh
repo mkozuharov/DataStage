@@ -41,7 +41,6 @@ migrate admiraluseradd.sh          /root
 migrate admiraluserdel.sh          /root
 migrate admiraluserlist.sh         /root
 migrate admiralusermanagement.sh   /root
-migrate createapacheuserconfig.sh  /root
 migrate deltestusers.sh            /root
 migrate lvmconfig.sh               /root
 migrate postboot-1.sh              /root
