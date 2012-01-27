@@ -1,0 +1,8 @@
+#!/bin/bash
+
+django-admin collectstatic --settings=datastage.web.settings --noinput --link
+
+if [ ! -f /etc/datastage.conf ];
+then
+    ln -s /usr/share/dataflow-datastage/conf/datastage.conf /etc/datastage.conf
+fi

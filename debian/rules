@@ -9,26 +9,31 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
-export DISTUTILS_ARGS=--root=debian/tmp \
+#DEB_PYTHON_SYSTEM=pysupport
+#
+#include /usr/share/cdbs/1/rules/debhelper.mk
+#include /usr/share/cdbs/1/class/python-distutils.mk
+
+export DISTUTILS_ARGS=--root=debian/dataflow-datastage \
                       --install-layout=deb \
-                      --install-lib=/usr/share/dataflow \
-                      --install-scripts=/usr/share/dataflow \
-                      --install-data=/usr/share/dataflow
+#                      --install-lib=/usr/share/dataflow \
+#                      --install-scripts=/usr/share/dataflow \
+#                      --install-data=/usr/share/dataflow
 
 
 %:
-	dh $@
+	dh $@ --with python2
 
 override_dh_auto_install:
 	python setup.py install ${DISTUTILS_ARGS}
-
-	# These JS libraries are already packaged for Debian, so use those instead.
-	( cd debian/tmp/usr/share/dataflow/datastage ; \
-	  rm -Rf flot jquery jquery-ui mochikit ; \
-	  ln -s ../../javascript/flot flot ; \
-	  ln -s ../../javascript/jquery jquery ; \
-	  ln -s ../../javascript/jquery-ui jquery-ui ; \
-	  ln -s ../../javascript/mochikit mochikit ; \
-	)
-
-override_dh_auto_build:
+#
+#	# These JS libraries are already packaged for Debian, so use those instead.
+#	( cd debian/tmp/usr/share/dataflow/datastage ; \
+#	  rm -Rf flot jquery jquery-ui mochikit ; \
+#	  ln -s ../../javascript/flot flot ; \
+#	  ln -s ../../javascript/jquery jquery ; \
+#	  ln -s ../../javascript/jquery-ui jquery-ui ; \
+#	  ln -s ../../javascript/mochikit mochikit ; \
+#	)
+#
+#override_dh_auto_build:
