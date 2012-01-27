@@ -1,4 +1,4 @@
-Source: datastage-dataflow
+Source: dataflow-datastage
 Section: python
 Priority: optional
 Maintainer: DataFlow <jisc.dataflow@gmail.com>
@@ -13,7 +13,7 @@ Homepage: https://github.com/dataflow/DataStage
 XS-Python-Version: >= 2.5
 Uploaders: Alexander Dutton <alexander.dutton@zoo.ox.ac.uk>
 
-Package: datastage-dataflow
+Package: dataflow-datastage
 Architecture: all
 Depends: ${python:Depends},
          libjs-flot,
