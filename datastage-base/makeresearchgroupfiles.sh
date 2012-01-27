@@ -72,7 +72,7 @@ FILELIST="`ls -1 --directory --ignore-backups --file-type *`"
 FILELIST="$FILELIST `ls -1 --directory --ignore-backups --file-type $HOSTNAME/* $HOSTNAME/*/*`"
 REPORT="echo"
 REPORT=":"
-MD5PASSWD=`slappasswd -h {MD5} -s $PASSWORD`
+# MD5PASSWD=`slappasswd -h {MD5} -s $PASSWORD`
 
 if [[ "$IPADDR" == "" ]]; then
     IP=`host $HOSTNAME | cut -d ' ' -f4`
@@ -92,7 +92,7 @@ echo "  s/%{HOSTNAME}/$HOSTNAME/g"                   >> makeresearchgroupfiles.s
 echo "  s/%{PASSWORD}/$PASSWORD/g"                   >> makeresearchgroupfiles.sed
 echo "  s/%{WORKGROUP}/$WORKGROUP/g"                 >> makeresearchgroupfiles.sed
 echo "  s/%{IPADDR}/$IP/g"                           >> makeresearchgroupfiles.sed
-echo "  s!%{MD5PASS}!$MD5PASSWD!g"                   >> makeresearchgroupfiles.sed
+# echo "  s!%{MD5PASS}!$MD5PASSWD!g"                   >> makeresearchgroupfiles.sed
 echo ""                                              >> makeresearchgroupfiles.sed
 
 echo "Substitutions:"
