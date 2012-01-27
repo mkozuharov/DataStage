@@ -68,7 +68,7 @@ mkdir -p $TGTDIR
 
 BLACKLISTPATTERN="^(.*~|.*\\.(tmp|bak)|a1\.sh|makeresearchgroupfiles.*)$"
 # Ensure host-specific files come later in list:
-FILELIST="`ls -1 --directory --ignore-backups --file-type * ldapconfig/* www/* www/*/* www/*/*/*`"
+FILELIST="`ls -1 --directory --ignore-backups --file-type *  www/* www/*/* www/*/*/*`"
 FILELIST="$FILELIST `ls -1 --directory --ignore-backups --file-type $HOSTNAME/* $HOSTNAME/*/*`"
 REPORT="echo"
 REPORT=":"
@@ -102,7 +102,6 @@ cat makeresearchgroupfiles.sed
 
 #if [[ "$COPYTEST" == "copy" ]]; then
     mkdir -p $TGTDIR
-    mkdir -p $TGTDIR/ldapconfig
     mkdir -p $TGTDIR/www
     mkdir -p $TGTDIR/www/docs
     mkdir -p $TGTDIR/www/images
@@ -149,7 +148,6 @@ done
 
 if [[ "$COPYTEST" == "copy" ]]; then
     chmod +x $TGTDIR/*.sh
-    chmod +x $TGTDIR/ldapconfig/*.sh
 fi
 
 # End.

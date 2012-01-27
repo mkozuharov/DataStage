@@ -34,8 +34,7 @@ vmbuilder vmserver ubuntu \
   --addpkg cadaver \
   --addpkg nano \
   --addpkg slapd \
-  --addpkg ldap-utils \
-  --addpkg smbldap-tools \
+  --addpkg samba \
   --addpkg manpages \
   --addpkg man-db \
   --addpkg locate \

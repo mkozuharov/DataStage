@@ -12,7 +12,6 @@ smbpasswd -s -a admiral <<END
 %{PASSWORD}
 END
 
-a2enmod authnz_ldap
 a2enmod ssl
 a2ensite default-ssl
 
@@ -51,5 +50,3 @@ cp /root/apache-databank-proxy /etc/apache2/conf.d/databank-proxy.conf
 
 /etc/init.d/apache2 restart
 
-gunzip /usr/share/doc/smbldap-tools/configure.pl.gz
-adduser openldap ssl-cert

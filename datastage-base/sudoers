@@ -8,16 +8,6 @@ Defaults  !lecture,tty_tickets,!fqdn
 # Uncomment to allow members of group sudo to not need a password
 # %sudo ALL=NOPASSWD: ALL
 
-# Host alias specification
-
-# User alias specification
-User_Alias TEST_ACCESS_USER = www-data
-
-
-# Cmnd alias specification
-Cmnd_Alias TEST_ACCESS_CMD = /usr/local/sbin/testwriteaccess.sh
-
-
 # User privilege specification
 root  ALL=(ALL) ALL
 
@@ -25,6 +15,4 @@ root  ALL=(ALL) ALL
 %admin ALL=(ALL) ALL
 %RGLeader ALL=(ALL) ALL
 
-# Selected users may run the /usr/local/sbin/testuseracess.sh
-# script as any user without password
-TEST_ACCESS_USER ALL  = (ALL) NOPASSWD: TEST_ACCESS_CMD
+
