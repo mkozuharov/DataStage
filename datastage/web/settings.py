@@ -1,6 +1,40 @@
 # Django settings for t project.
 
+import ConfigParser
 import os
+
+from django.core.exceptions import ImproperlyConfigured
+
+
+def get_config():
+    # Find config file
+    def _config_locations():
+        if 'DATASTAGE_CONFIG' in os.environ:
+            yield os.environ['DATASTAGE_CONFIG']
+        yield os.path.expanduser('~/.datastage.conf')
+        yield '/etc/datastage.conf'
+        yield os.path.join(os.path.dirname(__file__), 'datastage.conf')
+    
+    for config_location in _config_locations():
+        if os.path.exists(config_location):
+            break
+    else:
+        raise ImproperlyConfigured("Couldn't find config file")
+    
+    config = ConfigParser.ConfigParser()
+    config.read(config_location)
+    
+    config = dict((':'.join([sec, key]), config.get(sec, key)) for sec in config.sections() for key in config.options(sec))
+
+    def relative_path(*args):
+        # Return None if any of the arguments are None.
+        if all(args):
+            return os.path.abspath(os.path.join(os.path.dirname(config_location), *args))
+
+    return relative_path, config
+
+relative_path, config = get_config()
+
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
