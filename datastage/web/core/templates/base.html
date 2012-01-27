@@ -56,16 +56,10 @@
 
     <ul id="mainnav">
       <li><a href="/" id="nav-index">Home</a></li>
-
-      <li><a href="/silos">Browse</a></li>
-
-      <li><a href="/searching">Search</a></li>
-
-      <li><a href="/keywords">keywords</a></li>
-
-      <li><a href="/about">about</a></li>
+      <li><a href="{% url core:about %}">about</a></li> 
+      <li><a href="/admin">admin</a></li>    
     </ul>
-</nav>
+    </nav>
 </header>
 
     <div class="main">
@@ -77,9 +71,13 @@
 
     <div class="siteAdmin">
       <ul>
-        <li><a href="#">login</a></li>
-
-        <li><a href="#">contact</a></li>
+      {% if user.is_authenticated %}
+      <li>logged in as {{ user.first_name }} {{ user.last_name }} ({{ user.username }})</li>
+      <li><a href="{% url logout %}">log out</a></li>
+      {% else %}
+        <li><a href="{% url login %}">log in</a></li>
+      {% endif %}
+        <li><a href="{% url core:contact %}">contact</a></li>
       </ul>
     </div>
 

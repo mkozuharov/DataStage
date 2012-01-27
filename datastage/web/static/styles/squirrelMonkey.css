@@ -44,9 +44,9 @@ header.pageHeader,
 footer.site {
 	
    		
-  	-webkit-box-shadow: #b9c8d5 0.5em 0.5em 0.5em; /* Chrome Safari */
-	-moz-box-shadow: #b9c8d5 0.5em 0.5em 0.5em; /* Firefox F3.5+ */
-	 box-shadow: #b9c8d5 0.5em 0.5em 0.5em; /* Opera 10.5, IE 9.0 */
+  	-webkit-box-shadow: #c0d0cd 0.5em 0.5em 0.5em; /* Chrome Safari */
+	-moz-box-shadow: #c0d0cd 0.5em 0.5em 0.5em; /* Firefox F3.5+ */
+	 box-shadow: #c0d0cd 0.5em 0.5em 0.5em; /* Opera 10.5, IE 9.0 */
 
 
 }
@@ -75,7 +75,7 @@ text-decoration: underline;
 {
   border: 1px solid #dfe2e4;
   margin: 10px 0px;
-  padding: 10px;
+  padding: 10px 10px 30px 10px;
 }
 
 .content footer section
@@ -123,6 +123,21 @@ padding: 10px;
   float: left;
   width: 300px;
 }
+
+
+.panelSet 
+{
+
+}
+
+
+.panelSet.threePanel section
+{
+  min-height: 12em;
+  width: 30%;
+}
+
+
 
 
 

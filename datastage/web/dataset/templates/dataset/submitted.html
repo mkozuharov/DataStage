@@ -5,11 +5,11 @@
   <h1>Submitted</h1>
   
 {% if queued %}
-  <p>The dataset has been queued for submission.</p>
+  <p>The data package has been queued for submission.</p>
 {% else %}
-  <p>This dataset is already being submitted.</p>
+  <p>This data package is already being submitted.</p>
 {% endif %}
 
-  <p>You can follow its progress <a href="{% url dataset:submission-detail dataset_submission.id %}">here</a>.</p>
+  <p><a href="{% url dataset:submission-detail dataset_submission.id %}">View submission progess</a></p>
 </article>
 {% endblock %}

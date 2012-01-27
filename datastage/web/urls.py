@@ -15,10 +15,10 @@ urlpatterns = patterns('',
     url(r'^docs/', include('datastage.web.documentation.urls', 'documentation')),
     url(r'^dataset/', include('datastage.web.dataset.urls', 'dataset')),
     url(r'^', include('datastage.web.core.urls', 'core')),
-
     url(r'^login/$', auth_views.login, {}, 'login'),
     url(r'^logout/$', auth_views.logout, {}, 'logout'),
     url(r'^admin/', include(admin.site.urls)),
-)
+)  
 
 urlpatterns += staticfiles_urlpatterns()
+

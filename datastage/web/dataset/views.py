@@ -25,7 +25,15 @@ from datastage.dataset import Dataset, SUBMISSION_QUEUE
 
 class IndexView(HTMLView):
     def get(self, request):
-        return self.render(request, {}, 'dataset/index')
+        dataset_submissions = DatasetSubmission.objects.all()
+        if 'path' in request.GET:
+            path_parts = request.GET['path'].rstrip('/').split('/')
+            path_on_disk = os.path.normpath(os.path.join(settings.DATA_DIRECTORY, *path_parts))
+            dataset_submissions = dataset_submissions.filter(path_on_disk=path_on_disk)
+        context = {
+            'dataset_submissions': dataset_submissions,
+        }
+        return self.render(request, context, 'dataset/index')
 
 class SubmitView(HTMLView, RedisView):
     @method_decorator(login_required)
@@ -49,17 +57,23 @@ class SubmitView(HTMLView, RedisView):
         if posix1e.ACL_WRITE not in permissions:
             raise PermissionDenied
 
-        try:
-            dataset_submission = DatasetSubmission.objects.get(path_on_disk=path_on_disk)
-        except DatasetSubmission.DoesNotExist:
-            dataset_submission = DatasetSubmission(path_on_disk=path_on_disk)
-        dataset_submission.submitting_user = request.user
+        previous_submissions = DatasetSubmission.objects.filter(path_on_disk=path_on_disk)
+        
+        if 'id' in request.REQUEST:
+            dataset_submission = get_object_or_404(DatasetSubmission,
+                                                   id=request.REQUEST['id'],
+                                                   status='new',
+                                                   submitting_user=request.user)
+        else:
+            dataset_submission = DatasetSubmission(path_on_disk=path_on_disk,
+                                                   submitting_user=request.user)
 
         form = forms.DatasetSubmissionForm(request.POST or None, instance=dataset_submission)
         
         return {'path': path,
                 'form': form,
                 'path_on_disk': path_on_disk,
+                'previous_submissions': previous_submissions,
                 'dataset_submission': dataset_submission,
                 'queued': request.GET.get('queued') == 'true'}
 
@@ -95,10 +109,12 @@ class SubmitView(HTMLView, RedisView):
             opener = openers.get_opener(repository, request.user)
             form.instance.remote_url = dataset.preflight_submission(opener, repository)
         except openers.SimpleCredentialsRequired:
+            form.instance.status = 'new'
+            form.instance.save()
             url = '%s?%s' % (
                 reverse('dataset:simple-credentials'),
                 urllib.urlencode({'next': '%s?%s' % (request.path, urllib.urlencode({'path': context['path'],
-                                                                                     'repository': repository.id})),
+                                                                                     'id': form.instance.id})),
                                   'repository': repository.id}),
             )
             return HttpResponseSeeOther(url)

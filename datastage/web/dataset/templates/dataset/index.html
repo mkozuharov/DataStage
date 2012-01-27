@@ -1,0 +1,24 @@
+{% extends "dataset/base.html" %}
+
+{% block title %}Dataset submissions{% endblock %}
+
+{% block content %}
+<table>
+  <thead>
+    <tr>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>{% for dataset_submission in dataset_submissions %}
+    <tr>
+      <td>{{ dataset_submission.repository }}</td>
+      <td>{{ dataset_submission.identifier }}</td>
+      <td>{{ dataset_submission.path_on_disk }}</td>
+      <td>{{ dataset_submission.title }}</td>
+      <td>{{ dataset_submission.description }}</td>
+      <td>{{ dataset_submission.submitting_user }}</td>
+    </tr>{% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}
