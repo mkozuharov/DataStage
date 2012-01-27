@@ -29,7 +29,7 @@ fi
 COPYTEST=$1
 HOSTNAME=$2
 PASSWORD=$3
-source $HOSTNAME/hostconfig.sh
+source hostconfig.sh
 
 # Construct domain name, distinguished name and full hostname for host
 ADMIRALDOMAINDN=""
@@ -93,8 +93,6 @@ echo "  s/%{PASSWORD}/$PASSWORD/g"                   >> makeresearchgroupfiles.s
 echo "  s/%{WORKGROUP}/$WORKGROUP/g"                 >> makeresearchgroupfiles.sed
 echo "  s/%{IPADDR}/$IP/g"                           >> makeresearchgroupfiles.sed
 echo "  s!%{MD5PASS}!$MD5PASSWD!g"                   >> makeresearchgroupfiles.sed
-echo "  s/%{DATABANKHOST}/$DATABANKHOST/g"           >> makeresearchgroupfiles.sed
-echo "  s/%{DATABANKSILO}/$DATABANKSILO/g"           >> makeresearchgroupfiles.sed
 echo ""                                              >> makeresearchgroupfiles.sed
 
 echo "Substitutions:"
