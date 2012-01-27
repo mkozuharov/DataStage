@@ -68,7 +68,7 @@ mkdir -p $TGTDIR
 
 BLACKLISTPATTERN="^(.*~|.*\\.(tmp|bak)|a1\.sh|makeresearchgroupfiles.*)$"
 # Ensure host-specific files come later in list:
-FILELIST="`ls -1 --directory --ignore-backups --file-type *  www/* www/*/* www/*/*/*`"
+FILELIST="`ls -1 --directory --ignore-backups --file-type *`"
 FILELIST="$FILELIST `ls -1 --directory --ignore-backups --file-type $HOSTNAME/* $HOSTNAME/*/*`"
 REPORT="echo"
 REPORT=":"
@@ -97,16 +97,6 @@ echo ""                                              >> makeresearchgroupfiles.s
 
 echo "Substitutions:"
 cat makeresearchgroupfiles.sed
-
-#if [[ "$COPYTEST" == "copy" ]]; then
-    mkdir -p $TGTDIR
-    mkdir -p $TGTDIR/www
-    mkdir -p $TGTDIR/www/docs
-    mkdir -p $TGTDIR/www/images
-    mkdir -p $TGTDIR/www/css
-    mkdir -p $TGTDIR/www/css/images
-    mkdir -p $TGTDIR/www/js
-#fi
 
 for f in $FILELIST; do
     if [[ "$f" =~ /$ ]]; then
