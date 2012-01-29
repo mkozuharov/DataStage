@@ -1,8 +1,87 @@
 #!/bin/bash
 
+# Common functions
+pg_user_exists() { sudo -u postgres echo `psql postgres -c "select count(*) from pg_user where usename = '$1'" -P tuples_only=on`; }
+pg_db_exists() { sudo -u postgres echo `psql postgres -c "select count(*) from pg_database where datname = '$1'" -P tuples_only=on`; }
+
 django-admin collectstatic --settings=datastage.web.settings --noinput --link
 
 if [ ! -f /etc/datastage.conf ];
 then
     ln -s /usr/share/dataflow-datastage/conf/datastage.conf /etc/datastage.conf
 fi
+
+if [ ! -f /etc/apache2/sites-available/datastage.conf ];
+then
+    ln -s /usr/share/dataflow-datastage/conf/apache.conf /etc/apache2/sites-available/datastage.conf
+    ln -s /etc/apache2/sites-available/datastage.conf /etc/apache2/sites-enabled/datastage.conf
+fi
+
+# Create the datastage postgres user, and don't worry too much if it already exists
+su postgres -c "createuser --no-createdb --no-createrole --no-superuser datastage &>/dev/null"
+# Create the database, likewise
+su postgres -c "createdb datastage &>/dev/null"
+
+# Cribbed from http://www.debian.org/doc/manuals/securing-debian-howto/ch9.en.html#s-bpp-lower-privs
+
+case "$1" in
+  install|upgrade)
+
+  [ -f "/etc/default/dataflow-datastage" ] && ./etc/default/dataflow-datastage
+
+  [ -z "$SERVER_HOME" ] && SERVER_HOME=/var/lib/dataflow-datastage/
+  [ -z "$SERVER_USER" ] && SERVER_USER=datastage
+  [ -z "$SERVER_NAME" ] && SERVER_NAME=DataStage
+  [ -z "$SERVER_GROUP" ] && SERVER_GROUP=datastage
+  [ -z "$DATABASE_NAME" ] && DATABASE_NAME=datastage
+  [ -z "$DATA_DIRECTORY" ] && DATA_DIRECTORY=/srv/datastage
+
+  # create user to avoid running server as root
+  # 1. create group if not existing
+  if ! getent group | grep -q "^$SERVER_GROUP:" ; then
+     echo -n "Adding group $SERVER_GROUP.."
+     addgroup --quiet --system $SERVER_GROUP 2>/dev/null ||true
+     echo "..done"
+  fi
+  # 2. create homedir if not existing
+  test -d $SERVER_HOME || mkdir $SERVER_HOME
+  # 3. create user if not existing
+  if ! getent passwd | grep -q "^$SERVER_USER:"; then
+    echo -n "Adding system user $SERVER_USER.."
+    adduser --quiet \
+            --system \
+            --ingroup $SERVER_GROUP \
+            --no-create-home \
+            --disabled-password \
+            $SERVER_USER 2>/dev/null || true
+    echo "..done"
+  fi
+  # 4. adjust passwd entry
+  usermod -c "$SERVER_NAME" \
+          -d $SERVER_HOME   \
+          -g $SERVER_GROUP  \
+             $SERVER_USER
+  # 5. adjust file and directory permissions
+  if ! dpkg-statoverride --list $SERVER_HOME >/dev/null
+  then
+      chown -R $SERVER_USER:adm $SERVER_HOME
+      chmod u=rwx,g=rxs,o= $SERVER_HOME
+  fi
+  ;;
+esac
+
+case "$1" in
+  install|upgrade)
+
+  if [ pg_database_exists $DATABASE_NAME == 0]; then
+    sudo -u postgres createdb $DATABASE_NAME
+  fi
+
+  if [ pg_user_exists $SERVER_USER == 0]; then
+    sudo -u postgres createuser $SERVER_USER --no-createdb --no-createrole --no-superuser
+    sudo -u postgres psql $DATABASE_NAME -c "GRANT ALL ON DATABASE $DATABASE_NAME TO $SERVER_USER"
+  fi
+
+  sudo -u datastage django-admin syncdb --settings=datastage.web.settings --noinput
+  ;;
+esac
