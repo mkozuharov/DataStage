@@ -1,7 +1,11 @@
 from rdflib import URIRef
 from rdflib.plugin import register
-from rdflib.plugins.serializers.rdfxml import PrettyXMLSerializer
-from rdflib.serializer import Serializer
+try: # These moved during the transition from rdflib 2.4 to rdflib 3.0.
+    from rdflib.plugins.serializers.rdfxml import PrettyXMLSerializer  # 3.0
+    from rdflib.serializer import Serializer
+except ImportError:
+    from rdflib.syntax.serializers.PrettyXMLSerializer import PrettyXMLSerializer  # 2.4
+    from rdflib.syntax.serializers import Serializer
 
 class BetterPrettyXMLSerializer(PrettyXMLSerializer):
     def relativize(self, uri):
@@ -17,3 +21,4 @@ class BetterPrettyXMLSerializer(PrettyXMLSerializer):
         return uri
     
 register('better-pretty-xml', Serializer, __name__, 'BetterPrettyXMLSerializer')
+    
