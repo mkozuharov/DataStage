@@ -33,7 +33,7 @@ fi
  
 source /root/datastageconfig.d/datastageconfig.sh
 
-source /root/admiralusermanagement.sh
+source /root/datastageusermanagement.sh
 
 # Process all user files in /root/datastageconfig.d/a/root/admiralresearchgroupmembers
 

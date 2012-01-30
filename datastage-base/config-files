@@ -23,7 +23,7 @@ datastageconfig.sh /root/datastageconfig.sh
 datastagedatasetup.sh /root/datastagedatasetup.sh
 datastagedataaccess.sh /root/datastagedataaccess.sh
 datastagetoolsetup.sh /root/datastagetoolsetup.sh
-admiralusermanagement.sh /root/admiralusermanagement.sh
+datastageusermanagement.sh /root/datastageusermanagement.sh
 datastageuseradd.sh /root/datastageuseradd.sh
 datastageuserdel.sh /root/datastageuserdel.sh
 datastagemigrateusers.sh /root/datastagemigrateusers.sh

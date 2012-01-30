@@ -21,7 +21,7 @@ if [[ -e "/root/datastageconfig.d/admiralresearchgrouporphans/$1.sh" ]]; then
 fi
 
 source /root/datastageconfig.d/datastageconfig.sh
-source /root/admiralusermanagement.sh
+source /root/datastageusermanagement.sh
 
 generateuserrecord "$1" "$2" "$3" "$4" "$5"
 generatesystemuser /root/datastageconfig.d/admiralresearchgroupmembers/$1.sh $6
