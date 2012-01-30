@@ -1,6 +1,6 @@
 from django_conneg.views import HTMLView
 
-from django.contrib.auth.forms.PasswordChangeForm
+#from django.contrib.auth.forms.PasswordChangeForm
 
 class IndexView(HTMLView):
     def get(self, request):
@@ -8,3 +8,4 @@ class IndexView(HTMLView):
 
 class PasswordView(HTMLView):
     def get(self, request):
+        pass
