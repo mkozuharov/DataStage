@@ -7,7 +7,7 @@ mv /etc/sudoers /etc/sudoers-orig
 chmod 440 /root/sudoers
 cp /root/sudoers /etc/sudoers
 #chmod 440 /etc/sudoers
-smbpasswd -s -a admiral <<END
+smbpasswd -s -a datastage <<END
 %{PASSWORD}
 %{PASSWORD}
 END

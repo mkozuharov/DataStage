@@ -10,7 +10,7 @@ import unittest
 
 sys.path.append("../..")
 
-readmetext="This directory is the root of the ADMIRAL shared file system.\n"
+readmetext="This directory is the root of the DATASTAGE shared file system.\n"
 mountpoint="mountdatastage"
 readmefile="DATASTAGE.README"
 hostname="zoo-admiral-silk.zoo.ox.ac.uk"
@@ -18,7 +18,7 @@ hostname="zoo-admiral-silk.zoo.ox.ac.uk"
 class TestFileAccess(unittest.TestCase):
 
     def setUp(self):
-        #status=os.system('mount.cifs //' +hostname+ '/files '+mountpoint+' -o rw,user=test_admiral,password=test_admiral,nounix,forcedirectio')
+        #status=os.system('mount.cifs //' +hostname+ '/files '+mountpoint+' -o rw,user=test_datastage,password=test_datastage,nounix,forcedirectio')
         status=os.system('mount.cifs //' +hostname+ '/files '+mountpoint+' -o rw,user=ChrisHolland,password=Chris-2203,nounix,forcedirectio')
         self.assertEqual(status, 0, 'Mount failure')
         return
@@ -33,7 +33,7 @@ class TestFileAccess(unittest.TestCase):
         return
 
     def testReadMe(self):
-        # Test assumes ADMIRAL shared file system is mounted at mountpoint
+        # Test assumes DATASTAGE shared file system is mounted at mountpoint
         # Open README file
         f = open(mountpoint+'/'+readmefile)
         assert (f), "README file open failed"

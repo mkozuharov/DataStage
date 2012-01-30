@@ -14,12 +14,12 @@ from urlparse import urlparse
 
 sys.path.append("../..")
 
-readmetext="This directory is the root of the ADMIRAL shared file system.\n"
+readmetext="This directory is the root of the DATASTAGE shared file system.\n"
 readmefile="DATASTAGE.README"
 hostname="zoo-admiral-silk.zoo.ox.ac.uk"
 theurl="http://" +hostname+ "/webdav/ChrisHolland"
-#username="test_admiral"
-#password="test_admiral"
+#username="test_datastage"
+#password="test_datastage"
 username="FritzVollrath"
 password="Fritz-2203"
 #username="ChrisHolland"

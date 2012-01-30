@@ -18,16 +18,16 @@ else
     rm -rf "/home/$1-deleted"
     
     rm -f /etc/apache2/conf.d/user.$1
-    rm -f /root/datastageconfig.d/admiralresearchgroupmembers/$1.sh
+    rm -f /root/datastageconfig.d/datastageresearchgroupmembers/$1.sh
     rm -f /etc/apache2/conf.d/orphan.$1
-    rm -f /root/datastageconfig.d/admiralresearchgrouporphans/$1.sh
+    rm -f /root/datastageconfig.d/datastageresearchgrouporphans/$1.sh
     
   else
 
-    chown -R admiral-orphan:RGOrphan /home/data/private/$1
-    chown -R admiral-orphan:RGOrphan /home/data/shared/$1
-    chown -R admiral-orphan:RGOrphan /home/data/collab/$1
-    chown -R admiral-orphan:RGOrphan /mnt/data/home/$1
+    chown -R datastage-orphan:RGOrphan /home/data/private/$1
+    chown -R datastage-orphan:RGOrphan /home/data/shared/$1
+    chown -R datastage-orphan:RGOrphan /home/data/collab/$1
+    chown -R datastage-orphan:RGOrphan /mnt/data/home/$1
     # (-L tests for symlink ...)
     if [[ -L "/home/$1" ]]; then
       rm "/home/$1"
@@ -39,8 +39,8 @@ else
     fi
   
     mv /etc/apache2/conf.d/user.$1 /etc/apache2/conf.d/orphan.$1
-    mkdir -p /root/datastageconfig.d/admiralresearchgrouporphans
-    mv /root/datastageconfig.d/admiralresearchgroupmembers/$1.sh /root/datastageconfig.d/admiralresearchgrouporphans/
+    mkdir -p /root/datastageconfig.d/datastageresearchgrouporphans
+    mv /root/datastageconfig.d/datastageresearchgroupmembers/$1.sh /root/datastageconfig.d/datastageresearchgrouporphans/
   fi
   
   smbpasswd -x $1

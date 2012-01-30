@@ -3,7 +3,7 @@
 # source /root/datastageconfig.d/datastageconfig.sh
 
 echo ==========================================
-echo "Extract admiral tools from code repository"
+echo "Extract datastage tools from code repository"
 echo ==========================================
 echo TODO: tag stable version of tools and use that
 echo NOTE: tool directories are owned by root, with RO access for all
@@ -14,9 +14,8 @@ if [[ ! -e /mnt/data/tool/DataStage ]]; then
     cd /mnt/data/tool
     git clone git@github.com:dataflow/DataStage.git
     cd  /mnt/data/tool/DataStage
-    git checkout remotes/origin/djangoification
-    mv /mnt/data/tool/DataStage /mnt/data/tool/admiral
-    #hg clone https://admiral-jiscmrd.googlecode.com/hg/ admiral
+    git checkout remotes/origin/ubuntu-10.4
+    #mv /mnt/data/tool/DataStage /mnt/data/tool/DataStage
     cd /root
 fi
 

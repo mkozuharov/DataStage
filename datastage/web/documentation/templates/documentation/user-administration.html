@@ -7,11 +7,11 @@
 <h1>Adding and removing users</h1>
 
 <p>Currently, in order to add or remove users you will have to be logged in via <a href="../docs/accessdirect.html">SSH</a>
-as the user <code>admiral</code>.</p>
+as the user <code>datastage</code>.</p>
 
 <h2>To add a user:</h2>
 
-<p>Run the command <code>sudo su -</code> to have administrative access, using the password for the <code>admiral</code>
+<p>Run the command <code>sudo su -</code> to have administrative access, using the password for the <code>datastage</code>
 user.  Then run the command 
 <blockquote>
 <code>/root/datastageuseradd.sh <cite>username</cite> "<cite>full name</cite>" <cite>grouprole</cite> [<cite>room number</cite> <cite>telephone number</cite> <cite>userpass</cite>]</code>
@@ -45,9 +45,9 @@ previous password:
 
 <p>Similarly to the process for adding a user you must first issue the command <code>sudo su -</code> .  Then run the command
 <blockquote>
-<code>/root/admiraluserddel.sh <cite>username</cite></code>
+<code>/root/datastageuserddel.sh <cite>username</cite></code>
 </blockquote>
-The user will be removed form the filesystem and all their files will be changed to ownership by a special "orphaned data" account (admiral-orphan).
+The user will be removed form the filesystem and all their files will be changed to ownership by a special "orphaned data" account (datastage-orphan).
 The effect of this is that the original owners access rights are removed.  Specifically, only the group leader
 can access the users private files.
 </p>

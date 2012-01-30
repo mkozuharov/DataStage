@@ -6,7 +6,7 @@ function generateuserrecord()
     # $3 - rolename or group
     # $4 - room number
     # $5 - phone number
-    cat > /root/datastageconfig.d/admiralresearchgroupmembers/$1.sh <<EOF
+    cat > /root/datastageconfig.d/datastageresearchgroupmembers/$1.sh <<EOF
 username="$1"
 userfullname="$2"
 userrole="$3"
@@ -105,7 +105,7 @@ END
 
     # For non-collaborators, create user directories and set permissions
     if [[ "$userrole" != "RGCollaborator" ]]; then
-        # Create ADMIRAL working directory areas for the new user
+        # Create DATASTAGE working directory areas for the new user
         # if they don't already exist
         mkdir -p /home/data/private/$username
         mkdir -p /home/data/shared/$username

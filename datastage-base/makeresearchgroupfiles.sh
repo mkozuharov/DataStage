@@ -5,7 +5,7 @@
 # Copy files from source directory to target directory, ignoring those listed as
 # blacklisted, and replace the originals with a symlink to the copy.
 #
-# This is used to create a test  working copy of an ADMIRAL system, with
+# This is used to create a test  working copy of an DATASTAGE system, with
 # supplied host name, password and interpolated into key 
 # configuration files (???)
 #
@@ -32,19 +32,19 @@ PASSWORD=$3
 source hostconfig.sh
 
 # Construct domain name, distinguished name and full hostname for host
-ADMIRALDOMAINDN=""
+DATASTAGEDOMAINDN=""
 DCSEP=""
-ADMIRALDOMAINNAME=""
+DATASTAGEDOMAINNAME=""
 DNSEP=""
-for DC in $ADMIRALDOMAINDC; do
-    ADMIRALDOMAINDN="${ADMIRALDOMAINDN}${DCSEP}dc=${DC}"
+for DC in $DATASTAGEDOMAINDC; do
+    DATASTAGEDOMAINDN="${DATASTAGEDOMAINDN}${DCSEP}dc=${DC}"
     DCSEP=","
-    ADMIRALDOMAINNAME="${ADMIRALDOMAINNAME}${DNSEP}${DC}"
+    DATASTAGEDOMAINNAME="${DATASTAGEDOMAINNAME}${DNSEP}${DC}"
     DNSEP="."
 done
 
-HOSTFULLNAME="${HOSTNAME}${DNSEP}${ADMIRALDOMAINNAME}"
-ADMIRALFULLDN="dc=${HOSTNAME}${DCSEP}${ADMIRALDOMAINDN}"
+HOSTFULLNAME="${HOSTNAME}${DNSEP}${DATASTAGEDOMAINNAME}"
+DATASTAGEFULLDN="dc=${HOSTNAME}${DCSEP}${DATASTAGEDOMAINDN}"
 
 # Common configuration code
 SRCDIR="."
@@ -83,10 +83,10 @@ fi
 echo "# SED commands for makeresearchgroupfiles"     >  makeresearchgroupfiles.sed
 echo "  s/%{RESEARCHGROUPNAME}/$RESEARCHGROUPNAME/g" >> makeresearchgroupfiles.sed
 echo "  s/%{HOSTNAME}/$HOSTNAME/g"                   >> makeresearchgroupfiles.sed
-echo "  s/%{ADMIRALDOMAINDC}/$ADMIRALDOMAINDC/g"     >> makeresearchgroupfiles.sed
-echo "  s/%{ADMIRALDOMAINDN}/$ADMIRALDOMAINDN/g"     >> makeresearchgroupfiles.sed
-echo "  s/%{ADMIRALFULLDN}/$ADMIRALFULLDN/g"         >> makeresearchgroupfiles.sed
-echo "  s/%{ADMIRALDOMAINNAME}/$ADMIRALDOMAINNAME/g" >> makeresearchgroupfiles.sed
+echo "  s/%{DATASTAGEDOMAINDC}/$DATASTAGEDOMAINDC/g"     >> makeresearchgroupfiles.sed
+echo "  s/%{DATASTAGEDOMAINDN}/$DATASTAGEDOMAINDN/g"     >> makeresearchgroupfiles.sed
+echo "  s/%{DATASTAGEFULLDN}/$DATASTAGEFULLDN/g"         >> makeresearchgroupfiles.sed
+echo "  s/%{DATASTAGEDOMAINNAME}/$DATASTAGEDOMAINNAME/g" >> makeresearchgroupfiles.sed
 echo "  s/%{HOSTFULLNAME}/$HOSTFULLNAME/g"           >> makeresearchgroupfiles.sed
 echo "  s/%{HOSTNAME}/$HOSTNAME/g"                   >> makeresearchgroupfiles.sed
 echo "  s/%{PASSWORD}/$PASSWORD/g"                   >> makeresearchgroupfiles.sed

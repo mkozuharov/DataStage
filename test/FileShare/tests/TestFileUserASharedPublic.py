@@ -51,7 +51,7 @@ class TestFileUserASharedPublic(unittest.TestCase):
         return
         
     def testReadMeCIFS(self):
-        # Test assumes ADMIRAL shared file system is mounted at mountpoint
+        # Test assumes DATASTAGE shared file system is mounted at mountpoint
         # Open README file
         f=None
         try:
@@ -107,7 +107,7 @@ class TestFileUserASharedPublic(unittest.TestCase):
         return
 
     def testReadMeDAVfs(self):
-        # Test assumes ADMIRAL shared file system is mounted at mountpoint
+        # Test assumes DATASTAGE shared file system is mounted at mountpoint
         # Open README file
         status=os.system('mount '+TestConfig.webdavmountpoint)
         self.assertEqual(status, 0, 'DAVfs Mount failure')
