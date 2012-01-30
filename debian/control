@@ -16,13 +16,19 @@ Architecture: all
 Depends: ${python:Depends},
          python-django-conneg,
          python-django-longliving,
+         python-django-pam,
+         python-webdav,
          python-rdflib,
-         libpam-python,
+         python-lxml,
+         python-redis,
          redis-server,
          postgresql,
          python-psycopg2,
          python-django (>= 1.3),
-         python-xattr
+         python-xattr,
+         apache2,
+         libapache2-mod-wsgi,
+         python-pylibacl
 Description: DataStage allows research groups to manage research data locally,
              which can then be pushed to an institutional data repository.
 
