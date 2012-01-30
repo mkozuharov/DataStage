@@ -44,7 +44,7 @@ echo ===========================================
 echo "Installing and configuring shared data area"
 echo ===========================================
 
-./admiraldatasetup.sh
+./datastagedatasetup.sh
 /etc/init.d/apache2 restart
 
 echo ===========================================
