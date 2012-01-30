@@ -25,7 +25,7 @@ su postgres -c "createdb datastage &>/dev/null"
 # Cribbed from http://www.debian.org/doc/manuals/securing-debian-howto/ch9.en.html#s-bpp-lower-privs
 
 case "$1" in
-  install|upgrade)
+  configure)
 
   [ -f "/etc/default/dataflow-datastage" ] && ./etc/default/dataflow-datastage
 
@@ -71,7 +71,7 @@ case "$1" in
 esac
 
 case "$1" in
-  install|upgrade)
+  configure)
 
   if [ pg_database_exists $DATABASE_NAME == 0]; then
     sudo -u postgres createdb $DATABASE_NAME
