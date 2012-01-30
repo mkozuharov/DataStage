@@ -1,0 +1,7 @@
+SERVER_HOME=/var/lib/dataflow-datastage/
+SERVER_USER=datastage
+SERVER_NAME=DataStage
+SERVER_GROUP=datastage
+DATABASE_NAME=datastage
+DATA_DIRECTORY=/srv/datastage
+

@@ -27,3 +27,18 @@ export DISTUTILS_ARGS=--root=debian/dataflow-datastage \
 override_dh_auto_install:
 	python setup.py install ${DISTUTILS_ARGS}
 
+override_dh_link:
+	mkdir -p debian/dataflow-datastage/etc
+	ln -s /usr/share/dataflow-datastage/conf/datastage.conf debian/dataflow-datastage/etc/datastage.conf
+
+	mkdir -p debian/dataflow-datastage/etc/apache2/sites-available
+	mkdir -p debian/dataflow-datastage/etc/apache2/sites-enabled
+
+	ln -s /usr/share/dataflow-datastage/conf/apache.conf debian/dataflow-datastage/etc/apache2/sites-available/datastage.conf
+	ln -s ../sites-available/datastage.conf debian/dataflow-datastage/etc/apache2/sites-enabled/datastage.conf
+
+	mkdir -p debian/dataflow-datastage/etc/init.d
+	ln -s /usr/share/dataflow-datastage/conf/longliving-init-script debian/dataflow-datastage/etc/init.d/datastage_longliving
+
+	mkdir -p debian/dataflow-datastage/etc/default
+	ln -s /usr/share/dataflow-datastage/conf/default debian/dataflow-datastage/etc/default/dataflow-datastage

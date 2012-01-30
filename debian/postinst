@@ -6,35 +6,12 @@ pg_database_exists() { echo `sudo -u postgres psql postgres -c "select count(*) 
 
 django-admin collectstatic --settings=datastage.web.settings --noinput --link
 
-if [ ! -f /etc/datastage.conf ];
-then
-    ln -s /usr/share/dataflow-datastage/conf/datastage.conf /etc/datastage.conf
-fi
-
-if [ ! -f /etc/apache2/sites-available/datastage.conf ];
-then
-    ln -s /usr/share/dataflow-datastage/conf/apache.conf /etc/apache2/sites-available/datastage.conf
-    ln -s /etc/apache2/sites-available/datastage.conf /etc/apache2/sites-enabled/datastage.conf
-fi
-
-# Create the datastage postgres user, and don't worry too much if it already exists
-su postgres -c "createuser --no-createdb --no-createrole --no-superuser datastage &>/dev/null"
-# Create the database, likewise
-su postgres -c "createdb datastage &>/dev/null"
-
 # Cribbed from http://www.debian.org/doc/manuals/securing-debian-howto/ch9.en.html#s-bpp-lower-privs
 
 case "$1" in
   configure)
 
-  [ -f "/etc/default/dataflow-datastage" ] && ./etc/default/dataflow-datastage
-
-  [ -z "$SERVER_HOME" ] && SERVER_HOME=/var/lib/dataflow-datastage/
-  [ -z "$SERVER_USER" ] && SERVER_USER=datastage
-  [ -z "$SERVER_NAME" ] && SERVER_NAME=DataStage
-  [ -z "$SERVER_GROUP" ] && SERVER_GROUP=datastage
-  [ -z "$DATABASE_NAME" ] && DATABASE_NAME=datastage
-  [ -z "$DATA_DIRECTORY" ] && DATA_DIRECTORY=/srv/datastage
+  [ -f "/etc/default/dataflow-datastage" ] && source /etc/default/dataflow-datastage
 
   # create user to avoid running server as root
   # 1. create group if not existing
@@ -84,4 +61,12 @@ case "$1" in
 
   sudo -u datastage django-admin syncdb --settings=datastage.web.settings --noinput
   ;;
+esac
+
+# If this is the first time we've been installed, start the longliving service
+case "$1" in
+    install)
+
+    /etc/init.d/datastage_longliving start
+    ;;
 esac
