@@ -38,7 +38,7 @@ echo ========================
 echo "Installing ADMIRAL tools"
 echo ========================
 
-./admiraltoolsetup.sh
+./datastagetoolsetup.sh
 
 echo ===========================================
 echo "Installing and configuring shared data area"

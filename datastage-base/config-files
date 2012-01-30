@@ -22,7 +22,7 @@ lvmconfig.sh /root/lvmconfig.sh
 datastageconfig.sh /root/datastageconfig.sh
 datastagedatasetup.sh /root/datastagedatasetup.sh
 datastagedataaccess.sh /root/datastagedataaccess.sh
-admiraltoolsetup.sh /root/admiraltoolsetup.sh
+datastagetoolsetup.sh /root/datastagetoolsetup.sh
 admiralusermanagement.sh /root/admiralusermanagement.sh
 datastageuseradd.sh /root/datastageuseradd.sh
 datastageuserdel.sh /root/datastageuserdel.sh
