@@ -24,7 +24,7 @@ admiraldatasetup.sh /root/admiraldatasetup.sh
 admiraldataaccess.sh /root/admiraldataaccess.sh
 admiraltoolsetup.sh /root/admiraltoolsetup.sh
 admiralusermanagement.sh /root/admiralusermanagement.sh
-admiraluseradd.sh /root/admiraluseradd.sh
+datastageuseradd.sh /root/datastageuseradd.sh
 admiraluserdel.sh /root/admiraluserdel.sh
 admiralmigrateusers.sh /root/admiralmigrateusers.sh
 apache2.conf /root/apache2.conf
