@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Common functions
-pg_user_exists() { sudo -u postgres echo `psql postgres -c "select count(*) from pg_user where usename = '$1'" -P tuples_only=on`; }
-pg_db_exists() { sudo -u postgres echo `psql postgres -c "select count(*) from pg_database where datname = '$1'" -P tuples_only=on`; }
+pg_user_exists() { echo `sudo -u postgres psql postgres -c "select count(*) from pg_user where usename = '$1'" -P tuples_only=on`; }
+pg_database_exists() { echo `sudo -u postgres psql postgres -c "select count(*) from pg_database where datname = '$1'" -P tuples_only=on`; }
 
 django-admin collectstatic --settings=datastage.web.settings --noinput --link
 
