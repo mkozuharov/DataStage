@@ -45,8 +45,17 @@ case "$1" in
       chmod u=rwx,g=rxs,o= $SERVER_HOME
   fi
   ;;
+
+  # Add our three groups
+  for x in leader member collaborator ; do
+    if ! getent group | grep -q "datastage-$x:" ; then
+      addgroup --quiet --system datastage-$x 2>/dev/null || true
+    fi
+  done
 esac
 
+
+# Configure the database and database user
 case "$1" in
   configure)
 
@@ -62,6 +71,23 @@ case "$1" in
   sudo -u datastage django-admin syncdb --settings=datastage.web.settings --noinput
   ;;
 esac
+
+
+# Add the data structure.
+case "$1" in
+  configure)
+
+  mkdir -p $DATA_DIRECTORY
+  mkdir -p $DATA_DIRECTORY/private
+  mkdir -p $DATA_DIRECTORY/shared
+  mkdir -p $DATA_DIRECTORY/collab
+
+  chgrp datastage-leader $DATA_DIRECTORY/private
+  chgrp datastage-member $DATA_DIRECTORY/shared
+  chgrp datastage-collab $DATA_DIRECTORY/collab
+  ;;
+esac
+
 
 # If this is the first time we've been installed, start the longliving service
 case "$1" in
