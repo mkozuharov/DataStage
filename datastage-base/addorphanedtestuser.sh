@@ -7,6 +7,6 @@ echo "Deleted User Shared File" > /home/data/shared/TestUserD/testDeletedUserFil
 echo "Deleted User Collab File" > /home/data/collab/TestUserD/testDeletedUserFile.tmp
 
 # Delete TestUserD, orphaning the files
-/root/admiraluserdel.sh TestUserD
+/root/datastageuserdel.sh TestUserD
 
 # End.
