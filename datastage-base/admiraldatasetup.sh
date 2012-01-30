@@ -11,6 +11,6 @@ echo =========================
 echo Allowing file access
 echo =========================
 
-source /root/admiraldataaccess.sh
+source /root/datastagedataaccess.sh
 
 # End.
