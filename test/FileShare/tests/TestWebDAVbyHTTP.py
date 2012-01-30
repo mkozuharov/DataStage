@@ -15,7 +15,7 @@ from urlparse import urlparse
 sys.path.append("../..")
 
 readmetext="This directory is the root of the ADMIRAL shared file system.\n"
-readmefile="ADMIRAL.README"
+readmefile="DATASTAGE.README"
 hostname="zoo-admiral-silk.zoo.ox.ac.uk"
 theurl="http://" +hostname+ "/webdav/ChrisHolland"
 #username="test_admiral"
@@ -56,7 +56,7 @@ class TestWebDAVbyHTTP(unittest.TestCase):
 
     def testWebDAVFileRead(self):
         print theurl
-        pagehandle = urllib2.urlopen(theurl+'/ADMIRAL.README')
+        pagehandle = urllib2.urlopen(theurl+'/DATASTAGE.README')
         thepage = pagehandle.read()
         self.assertEqual(thepage, readmetext) 
 

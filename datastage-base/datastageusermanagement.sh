@@ -6,7 +6,7 @@ function generateuserrecord()
     # $3 - rolename or group
     # $4 - room number
     # $5 - phone number
-    cat > /root/admiralconfig.d/admiralresearchgroupmembers/$1.sh <<EOF
+    cat > /root/datastageconfig.d/admiralresearchgroupmembers/$1.sh <<EOF
 username="$1"
 userfullname="$2"
 userrole="$3"

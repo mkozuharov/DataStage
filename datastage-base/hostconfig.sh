@@ -2,7 +2,7 @@
 #
 # Configuration parameters for host Zakynthos
 #
-# (See also: admiralconfig.sh)
+# (See also: datastageconfig.sh)
 #
 
 RESEARCHGROUPNAME="Datastage"

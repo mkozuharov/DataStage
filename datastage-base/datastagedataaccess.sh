@@ -3,10 +3,10 @@
 # Set access rights on ADMIRAL data file areas
 #
 
-source /root/admiralconfig.d/admiralconfig.sh
+source /root/datastageconfig.d/datastageconfig.sh
 
 # chgrp "RGMember" /home/data
-# chown test_admiral: ADMIRAL.README
+# chown test_admiral: DATASTAGE.README
 
 # Add ACLs to prevent unauthenticated access?
 

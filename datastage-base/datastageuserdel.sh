@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source /root/admiralconfig.d/admiralconfig.sh
+source /root/datastageconfig.d/datastageconfig.sh
 
 if [[ "$1" == "" ]]; then
   echo "Usage: $0 username [purge]"
@@ -18,9 +18,9 @@ else
     rm -rf "/home/$1-deleted"
     
     rm -f /etc/apache2/conf.d/user.$1
-    rm -f /root/admiralconfig.d/admiralresearchgroupmembers/$1.sh
+    rm -f /root/datastageconfig.d/admiralresearchgroupmembers/$1.sh
     rm -f /etc/apache2/conf.d/orphan.$1
-    rm -f /root/admiralconfig.d/admiralresearchgrouporphans/$1.sh
+    rm -f /root/datastageconfig.d/admiralresearchgrouporphans/$1.sh
     
   else
 
@@ -39,8 +39,8 @@ else
     fi
   
     mv /etc/apache2/conf.d/user.$1 /etc/apache2/conf.d/orphan.$1
-    mkdir -p /root/admiralconfig.d/admiralresearchgrouporphans
-    mv /root/admiralconfig.d/admiralresearchgroupmembers/$1.sh /root/admiralconfig.d/admiralresearchgrouporphans/
+    mkdir -p /root/datastageconfig.d/admiralresearchgrouporphans
+    mv /root/datastageconfig.d/admiralresearchgroupmembers/$1.sh /root/datastageconfig.d/admiralresearchgrouporphans/
   fi
   
   smbpasswd -x $1

@@ -15,7 +15,7 @@ vmbuilder vmserver ubuntu \
   --gw 129.67.27.254 \
   --dns 129.67.1.1 \
   --bridge br0 \
-  --part admiral.partitions \
+  --part datastage.partitions \
   --user admiral \
   --pass $PASSWD \
   --domain $DOMAINNAME \

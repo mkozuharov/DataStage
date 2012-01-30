@@ -16,7 +16,7 @@ class TestConfig:
     cifsmountpoint   = "mountdatastage"
     webdavmountpoint = "mountdatastagewebdav"
     webdavbaseurl    = "http://"+hostname+"/data/"
-    readmefile       = "ADMIRAL.README"
+    readmefile       = "DATASTAGE.README"
     readmetext       = "This directory is the root of the ADMIRAL shared file system.\n"
     userAname        = "TestUser1"
     userApass        = "user1"
