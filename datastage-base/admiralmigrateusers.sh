@@ -25,20 +25,20 @@ if [[ "$1" == "all" ]]; then
 elif [[ "$1" == "fileaccess" ]]; then
     echo "Updating data volume file ownership and access"
 else
-    if [[ ! -e /root/admiralconfig.d/admiralresearchgroupmembers/$1.sh ]]; then
+    if [[ ! -e /root/datastageconfig.d/admiralresearchgroupmembers/$1.sh ]]; then
         echo "No such user recorded: $1"
         exit
     fi
 fi
  
-source /root/admiralconfig.d/admiralconfig.sh
+source /root/datastageconfig.d/datastageconfig.sh
 
 source /root/admiralusermanagement.sh
 
-# Process all user files in /root/admiralconfig.d/a/root/admiralresearchgroupmembers
+# Process all user files in /root/datastageconfig.d/a/root/admiralresearchgroupmembers
 
 if [[ "$1" == "all" ]]; then
-    for u in `ls /root/admiralconfig.d/admiralresearchgroupmembers/*.sh`; do
+    for u in `ls /root/datastageconfig.d/admiralresearchgroupmembers/*.sh`; do
         #@@TODO: save password hash with user record; use this to reinstate?
         #        (problem: may make user susceptible to dictionary attack, etc.)
         source $u
@@ -49,7 +49,7 @@ if [[ "$1" == "all" ]]; then
         echo "Migrate user $username done."
     done
 
-    for u in `ls /root/admiralconfig.d/admiralresearchgrouporphans/*.sh`; do
+    for u in `ls /root/datastageconfig.d/admiralresearchgrouporphans/*.sh`; do
         source $u
         echo "Orphan user $username..."
         setdataownerandaccess $username admiral-orphan RGOrphan
@@ -57,7 +57,7 @@ if [[ "$1" == "all" ]]; then
     done
     
 elif [[ "$1" == "fileaccess" ]]; then
-    for u in `ls /root/admiralconfig.d/admiralresearchgroupmembers/*.sh`; do       
+    for u in `ls /root/datastageconfig.d/admiralresearchgroupmembers/*.sh`; do       
         source $u
         if [[ "$userrole" == "RGMember" || "$userrole" == "RGLeader" ]]; then
             echo "Set file access for user $username as $userrole ..."
@@ -65,15 +65,15 @@ elif [[ "$1" == "fileaccess" ]]; then
         fi
     done
 
-    for u in `ls /root/admiralconfig.d/admiralresearchgrouporphans/*.sh`; do
+    for u in `ls /root/datastageconfig.d/admiralresearchgrouporphans/*.sh`; do
         source $u
         echo "Set file access for orphan $username..."
         setdataownerandaccess $username admiral-orphan RGOrphan
     done
 
-elif [[ -e "/root/admiralconfig.d/admiralresearchgroupmembers/$1.sh" ]]; then
+elif [[ -e "/root/datastageconfig.d/admiralresearchgroupmembers/$1.sh" ]]; then
     echo "Migrate designated user $1"
-    generatesystemuser /root/admiralconfig.d/admiralresearchgroupmembers/$1.sh    
+    generatesystemuser /root/datastageconfig.d/admiralresearchgroupmembers/$1.sh    
     generatesystemuserhomedir $1
     echo "Migrate user $1 done."
 

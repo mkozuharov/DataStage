@@ -3,7 +3,7 @@
 # Set access rights on ADMIRAL data file areas
 #
 
-source /root/admiralconfig.d/admiralconfig.sh
+source /root/datastageconfig.d/datastageconfig.sh
 
 # chgrp "RGMember" /home/data
 # chown test_admiral: ADMIRAL.README

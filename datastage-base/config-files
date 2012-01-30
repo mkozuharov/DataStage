@@ -19,7 +19,7 @@ postboot-2.sh /root/postboot-2.sh
 postboot-3.sh /root/postboot-3.sh
 postboot-4.sh /root/postboot-4.sh
 lvmconfig.sh /root/lvmconfig.sh
-admiralconfig.sh /root/admiralconfig.sh
+datastageconfig.sh /root/datastageconfig.sh
 admiraldatasetup.sh /root/admiraldatasetup.sh
 admiraldataaccess.sh /root/admiraldataaccess.sh
 admiraltoolsetup.sh /root/admiraltoolsetup.sh
