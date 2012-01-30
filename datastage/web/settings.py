@@ -1,4 +1,4 @@
-# Django settings for t project.
+# Django settings for the project.
 
 import ConfigParser
 import os
