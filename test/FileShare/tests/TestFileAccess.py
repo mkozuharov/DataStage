@@ -13,7 +13,7 @@ sys.path.append("../..")
 readmetext="This directory is the root of the DATASTAGE shared file system.\n"
 mountpoint="mountdatastage"
 readmefile="DATASTAGE.README"
-hostname="zoo-admiral-silk.zoo.ox.ac.uk"
+hostname="dataflow-vm1.oerc.ox.ac.uk"
 
 class TestFileAccess(unittest.TestCase):
 

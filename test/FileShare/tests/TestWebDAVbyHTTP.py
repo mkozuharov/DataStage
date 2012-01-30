@@ -16,7 +16,7 @@ sys.path.append("../..")
 
 readmetext="This directory is the root of the DATASTAGE shared file system.\n"
 readmefile="DATASTAGE.README"
-hostname="zoo-admiral-silk.zoo.ox.ac.uk"
+hostname="dataflow-vm1.oerc.ox.ac.uk"
 theurl="http://" +hostname+ "/webdav/ChrisHolland"
 #username="test_datastage"
 #password="test_datastage"

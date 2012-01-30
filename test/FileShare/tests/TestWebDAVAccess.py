@@ -20,7 +20,7 @@ sys.path.append("../..")
 readmetext="This directory is the root of the DATASTAGE shared file system.\n"
 mountpoint="mountdatastagewebdav"
 readmefile="DATASTAGE.README"
-theurl="http://zoo-admiral-silk.zoo.ox.ac.uk/webdav/ChrisHolland"
+theurl="http://dataflow-vm1.oerc.ox.ac.uk/webdav/TestLeader"
 
 class TestWebDAVAccess(unittest.TestCase):
 
