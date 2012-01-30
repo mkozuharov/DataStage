@@ -12,7 +12,7 @@ aliases /root/aliases
 main.cf /root/main.cf
 common-auth /root/common-auth
 sources.list /etc/apt/sources.list
-ADMIRAL.README /root/ADMIRAL.README
+DATASTAGE.README /root/DATASTAGE.README
 firstboot.sh /root/firstboot.sh
 postboot-1.sh /root/postboot-1.sh
 postboot-2.sh /root/postboot-2.sh

@@ -12,7 +12,7 @@ sys.path.append("../..")
 
 readmetext="This directory is the root of the ADMIRAL shared file system.\n"
 mountpoint="mountdatastage"
-readmefile="ADMIRAL.README"
+readmefile="DATASTAGE.README"
 hostname="zoo-admiral-silk.zoo.ox.ac.uk"
 
 class TestFileAccess(unittest.TestCase):

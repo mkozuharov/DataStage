@@ -2,7 +2,7 @@
 #
 # Run from new VM console or SSH session
 
-if [[ "$1" != "test" && ! -e /mnt/data/data/ADMIRAL.README ]]; then
+if [[ "$1" != "test" && ! -e /mnt/data/data/DATASTAGE.README ]]; then
   echo "Allocate and mount data volume first (or use '$0 test')"
   echo "See http://imageweb.zoo.ox.ac.uk/wiki/index.php/ADMIRAL_LVM_allocation"
   exit
