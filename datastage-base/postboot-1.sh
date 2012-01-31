@@ -2,6 +2,9 @@
 #
 # Run from new VM console
 
+./config-files.sh
+./firstboot.sh
+
 echo =============================
 echo Install ssh
 echo =============================
