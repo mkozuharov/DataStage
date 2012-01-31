@@ -84,7 +84,7 @@ case "$1" in
 
   chgrp datastage-leader $DATA_DIRECTORY/private
   chgrp datastage-member $DATA_DIRECTORY/shared
-  chgrp datastage-collab $DATA_DIRECTORY/collab
+  chgrp datastage-collaborator $DATA_DIRECTORY/collab
   ;;
 esac
 
