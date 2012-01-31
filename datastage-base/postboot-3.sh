@@ -46,7 +46,6 @@ apt-get install postgresql
 
 apt-get update
 
-
 pip install -r requirements.txt
 
 
