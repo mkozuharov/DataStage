@@ -3,7 +3,7 @@
 # Run from new VM console or SSH session
 
 echo =============================
-echo "Update packages"
+echo "Install packages"
 echo =============================
 
 apt-get install acpid 
@@ -44,8 +44,11 @@ apt-get install python-dev
 apt-get install python-psycopg2
 apt-get install postgresql
 
-
 apt-get update
+
+
+pip install -r requirements.txt
+
 
 echo =============================
 echo "Next step: postboot_4.sh"
