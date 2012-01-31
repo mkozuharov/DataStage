@@ -6,7 +6,7 @@ case "$1" in
   start)
 
   sudo -u $SERVER_USER django-admin longliving --settings=datastage.web.settings &
-  /usr/share/datastage/conf/datastage.scgi &
+  /usr/share/dataflow-datastage/conf/datastage.scgi &
 
   ;;
 
