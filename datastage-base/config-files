@@ -5,6 +5,9 @@ ssh_config /root/ssh_config
 sshd_config /root/sshd_config
 common-password /root/common-password
 ntp.conf /etc/ntp.conf
+apache-default-ssl /root/apache-default-ssl
+apache-default /root/apache-default
+apache-databank-proxy /root/apache-databank-proxy
 make-apache2-cert.sh /root/make-apache2-cert.sh
 openssl.cnf /etc/ssl/openssl.cnf
 nrpe.cfg /root/nrpe.cfg
