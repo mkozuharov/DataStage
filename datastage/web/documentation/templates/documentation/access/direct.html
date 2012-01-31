@@ -44,7 +44,7 @@
   <p>MacOS has a built-in <code>ssh</code> command for creating SSH sessions,
      which can be used thus from the <code>Terminal</Code> application:</p>
   
-  <blockquote><code>ssh <i>username</i>@{{ hostname }}</code></blockquote>
+  <blockquote><code>ssh <span class="name">username</span>@{{ hostname }}</code></blockquote>
 
   <p>Finder can be used to find the <code>Terminal</code> application in
      directory <code>Applications/Utilities</code>.</p>
@@ -52,14 +52,12 @@
   <p>It also provides a command-line SCP file copying command, which is used similarly:</p>
 
   <blockquote>
-    <code>scp <i>username</i>@{{ hostname }}:/home/<i>username/filename</i> <i>localfilename</i></code><br/>
-    <code>scp <i>localfilename</i> <i>username</i>@{{ hostname }}:/home/<i>username/filename</i>
+    <code>scp <span class="name">username</span>@{{ hostname }}:/home/<span class="name">username/filename</span> <span class="name">localfilename</span></code><br/>
+    <code>scp <span class="name">localfilename</span> <span class="name">username</span>@{{ hostname }}:/home/<span class="name">username/filename</span></code>
   </blockquote>
 	
   <p>For SCP file copying, there is a shareware GUI application called
-     Cyberduck (<a href="http://cyberduck.ch/">http://cyberduck.ch/</a>). The
-     name and logo image may seem a bit trite, but it is a reliable and
-     easy-to-use application.</p>
+     Cyberduck (<a href="http://cyberduck.ch/">http://cyberduck.ch/</a>).</p>
 </section>
 
 <section>
@@ -71,9 +69,9 @@
   <p>Here are some examples of their use:</p>
   
   <blockquote>
-    <code>ssh <i>username</i>@{{ hostname }}</code><br/>
-    <code>scp <i>username</i>@{{ hostname }}:/home/<i>username/filename</i> <i>localfilename</i></code><br/>
-    <code>scp <i>localfilename</i> <i>username</i>@{{ hostname }}:/home/<i>username/filename</i>
+    <code>ssh <span class="name">username</span>@{{ hostname }}</code><br/>
+    <code>scp <span class="name">username</span>@{{ hostname }}:/home/<span class="name">username/filename</span> <span class="name">localfilename</span></code><br/>
+    <code>scp <span class="name">localfilename</span> <span class="name">username</span>@{{ hostname }}:/home/<span class="name">username/filename</span></code>
   </blockquote>
 </section>
 
