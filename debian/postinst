@@ -44,14 +44,14 @@ case "$1" in
       chown -R $SERVER_USER:adm $SERVER_HOME
       chmod u=rwx,g=rxs,o= $SERVER_HOME
   fi
-  ;;
 
   # Add our three groups
-  for x in leader member collaborator ; do
+  for x in leader collaborator member ; do
     if ! getent group | grep -q "datastage-$x:" ; then
       addgroup --quiet --system datastage-$x 2>/dev/null || true
     fi
   done
+  ;;
 esac
 
 
