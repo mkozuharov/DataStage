@@ -1,7 +1,11 @@
 import base64
+import os
+import pwd
 
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.auth import authenticate, login
+
+from datastage.config import settings
 
 from .views import LoginRequiredView
 
@@ -31,4 +35,16 @@ class BasicAuthMiddleware(object):
             raise ValueError
         return base64.b64decode(authorization[6:]).split(':', 1)
             
-                
+class DropPrivilegesMiddleware(object):
+    """This middleware drops down to the user performing the request."""
+
+    def process_request(self, request):
+        if request.user.is_authenticated():
+            username = request.user.username
+        else:
+            username = settings['main:datastage_user']
+
+        user = pwd.getpwnam(username)
+
+        os.setgid(user.pw_gid)
+        os.setuid(user.pw_uid)

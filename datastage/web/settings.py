@@ -89,6 +89,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'datastage.web.auth.middleware.BasicAuthMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'datastage.web.auth.middleware.DropPrivilegesMiddleware',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
