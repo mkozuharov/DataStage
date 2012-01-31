@@ -4,7 +4,7 @@ body
 {
 	background-color: #fff;	
 	font-family: helvetica, arial, sans-serif;
-	font-size: 0.82em;
+	font-size: 0.85em;
 	padding: 0px;
 	
 
@@ -195,23 +195,24 @@ list-style: none;
 }
 
 
-.content ul,
-.content ol
+.main ul,
+.main ol
 {
 padding-left: 20px;
 }
-.content li 
+
+.main li 
 {
 margin: 0.6em 0px 0px 0px;
 }
 
 
-.content ol li 
+.main ul li 
 {
 list-style: disc;
 }
 
-.content ol li
+.main ol li
 {
 list-style: decimal;
 }
@@ -256,6 +257,11 @@ clear: both;
 font-weight: bold;
 }
 
+.username {
+
+font-style: italic;
+
+}
 
 /* currentActions */
 
@@ -715,3 +721,21 @@ a:hover.callToAction,
 a:focus.callToAction {
 	color:#99cdd1;
 }
+
+
+#filelayout li
+{
+list-style: none;
+}
+
+#filelayout li ul
+{
+margin-left: 4em;
+}
+
+ol.threeStart {
+counter-reset: item 2;
+display: block;
+}
+
+

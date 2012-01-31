@@ -20,22 +20,18 @@
 	
 	<section class="panel">
 	  <h2>Upload data</h2>
-	
+	<p>{{ settings.SITE_NAME }} allows you to upload and manage your data in a number of ways.</p>
 	  <ul>
 	
-		<li>Local file access
-		<ul>
-    <li><a href="{% url documentation:page "access/windows" %}">Local network file access (Windows)</a></li>
-    <li><a href="{% url documentation:page "access/mac-os-x" %}">Local network file access (MacOS)</a></li>
-    <li><a href="{% url documentation:page "access/linux" %}">Local network file access (Linux)</a></li>
-		</ul>
-                </li>
+		<li><a href="{% url documentation:page "access/local-file" %}">set {{ settings.SITE_NAME }} up as a mapped drive on your machine</a></li>
+		
     <li><a href="{% url documentation:page "access/http" %}">Web browser access</a></li>
     <li><a href="{% url documentation:page "access/webdav" %}">Web file system file access (WebDAV)</a></li>
     <li><a href="{% url documentation:page "access/direct" %}">Secured direct file access (SSH, SCP)</a></li>
 	  </ul>
 	  
-	  
+	  	  <p>Select they ways most appropriate for you.  You may find that different methods are useful for different situations, for example you may want to set up a local file access as your main method of managing your data, but use the Web interface to browse your data remotely.</p>
+
 	  
 	</section>
 	
@@ -44,8 +40,8 @@
 	  <h2>About DataStage</h2>
 	
 	  <ul>
-    <li><a href="{% url documentation:page "file-organization" %}">Data file organization</a></li>
-	<li><a href="">How to create a data package of data files for submission to the Oxford DataBank</a></li>
+    <li><a href="{% url documentation:page "file-organization" %}">Data permissions and file organization</a></li>
+	<li><a href="{% url documentation:page "data-submission" %}">How to create a data package of data files for submission to the Oxford DataBank</a></li>
     <li><a href="{% url documentation:page "user-administration" %}">User administration: add, remove and password change</a></li>
 	  </ul>
 	  
