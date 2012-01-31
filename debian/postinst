@@ -4,7 +4,6 @@
 pg_user_exists() { echo `sudo -u postgres psql postgres -c "select count(*) from pg_user where usename = '$1'" -P tuples_only=on`; }
 pg_database_exists() { echo `sudo -u postgres psql postgres -c "select count(*) from pg_database where datname = '$1'" -P tuples_only=on`; }
 
-django-admin collectstatic --settings=datastage.web.settings --noinput --link
 
 # Cribbed from http://www.debian.org/doc/manuals/securing-debian-howto/ch9.en.html#s-bpp-lower-privs
 
@@ -101,3 +100,5 @@ case "$1" in
     /etc/init.d/datastage_longliving start
     ;;
 esac
+
+django-admin collectstatic --settings=datastage.web.settings --noinput --link

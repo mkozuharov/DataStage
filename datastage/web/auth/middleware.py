@@ -48,3 +48,9 @@ class DropPrivilegesMiddleware(object):
 
         os.setgid(user.pw_gid)
         os.setuid(user.pw_uid)
+
+    def process_response(self, request, response):
+        os.setegid(0)
+        os.seteuid(0)
+        return response
+
