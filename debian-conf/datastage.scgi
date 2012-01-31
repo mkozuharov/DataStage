@@ -1,0 +1,33 @@
+#!/usr/bin/python
+
+import os
+import sys
+
+os.environ['DJANGO_SETTINGS_MODULE'] = 'datastage.web.settings'
+
+import django.core.handlers.wsgi
+
+from datastage.config import settings
+
+application = django.core.handlers.wsgi.WSGIHandler()
+
+if __name__ == '__main__':
+    pidfile_path = settings.relative_to_config(settings['server:pidfile'])
+
+    try:
+    	with open(pidfile_path, 'r') as f:
+    		old_pid = int(f.read())
+    	if os.path.exists('/proc/%d' % old_pid):
+    	    sys.stderr.write("Already running; quitting.")
+    	    sys.exit(1)
+    except (ValueError, IOError):
+    	pass
+
+    pid = os.getpid()
+    with open(pidfile_path, 'w') as f:
+    	f.write(str(pid))
+
+    port = int(settings['server:port'])
+
+    from flup.server.scgi_fork import WSGIServer
+    WSGIServer(application, bindAddress=('localhost', port)).run()
