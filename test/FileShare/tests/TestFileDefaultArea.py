@@ -37,7 +37,7 @@ class TestFileDefaultArea(unittest.TestCase):
 
         thepage=None
         try:
-            pagehandle = urllib2.urlopen(TestConfig.webdavbaseurl+'/ADMIRAL.README')
+            pagehandle = urllib2.urlopen(TestConfig.webdavbaseurl+'/DATASTAGE.README')
             thepage = pagehandle.read()
         except urllib2.HTTPError,e:
             if e.code!=403 and e.code!=401:

@@ -2,9 +2,9 @@
 #
 # Run from new VM console or SSH session
 
-if [[ "$1" != "test" && ! -e /mnt/data/data/ADMIRAL.README ]]; then
+if [[ "$1" != "test" && ! -e /mnt/data/data/DATASTAGE.README ]]; then
   echo "Allocate and mount data volume first (or use '$0 test')"
-  echo "See http://imageweb.zoo.ox.ac.uk/wiki/index.php/ADMIRAL_LVM_allocation"
+  echo "See http://imageweb.zoo.ox.ac.uk/wiki/index.php/DATASTAGE_LVM_allocation"
   exit
 fi
 
@@ -20,11 +20,11 @@ echo "Create and populate configuration directory"
 echo ===========================================
 
 mkdir -p /mnt/data/config
-if [[ ! -e /root/admiralconfig.d ]]; then
-    ln -s /mnt/data/config /root/admiralconfig.d
+if [[ ! -e /root/datastageconfig.d ]]; then
+    ln -s /mnt/data/config /root/datastageconfig.d
 fi
 
-for f in admiralconfig.sh; do  # (Used to be >1 file here; maybe again)
+for f in datastageconfig.sh; do  # (Used to be >1 file here; maybe again)
     ff=/mnt/data/config/$f
     if [[ -e "$ff" ]]; then
         echo "Copying new version of $f as $ff-new"
@@ -35,16 +35,16 @@ for f in admiralconfig.sh; do  # (Used to be >1 file here; maybe again)
 done
 
 echo ========================
-echo "Installing ADMIRAL tools"
+echo "Installing DATASTAGE tools"
 echo ========================
 
-./admiraltoolsetup.sh
+./datastagetoolsetup.sh
 
 echo ===========================================
 echo "Installing and configuring shared data area"
 echo ===========================================
 
-./admiraldatasetup.sh
+./datastagedatasetup.sh
 /etc/init.d/apache2 restart
 
 echo ===========================================
@@ -52,15 +52,15 @@ echo "Create user account for orphaned data files"
 echo ===========================================
 
 
-#smbldap-useradd -a -P -m -s /bin/false -g RGOrphan admiral-orphan
+#smbldap-useradd -a -P -m -s /bin/false -g RGOrphan datastage-orphan
 
-#smbldap-userinfo -f "Orphaned data" admiral-orphan
+#smbldap-userinfo -f "Orphaned data" datastage-orphan
 
 echo =================================
 echo "Next step: configure system users"
 echo =================================
 
-mkdir -p /root/admiralconfig.d/admiralresearchgroupmembers
-mkdir -p /root/admiralconfig.d/admiralresearchgrouporphans
+mkdir -p /root/datastageconfig.d/datastageresearchgroupmembers
+mkdir -p /root/datastageconfig.d/datastageresearchgrouporphans
 
 # End.

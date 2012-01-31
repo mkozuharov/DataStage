@@ -2,13 +2,13 @@
 #
 # Configuration parameters for host Zakynthos
 #
-# (See also: admiralconfig.sh)
+# (See also: datastageconfig.sh)
 #
 
 RESEARCHGROUPNAME="Datastage"
 
-ADMIRALDOMAINDC="zoo ox ac uk"
-ADMIRALHOSTNAME="zakynthos"
+DATASTAGEDOMAINDC="zoo ox ac uk"
+DATASTAGEHOSTNAME="zakynthos"
 
 # Samba/Windows workgroup name for research group files
 WORKGROUP="ExampleResearchGroup"

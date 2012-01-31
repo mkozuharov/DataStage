@@ -42,6 +42,13 @@ margin-bottom: 0px;
 
 }
 
+header.pageHeader h1
+{
+	font-size: 4em;
+	letter-spacing: -0.16em;
+	margin: -8px 0px -8px -5px;
+
+}
 
 
 

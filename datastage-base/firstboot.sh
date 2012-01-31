@@ -7,7 +7,7 @@ mv /etc/sudoers /etc/sudoers-orig
 chmod 440 /root/sudoers
 cp /root/sudoers /etc/sudoers
 #chmod 440 /etc/sudoers
-smbpasswd -s -a admiral <<END
+smbpasswd -s -a datastage <<END
 %{PASSWORD}
 %{PASSWORD}
 END
@@ -30,7 +30,7 @@ a2ensite default-ssl
 mkdir /home/data
 chown www-data: /home/data
 chmod g+ws /home/data
-cp /root/ADMIRAL.README /home/data
+cp /root/DATASTAGE.README /home/data
 
 chmod +x /root/make-apache2-cert.sh
 /root/make-apache2-cert.sh %{HOSTFULLNAME}

@@ -5,13 +5,13 @@ source /etc/default/dataflow-datastage
 case "$1" in
   start)
 
-  sudo -u $DATASTAGE_USER django-admin longliving --settings=datastage.web.settings &
+  sudo -u $SERVER_USER django-admin longliving --settings=datastage.web.settings &
 
   ;;
 
   stop)
 
-  sudo -u $DATASTAGE_USER django-admin longliving_stop --settings=datastage.web.settings
+  sudo -u $SERVER_USER django-admin longliving_stop --settings=datastage.web.settings
 
   ;;
 

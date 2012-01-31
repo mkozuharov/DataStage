@@ -14,12 +14,12 @@ from urlparse import urlparse
 
 sys.path.append("../..")
 
-readmetext="This directory is the root of the ADMIRAL shared file system.\n"
-readmefile="ADMIRAL.README"
-hostname="zoo-admiral-silk.zoo.ox.ac.uk"
+readmetext="This directory is the root of the DATASTAGE shared file system.\n"
+readmefile="DATASTAGE.README"
+hostname="dataflow-vm1.oerc.ox.ac.uk"
 theurl="http://" +hostname+ "/webdav/ChrisHolland"
-#username="test_admiral"
-#password="test_admiral"
+#username="test_datastage"
+#password="test_datastage"
 username="FritzVollrath"
 password="Fritz-2203"
 #username="ChrisHolland"
@@ -56,7 +56,7 @@ class TestWebDAVbyHTTP(unittest.TestCase):
 
     def testWebDAVFileRead(self):
         print theurl
-        pagehandle = urllib2.urlopen(theurl+'/ADMIRAL.README')
+        pagehandle = urllib2.urlopen(theurl+'/DATASTAGE.README')
         thepage = pagehandle.read()
         self.assertEqual(thepage, readmetext) 
 

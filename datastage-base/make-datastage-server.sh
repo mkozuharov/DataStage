@@ -1,7 +1,7 @@
-# rm /etc/libvirt/qemu/admiral.xml
+# rm /etc/libvirt/qemu/datastage.xml
 # sudo /etc/init.d/libvirt-bin restart
 HOSTNAME=%{HOSTNAME}
-DOMAINNAME=%{ADMIRALDOMAINNAME}
+DOMAINNAME=%{DATASTAGEDOMAINNAME}
 IPADDR=%{IPADDR}
 PASSWD=%{PASSWORD}
 if true; then
@@ -15,8 +15,8 @@ vmbuilder vmserver ubuntu \
   --gw 129.67.27.254 \
   --dns 129.67.1.1 \
   --bridge br0 \
-  --part admiral.partitions \
-  --user admiral \
+  --part datastage.partitions \
+  --user datastage \
   --pass $PASSWD \
   --domain $DOMAINNAME \
   --hostname $HOSTNAME \

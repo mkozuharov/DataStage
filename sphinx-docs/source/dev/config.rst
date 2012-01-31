@@ -13,7 +13,7 @@ This is currently a stub module awaiting support for setting this stuff in
 
     .. py:attribute:: DATA_DIRECTORY
 
-       The root of the directory to serve to research group members. In Admiral,
+       The root of the directory to serve to research group members. In Datastage,
        this would have been /home/data/
    
     .. py:attribute:: SITE_NAME

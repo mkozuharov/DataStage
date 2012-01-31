@@ -5,19 +5,15 @@
 
 class TestConfig:
     
-    #hostname         = "zoo-admiral-behav.zoo.ox.ac.uk"
-    #hostname         = "zoo-admiral-silk.zoo.ox.ac.uk"
-    #hostname         = "zoo-admiral-devel.zoo.ox.ac.uk"
-    hostname         = "zoo-admiral-ibrg.zoo.ox.ac.uk"
-    #hostname         = "zakynthos.zoo.ox.ac.uk"
-    #hostname         = "zoo-samos.zoo.ox.ac.uk"
+    hostname         = "dataflow-vm1.oerc.ox.ac.uk"
+
      
     cifssharename    = "data"
     cifsmountpoint   = "mountdatastage"
     webdavmountpoint = "mountdatastagewebdav"
     webdavbaseurl    = "http://"+hostname+"/data/"
-    readmefile       = "ADMIRAL.README"
-    readmetext       = "This directory is the root of the ADMIRAL shared file system.\n"
+    readmefile       = "DATASTAGE.README"
+    readmetext       = "This directory is the root of the DATASTAGE shared file system.\n"
     userAname        = "TestUser1"
     userApass        = "user1"
     userBname        = "TestUser2"

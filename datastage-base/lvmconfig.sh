@@ -5,14 +5,14 @@
 # new data location
 #
 # This is the default case for a new system build when using a single 
-# separate disk volume for ADMIRAL data
+# separate disk volume for DATASTAGE data
 
 pvcreate /dev/sdb1
-vgcreate vg-admiral-data /dev/sdb1
-lvcreate --name lv-admiral-data --extents 100%FREE vg-admiral-data
-mkfs.ext3 /dev/vg-admiral-data/lv-admiral-data
-mkdir /mnt/lv-admiral-data
-mount /dev/vg-admiral-data/lv-admiral-data /mnt/lv-admiral-data
+vgcreate vg-datastage-data /dev/sdb1
+lvcreate --name lv-datastage-data --extents 100%FREE vg-datastage-data
+mkfs.ext3 /dev/vg-datastage-data/lv-datastage-data
+mkdir /mnt/lv-datastage-data
+mount /dev/vg-datastage-data/lv-datastage-data /mnt/lv-datastage-data
 if [[ -L /mnt/data ]]; then
     # /mnt/data is symlink
     rm /mnt/data
@@ -20,7 +20,7 @@ elif [[ -e /mnt/data ]]; then
     # /mnt/data is directory
     mv /mnt/data /mnt/data-saved
 fi
-ln -s /mnt/lv-admiral-data-ext/ /mnt/data
+ln -s /mnt/lv-datastage-data-ext/ /mnt/data
 cd /home
 cp -axv data/ /mnt/data/
 mv data data-saved

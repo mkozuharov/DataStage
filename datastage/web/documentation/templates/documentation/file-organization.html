@@ -4,40 +4,40 @@
 
 {% block content %}
 
-<h1>Data file organization</h1>
+<h1>Data permissions and file organization</h1>
 
 <!--
 <dl>
-<dt><code>data/</code></dt>
+<dt>data/</span></dt>
 <dd>base for research data files:</dd>
   <blockquote>
   <dl>
-  <dt><code>private/</code></dt>
+  <dt>private/</span></dt>
   <dd>area for research group members private files:</dd>
     <blockquote>
     <dl>
-    <dt><cite>username</cite></dt>
-    <dd>private area for files belonging to <cite>username</cite></dd>
+    <dt><span class="name">username</dt>
+    <dd>private area for files belonging to <span class="name">username</dd>
     </dl>
     </blockquote>
   </dl>
   <dl>
-  <dt><code>shared/</code></dt>
+  <dt>shared/</span></dt>
   <dd>area for sharing files between research group members:</dd>
     <blockquote>
     <dl>
-    <dt><cite>username</cite></dt>
-    <dd>shared files created by <cite>username</cite></dd>
+    <dt><span class="name">username</dt>
+    <dd>shared files created by <span class="name">username</dd>
     </dl>
     </blockquote>
   </dl>
   <dl>
-  <dt><code>collab/</code></dt>
+  <dt>collab/</span></dt>
   <dd>area for sharing files with selected external collaborators:</dd>
     <blockquote>
     <dl>
-    <dt><cite>username</cite></dt>
-    <dd>collaborator-shared files created by <cite>username</cite></dd>
+    <dt><span class="name">username</dt>
+    <dd>collaborator-shared files created by <span class="name">username</dd>
     </dl>
     </blockquote>
   </dl>
@@ -45,26 +45,44 @@
 </dl>
 -->
 
+<p>There are three levels of access to data within {{ settings.SITE_NAME }}: <strong>private</strong>, <strong>shared</strong> and <strong>collaborative</strong>:</p>
+
+
+<ul>
+	<li><strong>private:</strong> data which can only be accessed by you</li>
+	
+	<li><strong>shared:</strong> data to be shared between research group members </li>
+	<li><strong>collaborative:</strong> data to be shared with selected external collaborators (in addition to members of your research group)</li>
+</ul>
+
+
+<p><strong>Note:</strong> Research group leaders also have access to <em>all</em> data within a research group, including the 'private' files of individual group members.</p>
+
+
+<p>Permissions within {{ settings.SITE_NAME }} are managed by file organisation; that is what permissions a particular set of data has is determined by where it is located.
+</p>
+
+
 <ul id="filelayout" class="filetree">
-  <li><span class="folder"><code>&nbsp;data/</code> - base for research data files:</span>
+  <li><span class="folder">data/</span> - base for research data files:</span>
     <ul>
-      <li><span class="folder"><code>&nbsp;private/</code> - area for research group members private files:</span>
+      <li><span class="folder">private/</span> - area for research group members private files:</span>
         <ul>
-        <li><span class="file"><code><cite>&nbsp;username</cite></code> - private area for files belonging to <code><cite>username</cite></code></span></li>
+        <li><span class="file"><span class="username">username</span> - private area for files belonging to <span class="username">username</span></span></li>
         </ul>
       </li>
     </ul>
     <ul>
-      <li><span class="folder"><code>&nbsp;shared/</code> - area for sharing files between research group members:</span>
+      <li><span class="folder">shared/</span> - area for sharing files between research group members:</span>
         <ul>
-        <li><span class="file"><code><cite>&nbsp;username</cite></code> - shared files created by <code><cite>username</cite></code></span></li>
+        <li><span class="file"><span class="username">username</span> - shared files created by <span class="username">username</span></span></li>
         </ul>
       </li>
     </ul>
     <ul>
-      <li><span class="folder"><code>&nbsp;collab/</code> - area for sharing files with selected external collaborators:</span>
+      <li><span class="folder">collab/</span> - area for sharing files with selected external collaborators:</span>
         <ul>
-        <li><span class="file"><code><cite>&nbsp;username</cite></code> - collaborator-shared files created by <code><cite>username</cite></code></span></li>
+        <li><span class="file"><span class="username">username</span> - collaborator-shared files created by <span class="username">username</span></span></li>
         </ul>
       </li>
     </ul>
