@@ -6,12 +6,14 @@ case "$1" in
   start)
 
   sudo -u $SERVER_USER django-admin longliving --settings=datastage.web.settings &
+  /usr/share/dataflow-datastage/conf/datastage.scgi &
 
   ;;
 
   stop)
 
   sudo -u $SERVER_USER django-admin longliving_stop --settings=datastage.web.settings
+  kill `cat /var/run/datastage.pid` || true
 
   ;;
 

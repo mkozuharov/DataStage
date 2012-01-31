@@ -4,7 +4,6 @@
 pg_user_exists() { echo `sudo -u postgres psql postgres -c "select count(*) from pg_user where usename = '$1'" -P tuples_only=on`; }
 pg_database_exists() { echo `sudo -u postgres psql postgres -c "select count(*) from pg_database where datname = '$1'" -P tuples_only=on`; }
 
-django-admin collectstatic --settings=datastage.web.settings --noinput --link
 
 # Cribbed from http://www.debian.org/doc/manuals/securing-debian-howto/ch9.en.html#s-bpp-lower-privs
 
@@ -44,14 +43,14 @@ case "$1" in
       chown -R $SERVER_USER:adm $SERVER_HOME
       chmod u=rwx,g=rxs,o= $SERVER_HOME
   fi
-  ;;
 
   # Add our three groups
-  for x in leader member collaborator ; do
+  for x in leader collaborator member ; do
     if ! getent group | grep -q "datastage-$x:" ; then
       addgroup --quiet --system datastage-$x 2>/dev/null || true
     fi
   done
+  ;;
 esac
 
 
@@ -64,7 +63,12 @@ case "$1" in
   fi
 
   if pg_user_exists $SERVER_USER | grep 0; then
-    sudo -u postgres createuser $SERVER_USER --no-createdb --no-createrole --no-superuser
+    DB_PASSWORD=/var/lib/dataflow-datastage/database-password
+    if [ ! -e $DB_PASSWORD ]; then
+      mkdir -p `dirname $DB_PASSWORD`
+    fi
+    pwgen --secure 16 1 > $DB_PASSWORD
+    sudo -u postgres psql $DATABASE_NAME -c "CREATE ROLE $SERVER_USER PASSWORD '`cat $DB_PASSWORD`' NOSUPERUSER NOCREATEDB NOCREATEROLE INHERIT LOGIN"
     sudo -u postgres psql $DATABASE_NAME -c "GRANT ALL ON DATABASE $DATABASE_NAME TO $SERVER_USER"
   fi
 
@@ -84,7 +88,7 @@ case "$1" in
 
   chgrp datastage-leader $DATA_DIRECTORY/private
   chgrp datastage-member $DATA_DIRECTORY/shared
-  chgrp datastage-collab $DATA_DIRECTORY/collab
+  chgrp datastage-collaborator $DATA_DIRECTORY/collab
   ;;
 esac
 
@@ -96,3 +100,5 @@ case "$1" in
     /etc/init.d/datastage_longliving start
     ;;
 esac
+
+django-admin collectstatic --settings=datastage.web.settings --noinput --link

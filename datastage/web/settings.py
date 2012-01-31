@@ -5,35 +5,8 @@ import os
 
 from django.core.exceptions import ImproperlyConfigured
 
+from datastage.config import settings
 
-def get_config():
-    # Find config file
-    def _config_locations():
-        if 'DATASTAGE_CONFIG' in os.environ:
-            yield os.environ['DATASTAGE_CONFIG']
-        yield os.path.expanduser('~/.datastage.conf')
-        yield '/etc/datastage.conf'
-        yield os.path.join(os.path.dirname(__file__), 'datastage.conf')
-    
-    for config_location in _config_locations():
-        if os.path.exists(config_location):
-            break
-    else:
-        raise ImproperlyConfigured("Couldn't find config file")
-    
-    config = ConfigParser.ConfigParser()
-    config.read(config_location)
-    
-    config = dict((':'.join([sec, key]), config.get(sec, key)) for sec in config.sections() for key in config.options(sec))
-
-    def relative_path(*args):
-        # Return None if any of the arguments are None.
-        if all(args):
-            return os.path.abspath(os.path.join(os.path.dirname(config_location), *args))
-
-    return relative_path, config
-
-relative_path, config = get_config()
 
 
 DEBUG = True
@@ -49,6 +22,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
         'NAME': 'datastage',                      # Or path to database file if using sqlite3.
+        'HOST': 'localhost',
+        'USER': 'datastage',
+        'PASSWORD': open(settings['server:database_password_file'], 'r').read().strip(),
     }
 }
 
@@ -77,7 +53,7 @@ USE_L10N = True
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT = relative_path(config['static:root'])
+STATIC_ROOT = settings.relative_to_config(settings['static:root'])
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
@@ -116,6 +92,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'datastage.web.auth.middleware.BasicAuthMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'datastage.web.auth.middleware.DropPrivilegesMiddleware',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
