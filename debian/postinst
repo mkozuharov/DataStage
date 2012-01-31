@@ -67,7 +67,7 @@ case "$1" in
     DB_PASSWORD=/var/lib/dataflow-datastage/database-password
     if [ ! -e $DB_PASSWORD ]; then
       mkdir -p `dirname $DB_PASSWORD`
-    done
+    fi
     pwgen --secure 16 1 > $DB_PASSWORD
     sudo -u postgres psql $DATABASE_NAME -c "CREATE ROLE $SERVER_USER PASSWORD '`cat $DB_PASSWORD`' NOSUPERUSER NOCREATEDB NOCREATEROLE INHERIT LOGIN"
     sudo -u postgres psql $DATABASE_NAME -c "GRANT ALL ON DATABASE $DATABASE_NAME TO $SERVER_USER"
