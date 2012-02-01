@@ -2,6 +2,9 @@
 #
 # Run from new VM console
 
+apt-get install apache2 
+apt-get install samba 
+
 ./config-files.sh
 ./firstboot.sh
 

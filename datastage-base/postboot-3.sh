@@ -10,8 +10,6 @@ apt-get install acpid
 apt-get install unattended-upgrades 
 apt-get install denyhosts 
 apt-get install ufw 
-apt-get install apache2 
-apt-get install samba 
 apt-get install samba-doc 
 apt-get install krb5-user 
 apt-get install ntp 
@@ -44,9 +42,13 @@ apt-get install python-dev
 apt-get install python-psycopg2
 apt-get install postgresql
 
+
+apt-get install libapache2-mod-wsgi
+/etc/init.d/apache2 restart
+sudo a2enmod wsgi
 apt-get update
 
-pip install -r ../requirements.txt
+pip install -r ./../requirements.txt
 
 
 echo =============================
