@@ -93,6 +93,9 @@ case "$1" in
 esac
 
 
+a2enmod proxy
+a2enmod proxy_scgi
+
 # If this is the first time we've been installed, start the longliving service
 case "$1" in
     install)
