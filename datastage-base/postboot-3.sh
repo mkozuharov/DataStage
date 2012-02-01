@@ -48,9 +48,6 @@ apt-get install libapache2-mod-wsgi
 sudo a2enmod wsgi
 apt-get update
 
-pip install -r ./../requirements.txt
-
-
 echo =============================
 echo "Next step: postboot_4.sh"
 echo =============================

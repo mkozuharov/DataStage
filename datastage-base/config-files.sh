@@ -4,12 +4,10 @@ cp krb5.conf /etc/krb5.conf
 cp ssh_config /root/ssh_config
 cp sshd_config /root/sshd_config
 cp common-password /root/common-password
-cp ntp.conf /etc/ntp.conf
 cp apache-default-ssl /root/apache-default-ssl
 cp apache-default /root/apache-default
 cp make-apache2-cert.sh /root/make-apache2-cert.sh
 cp openssl.cnf /etc/ssl/openssl.cnf
-cp nrpe.cfg /root/nrpe.cfg
 cp aliases /root/aliases
 cp main.cf /root/main.cf
 cp common-auth /root/common-auth

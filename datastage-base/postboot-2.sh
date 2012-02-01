@@ -16,14 +16,12 @@ echo "Configure new packages"
 echo =============================
 
 cp /root/common-password /etc/pam.d/common-password
-cp /root/nrpe.cfg /etc/nagios/nrpe.cfg
 /etc/init.d/nagios-nrpe-server restart
 cp /root/aliases /etc/aliases
 newaliases
 cp /root/main.cf /etc/postfix/main.cf
 cp /root/apache2.conf /etc/apache2/apache2.conf
-mkdir /var/www/docs
-cp -ax /root/www/* /var/www/docs
+
 
 echo =============================
 echo "Configure and enable firewall"
