@@ -46,7 +46,6 @@ cp /root/apache-default /etc/apache2/sites-available/default
 
 a2enmod proxy
 a2enmod proxy_http
-cp /root/apache-databank-proxy /etc/apache2/conf.d/databank-proxy.conf
 
 /etc/init.d/apache2 restart
 

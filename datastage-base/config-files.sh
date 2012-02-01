@@ -7,7 +7,6 @@ cp common-password /root/common-password
 cp ntp.conf /etc/ntp.conf
 cp apache-default-ssl /root/apache-default-ssl
 cp apache-default /root/apache-default
-cp apache-databank-proxy /root/apache-databank-proxy
 cp make-apache2-cert.sh /root/make-apache2-cert.sh
 cp openssl.cnf /etc/ssl/openssl.cnf
 cp nrpe.cfg /root/nrpe.cfg
