@@ -17,10 +17,10 @@ from urlparse import urlparse
 
 sys.path.append("../..")
 
-readmetext="This directory is the root of the ADMIRAL shared file system.\n"
-mountpoint="mountadmiralwebdav"
-readmefile="ADMIRAL.README"
-theurl="http://zoo-admiral-ibrg.zoo.ox.ac.uk/webdav/TestUser1"
+readmetext="This directory is the root of the DATASTAGE shared file system.\n"
+mountpoint="mountdatastagewebdav"
+readmefile="DATASTAGE.README"
+theurl="http://dataflow-vm1.oerc.ox.ac.uk/webdav/TestLeader"
 
 class TestWebDAVAccess(unittest.TestCase):
 
@@ -40,7 +40,7 @@ class TestWebDAVAccess(unittest.TestCase):
         return
 
     def testReadMe(self):
-        # Test assumes ADMIRAL shared file system is mounted at mountpoint
+        # Test assumes DATASTAGE shared file system is mounted at mountpoint
         # Open README file
         f = open(mountpoint+'/'+readmefile)
         assert (f), "README file open failed"

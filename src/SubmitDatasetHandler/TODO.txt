@@ -1,4 +1,0 @@
-Check behaviour of file submit when file already exists (e.g. creates new version?).
-
-Similarly, check unpack behaviour when target already exists.
-

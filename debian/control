@@ -1,0 +1,41 @@
+Source: dataflow-datastage
+Section: python
+Priority: extra
+Maintainer: DataFlow <jisc.dataflow@gmail.com>
+Build-Depends: debhelper (>= 7.0.50~),
+               python-all,
+               python-setuptools
+Standards-Version: 3.9.2
+Vcs-Git: git://github.com/dataflow/DataStage.git
+Homepage: https://github.com/dataflow/DataStage
+Uploaders: Alexander Dutton <alexander.dutton@zoo.ox.ac.uk>
+XS-Python-Version: >= 2.6
+
+Package: dataflow-datastage
+Architecture: all
+Depends: ${python:Depends},
+         python-django-conneg,
+         python-django-longliving,
+         python-django-pam,
+         python-webdav,
+         python-rdflib,
+         python-lxml,
+         python-redis,
+         python-oauth2,
+         python-flup,
+         python-tz,
+         redis-server,
+         postgresql,
+         postgresql-client,
+         python-psycopg2,
+         python-django (>= 1.3),
+         python-xattr,
+         apache2,
+         sysvinit-utils,
+         chkconfig,
+         libapache2-mod-scgi,
+         pwgen,
+         python-pylibacl
+Description: DataStage allows research groups to manage research data locally,
+             which can then be pushed to an institutional data repository.
+

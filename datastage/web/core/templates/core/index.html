@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>{{ settings.SITE_NAME }}</h1>
+
+<p>This server hosts research data files created by
+{% if settings.GROUP_URL %}<a href="{{ settings.GROUP_URL }}">{{ settings.GROUP_NAME }}</a>{% else %}{{ settings.GROUP_NAME }}{% endif %}.</p>
+
+<div class="panelSet threePanel">
+	<section class="panel">
+	  <h2>Browse data</h2>
+	  
+	  <ul>
+		<li><a href="{% url browse:index "" %}">All data</a></li>
+		<li><a href="{% url browse:index "private/" %}">Private data</a> — visible to the user who creates it, and to the research group leader(s).</li>
+		<li><a href="{% url browse:index "shared/" %}">Shared data</a> — readable by all research group members.</li>
+		<li><a href="{% url browse:index "collab/" %}">Collaborative data</a> — readable and writable by all research group members and outside collaborators.</li>
+	  </ul>
+	</section>
+	
+	<section class="panel">
+	  <h2>Upload data</h2>
+	<p>{{ settings.SITE_NAME }} allows you to upload and manage your data in a number of ways.</p>
+	  <ul>
+	
+		<li><a href="{% url documentation:page "access/local-file" %}">set {{ settings.SITE_NAME }} up as a mapped drive on your machine</a></li>
+		
+    <li><a href="{% url documentation:page "access/http" %}">Web browser access</a></li>
+    <li><a href="{% url documentation:page "access/webdav" %}">Web file system file access (WebDAV)</a></li>
+    <li><a href="{% url documentation:page "access/direct" %}">Secured direct file access (SSH, SCP)</a></li>
+	  </ul>
+	  
+	  	  <p>Select they ways most appropriate for you.  You may find that different methods are useful for different situations, for example you may want to set up a local file access as your main method of managing your data, but use the Web interface to browse your data remotely.</p>
+
+	  
+	</section>
+	
+	
+	<section class="panel">
+	  <h2>About DataStage</h2>
+	
+	  <ul>
+    <li><a href="{% url documentation:page "file-organization" %}">Data permissions and file organization</a></li>
+	<li><a href="{% url documentation:page "data-submission" %}">How to create a data package of data files for submission to the Oxford DataBank</a></li>
+    <li><a href="{% url documentation:page "user-administration" %}">User administration: add, remove and password change</a></li>
+	  </ul>
+	  
+	  
+	</section>
+</div>
+
+{% endblock %}

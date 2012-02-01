@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<!--[if lt IE 7 ]> <html lang="en" class="ie ie6"> <![endif]-->
+<!--[if IE 7 ]>    <html lang="en" class="ie ie7"> <![endif]-->
+<!--[if IE 8 ]>    <html lang="en" class="ie ie8"> <![endif]-->
+<!--[if IE 9 ]>    <html lang="en" class="ie ie9"> <![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!-->
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<!--<![endif]-->
+
+<head>
+  <title>{% block title %}{% endblock %} | {{ settings.SITE_NAME }}</title>
+  <meta charset="utf-8" />
+  <link rel="stylesheet" href="{{ STATIC_URL }}base.css" type="text/css" />
+  <script type="application/javascript" src="http://code.jquery.com/jquery-1.6.4.min.js">
+</script>
+  <script type="application/javascript" src="{{ STATIC_URL }}base.js">
+</script><!--[if lt IE 9]>
+  <script src="{{ STATIC_URL }}js/html5.js" type="text/javascript"></script>
+
+  <![endif]-->
+  <!-- print stylesheet for print stlying -->
+  <link media="print" href="{{ STATIC_URL }}styles/print.css" rel="stylesheet" type="text/css" />
+  <!-- general reset styles for getting rid of annoying browser defaults -->
+  <link media="all" href="{{ STATIC_URL }}styles/reset.css" rel="stylesheet" type="text/css" />
+  <!-- basic styles suitable for all devices *DO NOT put layout stuff here * -->
+  <link media="all" href="{{ STATIC_URL }}styles/basic.css" rel="stylesheet" type="text/css" />
+  <!-- styles for mobile devices-->
+  <link href="{{ STATIC_URL }}styles/marmoset.css" rel="stylesheet" type="text/css" media=
+  "screen and (max-width: 639px)" /><!-- styles for smallscreen devices-->
+  <link href="{{ STATIC_URL }}styles/squirrelMonkey.css" rel="stylesheet" type="text/css" media=
+  "(min-width: 640px)" /><!-- styles for small-to-medium screen desktop  devices-->
+  <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}styles/chimpanzee.css" media=
+  "(min-width: 1100px) and (max-width: 1600px)" />
+  <!-- styles for large screen desktop devices-->
+  <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}styles/silverback.css" media=
+  "screen and (min-width: 1601px)" />
+  <!-- styles for Internet explorer - imports the small/medium desktop stylesheet and contains  any ie-specific styles -->
+  <!--[if (gt IE 4)&(lt IE 9)]>
+    <link media="screen" href="{{ STATIC_URL }}styles/ie.css" rel="stylesheet" type="text/css"/>
+   <![endif]-->
+  <!-- encourage mobile devices to initially load the site without zooming out -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="keywords" content="" />
+  <meta name="description" content="" />
+</head>
+
+<body>
+  <div id="page">
+   <header class="pageHeader">
+	 <h1>
+      <a href="{% url core:index %}">{{ settings.SITE_NAME }}</a>
+    	</h1>
+    	<nav>
+    	<label>main navigation</label>
+
+    <ul id="mainnav">
+      <li><a href="/" id="nav-index">Home</a></li>
+      <li><a href="{% url core:about %}">about</a></li> 
+      <li><a href="/admin">admin</a></li>    
+    </ul>
+    </nav>
+</header>
+
+    <div class="main">
+      {% block content %}{% endblock %}
+
+      <div class="clear"></div>
+    </div><!-- close .main -->
+    <footer class="site">
+
+    <div class="siteAdmin">
+      <ul>
+      {% if user.is_authenticated %}
+      <li>logged in as {{ user.first_name }} {{ user.last_name }} ({{ user.username }})</li>
+      <li><a href="{% url logout %}">log out</a></li>
+      {% else %}
+        <li><a href="{% url login %}">log in</a></li>
+      {% endif %}
+        <li><a href="{% url core:contact %}">contact</a></li>
+      </ul>
+    </div>
+
+    <div class="copyright">
+      <p>Copyright resides with the noted authors/creators of the works held here, unless
+      otherwise noted.</p>
+
+      <p><a href="/api">Datasets API list</a></p>
+    </div>
+    </footer>
+
+  </div><!-- /end #page -->
+</body>
+</html>

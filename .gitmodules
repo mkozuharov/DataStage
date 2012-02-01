@@ -1,0 +1,9 @@
+[submodule "jquery"]
+	path = jquery
+	url = git://github.com/jquery/jquery.git
+[submodule "mochikit"]
+	path = mochikit
+	url = git://github.com/mochi/mochikit.git
+[submodule "jquery-treeview"]
+	path = jquery-treeview
+	url = git://github.com/jzaefferer/jquery-treeview.git

@@ -14,12 +14,18 @@ from urlparse import urlparse
 
 sys.path.append("../..")
 
-readmetext="This directory is the root of the ADMIRAL shared file system.\n"
-readmefile="ADMIRAL.README"
-hostname="zoo-admiral-ibrg.zoo.ox.ac.uk"
-theurl="http://" +hostname+ "/data/private/TestUser1"
-username="TestUser1"
-password="user1"
+readmetext="This directory is the root of the DATASTAGE shared file system.\n"
+readmefile="DATASTAGE.README"
+hostname="dataflow-vm1.oerc.ox.ac.uk"
+theurl="http://" +hostname+ "/webdav/ChrisHolland"
+#username="test_datastage"
+#password="test_datastage"
+username="FritzVollrath"
+password="Fritz-2203"
+#username="ChrisHolland"
+#password="Chris-2203"
+#username="test2"
+#password="test2"
 passman = urllib2.HTTPPasswordMgrWithDefaultRealm()
 passman.add_password(None, theurl, username, password)
 authhandler = urllib2.HTTPBasicAuthHandler(passman)
@@ -41,16 +47,16 @@ class TestWebDAVbyHTTP(unittest.TestCase):
 
     def testWebDAVFile(self):
         h1 = httplib.HTTPConnection(hostname)
-        h1.request('GET','/data')
+        h1.request('GET','/webdav')
         res=h1.getresponse()
-        authreq = str(res.status) + ' ' +res.reason
+        authreq = str(res.status) + ' ' + res.reason
         print authreq
 #        self.assertEqual(authreq, '401 Authorization Required', 'Unexpected response') 
         return
 
     def testWebDAVFileRead(self):
-        theurl="http://" +hostname+ "/data"
-        pagehandle = urllib2.urlopen(theurl+'/ADMIRAL.README')
+        print theurl
+        pagehandle = urllib2.urlopen(theurl+'/DATASTAGE.README')
         thepage = pagehandle.read()
         self.assertEqual(thepage, readmetext) 
 

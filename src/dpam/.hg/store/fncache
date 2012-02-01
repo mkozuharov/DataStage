@@ -1,0 +1,5 @@
+data/dpam/pam.py.i
+data/setup.py.i
+data/dpam/backends.py.i
+data/dpam/__init__.py.i
+data/README.i

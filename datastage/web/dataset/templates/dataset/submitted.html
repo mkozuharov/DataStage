@@ -1,0 +1,15 @@
+{% extends "dataset/base.html" %}
+
+{% block content %}
+<article>
+  <h1>Submitted</h1>
+  
+{% if queued %}
+  <p>The data package has been queued for submission.</p>
+{% else %}
+  <p>This data package is already being submitted.</p>
+{% endif %}
+
+  <p><a href="{% url dataset:submission-detail dataset_submission.id %}">View submission progess</a></p>
+</article>
+{% endblock %}

@@ -1,0 +1,10 @@
+Metadata-Version: 1.0
+Name: django-pam
+Version: 1.0
+Summary: A simple PAM authentication backend for Django.
+Home-page: http://bitbucket.org/wnielson/django-pam
+Author: Weston Nielson
+Author-email: wnielson@gmail.com
+License: UNKNOWN
+Description: UNKNOWN
+Platform: UNKNOWN

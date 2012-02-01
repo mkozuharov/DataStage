@@ -1,0 +1,46 @@
+body {
+  font-family: "Liberation Sans", Arial, sans-serif;
+}
+
+.meta-title, .meta-description {
+  width:200px;
+  display: block;
+  padding:5px;
+  cursor: pointer;
+  height:100%;
+  min-height:1.5em;
+}
+
+.meta-title:hover, .meta-description:hover {
+  background-color: #eea;
+}
+
+table.directory-listing {
+  border:1px solid #888;
+  border-collapse: collapse;
+  width:100%;
+}
+
+table.directory-listing td, table.directory-listing th {
+  padding: 5px;
+}
+
+table.directory-listing tr:hover {
+  background-color: #ee8;
+}
+
+table.directory-listing th a {
+  color:#ffffff;
+}
+
+
+tr.row-odd {
+  background-color: #eee;
+}
+tr.row-even {
+  background-color: #ddd;
+}
+
+td.directory-empty {
+  text-align:center;
+}

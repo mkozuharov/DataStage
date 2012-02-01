@@ -1,0 +1,8 @@
+README
+django_pam.egg-info/PKG-INFO
+django_pam.egg-info/SOURCES.txt
+django_pam.egg-info/dependency_links.txt
+django_pam.egg-info/top_level.txt
+dpam/__init__.py
+dpam/backends.py
+dpam/pam.py

@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# DATASTAGE system parameters
+# (see also apache-default and apache-default-ssl)
+
+RGLeaderGID=600
+RGMemberGID=601
+RGCollabGID=602
+RGOrphanGID=603
+
+RESEARCHGROUPNAME="%{RESEARCHGROUPNAME}"
+DATASTAGEDOMAINDC="%{DATASTAGEDOMAINDC}"
+DATASTAGEHOSTNAME="%{HOSTNAME}"
+SAMBAWORKGROUP="%{WORKGROUP}"
+
+

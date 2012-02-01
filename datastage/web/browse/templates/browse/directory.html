@@ -1,0 +1,73 @@
+{% extends "browse/base.html" %}{% load datastage_browse %}
+
+{% block title %}Index of /{{ path }}{% endblock %}
+
+{% block content %}
+<h1>Index of /{{ path }}</h1>
+
+<p>
+  <a class="action" href="?action=upload" title="Upload a file to this directory">Upload a file</a>
+  <a class="action" href="?action=zip" title="Download directory as ZIP archive">Download as ZIP</a>
+  <a class="action" href="{% url dataset:submit %}?path=/{{ path|urlencode }}" title="Submit this directory as a dataset">Submit as data package</a>
+  <a class="action" href="{% url dataset:index %}?path=/{{ path|urlencode }}">Submitted {{ dataset_submissions.count }} times</a>
+</p>
+
+<form method="post" action="">{% csrf_token %}
+<table class="directory-listing">
+  <thead>
+    <tr>
+      <th/>
+      {% for name, label in column_names %}
+      <th><a href="?sort={{ name }}&amp;reverse={% if sort_name == name and not sort_reverse %}true{% else %}false{% endif %}">{{ label }}</a>{% if sort_name == name %} {% if sort_reverse %}↑{% else %}↓{% endif %}{% endif %}</th>
+      {% endfor %}
+      <th class="meta-title-header">Title</th>
+      <th>Description</th>
+      <th>Tags</th>
+    </tr>
+  </thead>
+  <tbody>
+{% if parent_url %}
+    <tr class="row-odd">
+      <td>UP</td>
+      <td><a href="{{ parent_url }}">Parent directory</a></td>
+      <td/>
+      <td/>
+      <td/>
+      <td/>
+      <td/>
+      <td/>
+    </tr>
+{% endif %}
+{% for subpath in subpaths %}
+    <tr class="row-{% if parent_url %}{% cycle "even" "odd" %}{% else %}{% cycle "odd" "even" %}{% endif %}">
+      <td>{{ subpath.type|upper }}</td>
+      <td>
+        {% if subpath.link %}<a href="{{ subpath.url }}"{% else %}<span{% endif %} title="{{ subpath.name }}">{{ subpath.name|truncatechars:30 }}{% if subpath.type == "dir" %}/{% endif %}{% if subpath.link %}</a>{% else %}</span>{% endif %}
+      </td>
+      <td>{{ subpath.last_modified }}</td>
+      <td>{% if subpath.type == "file" %}
+        <span title="{{ subpath.stat.st_size }} bytes">{{ subpath.stat.st_size|filesizeformat }}</span>
+          {% else %}—{% endif %}</td>
+      <td>{% if subpath.owner_name %}{{ subpath.owner_name }} ({{ subpath.owner_username }}){% endif %}</td>
+      {% if subpath.can_read %}
+      {% if subpath.can_write %}
+      <td><input class="meta-title" type="text" name="meta-title-{{ subpath.name|urlencode }}" value="{{ subpath.title|default:"" }}"/></td>
+      <td><textarea class="meta-description" name="meta-description-{{ subpath.name|urlencode }}">{{ subpath.description|default:"" }}</textarea></td>
+      <td/>
+      {% else %}
+      <td>{{ subpath.title|default:"" }}</td>
+      <td>{{ subpath.description|default:"" }}</td>
+      <td/>
+      {% endif %}{% else %}<td/><td/><td/>{% endif %}
+    </tr>
+{% empty %}
+    <tr>
+      <td colspan="8" class="directory-empty">This directory is empty.</td>
+    </tr>
+{% endfor %}
+  </tbody>
+</table>
+<input class="meta-submit" type="submit" value="Update metadata"/>
+</form>
+
+{% endblock %}
