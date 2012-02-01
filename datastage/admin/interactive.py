@@ -42,7 +42,7 @@ def status_menu():
         print
         print "Status of some services"
         print
-        
+
         actions = {}
         if check_port_listening(22)[2]:
             print "SSH: Running"
@@ -51,23 +51,38 @@ def status_menu():
                 actions['ssh'] = update_firewall_ssh
         else:
             print "SSH: Not running; type 'ssh' to turn it on."
-            actions['ssh'] = enable_ssh
+            actions['ssh'] = enable_service('sshd', 'SSH')
         
+        if check_port_listening(80)[2]:
+            print "Apache: Running"
+            if os.path.exists('/etc/apache/sites-enabled/000-default'):
+                print "Apache default site exists at /etc/apache/sites-enabled/000-default;"
+                print "  type 'apache' to remove it and restart Apache"
+                actions['apache'] = remove_default_apache_site
+        else:
+            print "Apache: Not running; type 'apache' to turn it on."
+            actions['apache'] = enable_service('apache2', 'Apache')
+
             
         yield menu(actions)
 
-def enable_ssh():
-    print "Enabling SSH..."
-    subprocess.call(["service", "sshd", "start"])
-    subprocess.call(["chkconfig", "sshd", "on"])
-    print "SSH enabled."
-    yield
+def enable_service(name, label):
+    print "Enabling %s..." % label
+    subprocess.call(["service", name, "start"])
+    subprocess.call(["chkconfig", name, "on"])
+    print "%s enabled." % label
+
 def update_firewall_ssh():
     print "Tweaking the firewall"
     subprocess.call(["/usr/sbin/ufw", "allow", "OpenSSH"])
     subprocess.call(["/usr/sbin/ufw", "enable"])
     print "Tweaking complete"
-    yield
+
+def remove_default_apache_site():
+    print "Removing defulat apache site and restarting apache"
+    os.unlink('/etc/apache/sites-enabled/000-default')
+    subprocess.call(["service", "apache2", "restart"])
+    print "Done"
 
 def main_menu():
     print "Welcome to the interactive DataStage set-up system."

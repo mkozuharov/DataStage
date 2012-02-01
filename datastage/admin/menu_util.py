@@ -65,7 +65,7 @@ def interactive(start_menu):
         try:
             result = menu.next()
             if isinstance(result, types.FunctionType):
-                menu_stack.append(result())
+                result = result()
             if isinstance(result, types.GeneratorType):
                 menu_stack.append(result)
             elif result is ExitMenu:
