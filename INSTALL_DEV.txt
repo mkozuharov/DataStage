@@ -45,6 +45,12 @@ hg clone https://bitbucket.org/maze/django-pam
 
 NOTE: you will be able to log-in with your system username and password (it uses your "login" pam configuration)
 
+- sword2
+
+hg clone https://bitbucket.org/richardjones/python-sword2
+(venv)richard$ cd python-sword2
+(venv)richard$ python setup.py install
+
 3/ Configure DataStage
 
 - in datastage/config/__init__.py set the DATA_DIRECTORY at least, and the other

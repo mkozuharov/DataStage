@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 
-from datastage.dataset import OXDSDataset, Sword2Dataset
+from datastage.dataset import OXDSDataset
 
 REPOSITORY_TYPE_CHOICES = (
     ('sword2', 'Sword-2'),
@@ -77,7 +77,11 @@ class DatasetSubmission(models.Model):
     def get_absolute_url(self):
         return reverse('dataset:submission-detail', args=[self.id])
     
-    _dataset_types = {'sword2': Sword2Dataset,
+    # FIXME: I'm not really sure of the consequences of this, but I have implemented
+    # the SWORD2 connector independently of the datasets, as a function of the
+    # repository rather than the dataset - which makes more sense - so here both
+    # dataset types are the same implementation
+    _dataset_types = {'sword2': OXDSDataset,
                       'databank': OXDSDataset}
     
     @property
