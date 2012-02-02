@@ -25,11 +25,12 @@ appropriate permissions set.</p>
 
 <h2>To change a user password</h2>
 
-Log in via <a href="../docs/accessdirect.html">SSH</a>, and use the <code>smbldap-passwd</code> command.
+Log in via <a href="../docs/accessdirect.html">SSH</a>, and use the <code>smbpasswd</code> command.
 
 To change your own password:
 <blockquote>
-<code>smbldap-passwd</code>
+<code>passwd</code>
+<code>smbpasswd</code>
 </blockquote>
 the system will prompt for the old password, then the new password to be entered twice.
 
@@ -38,7 +39,8 @@ you can also change the password for any user without having to enter the
 previous password:
 <blockquote>
 <code>sudo su -</code><br/>
-<code>smbldap-passwd <cite>username</cite></code>
+<code>passwd <cite>username</cite></code>
+<code>smbpasswd -a <cite>username</cite></code>
 </blockquote>
 
 <h2>To remove a user:</h2>
