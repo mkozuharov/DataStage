@@ -119,7 +119,7 @@ def services_menu():
             if listening_on != available_at:
                 print "             Warning:      Not available on all interfaces."
                 print "             \033[95mAction:       Type '%s' to tweak the firewall\033[0m" % service_name
-                actions[service_name] = update_firewall_service(firewall_ports)
+                actions[service_name] = update_firewall_service(*firewall_ports)
         else:
             print "%10s:  Status:       \033[91mNot running\033[0m" % label
             print "             \033[95mAction:       Type '%s' to start %s\033[0m" % (service_name, label)
