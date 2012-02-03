@@ -5,6 +5,7 @@ import pwd
 
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.auth import authenticate, login
+import django.contrib.auth.views as auth_views
 
 from datastage.config import settings
 
@@ -41,9 +42,14 @@ class DropPrivilegesMiddleware(object):
 
     _libc = ctypes.cdll.LoadLibrary('libc.so.6')
 
-    def process_request(self, request):
+    def process_view(self, request, view_func, view_args, view_kwargs):
         # Can't do anything if we're not uid zero.
         if os.geteuid() != 0:
+            return
+
+        # Don't do this if we're heading to the login view, as this would break PAM
+        # Oh, the hours I've spent wrestling with it.
+        if view_func is auth_views.login:
             return
 
         if request.user.is_authenticated():
