@@ -255,7 +255,7 @@ setup(
     data_files=data_files,
     install_requires=install_requires,
     dependency_links=dependency_links,
-    scripts=['bin/datastage-config'],
+    scripts=['bin/datastage-config', 'bin/datastage-server'],
     #cmdclass={'sdist': sdist,
     #          'clean': clean},
 )
