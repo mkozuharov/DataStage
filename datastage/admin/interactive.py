@@ -1,4 +1,3 @@
-import errno
 import os
 import re
 import socket
@@ -8,6 +7,7 @@ import sys
 
 from datastage.config import settings
 from .menu_util import interactive, menu
+from .util import check_pid
 
 def get_ips():
     addrs = (re.findall(r"addr: ?([\d:.a-f]+)", subprocess.check_output('/sbin/ifconfig')))
@@ -71,23 +71,7 @@ def check_port_listening(addrs, port):
             pass
     return available_at
 
-def check_pid(*filenames):
-    try:
-        for filename in filenames:
-            if not os.path.exists(filename):
-                continue
-            with open(filename) as f:
-                pid = int(f.read().strip())
-                break
-        else:
-            return False
-        os.kill(pid, 0)
-    except OSError, e:
-        if e.errno == errno.ESRCH:
-            return False
-        raise
-    else:
-        return True
+
 
 def firewall_menu():
     print "Hello!"
