@@ -1,4 +1,5 @@
 import base64
+import ctypes
 import os
 import pwd
 
@@ -38,7 +39,13 @@ class BasicAuthMiddleware(object):
 class DropPrivilegesMiddleware(object):
     """This middleware drops down to the user performing the request."""
 
+    _libc = ctypes.cdll.LoadLibrary('libc.so.6')
+
     def process_request(self, request):
+        # Can't do anything if we're not uid zero.
+        if os.geteuid() != 0:
+            return
+
         if request.user.is_authenticated():
             username = request.user.username
         else:
@@ -46,11 +53,6 @@ class DropPrivilegesMiddleware(object):
 
         user = pwd.getpwnam(username)
 
-        os.setgid(user.pw_gid)
-        os.setuid(user.pw_uid)
-
-    def process_response(self, request, response):
-        os.setegid(0)
-        os.seteuid(0)
-        return response
+        self._libc.setfsuid(user.pw_uid)
+        self._libc.setfsgid(user.pw_gid)
 
