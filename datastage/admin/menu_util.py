@@ -64,7 +64,7 @@ def interactive(start_menu):
         
         try:
             result = menu.next()
-            if isinstance(result, types.FunctionType):
+            if callable(result):
                 result = result()
             if isinstance(result, types.GeneratorType):
                 menu_stack.append(result)
