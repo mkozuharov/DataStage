@@ -25,7 +25,6 @@ from datastage.web.dataset.models import DatasetSubmission
 from datastage.config import settings
 from datastage.util.path import get_permissions, statinfo_to_dict, permission_map, has_permission
 
-from .dav import DAVView
 
 class DirectoryView(HTMLView, JSONView):
     def dispatch(self, request, path_on_disk, path, permissions):
@@ -200,15 +199,13 @@ class ZipView(ContentNegotiatedView):
         response['Content-Disposition'] = 'attachment;filename=%s.zip' % urllib.quote(basename)
         return response
 
-class IndexView(DAVView, ContentNegotiatedView):
+class IndexView(ContentNegotiatedView):
 
     directory_view = staticmethod(DirectoryView.as_view())
     file_view = staticmethod(FileView.as_view())
     forbidden_view = staticmethod(ForbiddenView.as_view())
 
     action_views = {'zip': ZipView.as_view()}
-
-    http_method_names = ContentNegotiatedView.http_method_names + DAVView.http_method_names
 
     @method_decorator(login_required)
     def dispatch(self, request, path):
