@@ -34,6 +34,8 @@ Depends: ${python:Depends},
          chkconfig,
          libapache2-mod-scgi,
          pwgen,
+         openssh-server,
+         samba,
          python-pylibacl
 Description: DataStage allows research groups to manage research data locally,
              which can then be pushed to an institutional data repository.
