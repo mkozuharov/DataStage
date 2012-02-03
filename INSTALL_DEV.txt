@@ -1,0 +1,196 @@
+Developer's DataStage Installation
+==================================
+
+These instructions detail how to install DataStage locally for the purposes of
+development.  They are NOT a production installation guide.
+
+
+1/ Set up a virtual environment:
+
+It's easiest to run DataStage in its own custom python environment in order to
+get the right versions of things installed.
+
+sudo easy_install virtualenv
+virtualenv --no-site-packages venv
+source venv/bin/activate
+
+venv is some directory where the virtual environment will exist
+
+2/ Install the dependencies:
+
+- first the easy ones from easy_install (be sure to do this in the virtual
+environment - venv - no need to sudo)
+
+[you may need to apt install some packages to support these dependencies]
+
+easy_install oauth2
+easy_install pylibacl
+easy_install django >=1.3.1
+easy_install django-conneg>=1.3.1
+easy_install django-longliving>=1.3.1
+easy_install lxml
+easy_install pytz
+easy_install xattr
+easy_install pam
+easy_install psycopg2
+easy_install "rdflib==3.2.0"
+
+- now django-pam:
+
+FIXME: is there an easy_install package that is better?
+
+hg clone https://bitbucket.org/maze/django-pam
+(venv)richard$ cd django-pam/
+(venv)richard$ python setup.py install
+
+NOTE: you will be able to log-in with your system username and password (it uses your "login" pam configuration)
+
+3/ Configure DataStage
+
+- in datastage/config/__init__.py set the DATA_DIRECTORY at least, and the other
+    settings optionally
+
+- in datastage/web/settings.py, set:
+
+ADMINS = (
+    ('Richard', 'richard@cottagelabs.com')
+    # ('Your Name', 'your_email@example.com'),
+)
+
+4/ Set up the Database
+
+- first create the database in postgres:
+
+sudo su - postgres
+createdb datastage
+
+(you will also need to create a role called "datastage" which has access to the
+datastage database)
+
+- then get django to sync the data model.  In datastage/web:
+
+python manage.py syncdb
+
+- this will ask you:
+
+You just installed Django's auth system, which means you don't have any superusers defined.
+Would you like to create one now? (yes/no): yes
+Username (Leave blank to use 'richard'): datastage
+E-mail address: my@email.address
+Password: admin
+Password (again): admin 
+Superuser created successfully.
+
+obviously, choose a more secure password, although it is irrelevant as you won't
+be able to login to this account (see 8).
+
+5/ Set up Access Control Lists (ACL)
+
+- install the package
+sudo aptitude install acl
+
+- configure /etc/fstab for your relevant partition (here we use a USB drive
+as the example).  Note that we use "acl" as one of the arguments (and in this
+case the sole argument) for the mount point.  The mount point should be the
+DATA_DIRECTORY configured above
+
+# mount with acl
+/dev/sdb1	/data	ext4	acl	0	0
+
+- mount the partition
+
+sudo mount /dev/sdb1
+cd /data
+
+- Fix web/utils/path.py
+
+The default approach DataStage uses assumes that your entire directory structure
+has ACL enabled.  If this is not the case, you will need to modify this file
+and prevent the "if check_prefixes" test from executing; I have shown this done
+below
+
+def get_permissions(path, user, check_prefixes=False):
+    user = pwd.getpwnam(user)
+    parts = path.split(os.path.sep)
+    prefixes = [os.path.sep.join(parts[:i+1]) or '/' for i in xrange(len(parts)-1)]
+    
+    # FIXME: I have disabled this for the time being, as it does not work on
+    # my setup
+    if check_prefixes and False:
+        for prefix in prefixes:
+            acl = posix1e.ACL(file=prefix)
+            st = os.stat(prefix)
+            if not _check_permission(acl, user, st, (posix1e.ACL_EXECUTE,)):
+                raise IOError(errno.EACCES, None, prefix)
+    
+    acl = posix1e.ACL(file=path.encode('utf-8'))
+    st = os.stat(path)
+    
+    return set(p for p in (posix1e.ACL_READ, posix1e.ACL_WRITE, posix1e.ACL_EXECUTE) if \
+               _check_permission(acl, user, st, (p,)))
+
+6/ Install datastage
+
+Here we install the "djangoification" branch of DataStage.  If you are using
+a different branch, substitute appropriately.
+
+git clone -b djangoification git@github.com:dataflow/DataStage.git
+cd DataStage
+python setup.py install
+
+(we have to install the app before we run it, otherwise the paths to the modules
+aren't available in the runtime)
+
+7/ Run DataStage
+
+in web:
+
+python manage.py runserver
+
+You should now be able to see DataStage at:
+
+http://localhost:8000
+
+8/ Enabling access to the admin site
+
+Log in to DataStage using your desktop user account (it will authenticate you
+using the "login" PAM settings in /etc/pam.d/login).
+
+Once you have logged in for the first time, a user account will be created for
+you in the auth_user database table.  To enable access to the admin back-end,
+run the following SQL on the database:
+
+UPDATE auth_user 
+    SET is_staff = true, 
+    is_superuser = true 
+    WHERE username = '[username]';
+
+You will now be able to login from:
+
+http://localhost:8000/admin/
+
+9/ Setting up a repository connection
+
+FIXME: this section does not result in a successful repository deposit being
+possible, due to unresolved issues with the install/configuration.  Once the 
+SWORD client is fully implemented this should be easier.
+
+- create the entry in the database
+
+Log into the admin area, select "Repositories" and "Add Repository"
+
+When adding the repository, be sure to include the trailing "/" on the repository
+homepage url, otherwise deposit cannot work
+
+- fix the deposit code
+
+in dataset/oxds.py in preflight_submission:
+
+comment out the opener.open call, as it is to a non-existant URL
+
+# FIXME: this doesn't work on DataBank, and also is sensitive to the
+# form of the repository.homepage url
+#
+# Make sure we're authenticated
+#opener.open(repository.homepage + 'states')
+
