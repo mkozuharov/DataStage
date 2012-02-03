@@ -201,6 +201,8 @@ class ZipView(ContentNegotiatedView):
 
 class IndexView(ContentNegotiatedView):
 
+    data_directory = None
+
     directory_view = staticmethod(DirectoryView.as_view())
     file_view = staticmethod(FileView.as_view())
     forbidden_view = staticmethod(ForbiddenView.as_view())
@@ -213,7 +215,7 @@ class IndexView(ContentNegotiatedView):
         if path and any(part in ('.', '..', '') for part in path_parts):
             raise Http404
 
-        self.path_on_disk = path_on_disk = os.path.normpath(os.path.join(settings.DATA_DIRECTORY, *path_parts))
+        self.path_on_disk = path_on_disk = os.path.normpath(os.path.join(self.data_directory, *path_parts))
 
         try:
             permissions = get_permissions(path_on_disk, request.user.username, check_prefixes=True)
