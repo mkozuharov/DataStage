@@ -205,6 +205,38 @@ class SambaConfigurer(object):
             lines = list(f)
         return not (cls.BLOCK_START in lines and cls.BLOCK_END in lines)
 
+class FilesystemAttributes(object):
+    MOUNT_RE = re.compile(r'^(?P<source>[^ ]+) on (?P<mountpoint>[^ ]+) type (?P<type>[^ ]+) \((?P<options>[^\)]+)\)$')
+
+    @classmethod
+    def get_mount_output(self):
+        output = subprocess.check_output(["mount"]).strip().split('\n')
+        output = [self.MOUNT_RE.match(l).groupdict() for l in  output]
+        for l in output:
+            l['options'] = l.get('options', '').split(',')
+        return output
+
+    @classmethod
+    def get_mount_point(cls):
+        output = cls.get_mount_output()
+        mount = {'mountpoint': ''}
+        for line in output:
+            mp = line['mountpoint']
+            if os.path.commonprefix([mp, settings.DATA_DIRECTORY]) == mp and len(mp) > len(mount['mountpoint']):
+                mount = line
+        return mount
+
+    @classmethod
+    def needs_configuring(cls):
+        mount = cls.get_mount_point()
+        return not ('user_xattr' in mount['options'] and 'acl' in mount['options'])
+
+    def __call__(self):
+        mount = self.get_mount_point()
+        print mount
+        mount['options'] = set(mount['options']) | set(['remount', 'acl', 'user_xattr'])
+        print subprocess.call(['mount', mount['mountpoint'], '-o', ','.join(mount['options'])])
+
 def main_menu():
     print "Welcome to the interactive DataStage set-up system."
     print "==================================================="
