@@ -1,8 +1,10 @@
 import grp
 import os
 import pwd
+import random
 import re
 import socket
+import string
 import struct
 import subprocess
 import sys
@@ -100,8 +102,9 @@ def config_menu():
         available_at = check_port_listening(listening_on, check_port)
         
         print
-        if check_pid(*pid_filenames):
-            print "%10s:  Status:       \033[92mRunning\033[0m" % label
+        pid = check_pid(*pid_filenames)
+        if pid:
+            print "%10s:  Status:       \033[92mRunning\033[0m (%d)" % (label, pid)
             print "             Listening on: %s" % ', '.join(sorted(listening_on))
             print "             Available at: %s" % ', '.join(sorted(available_at))
             if listening_on != available_at:

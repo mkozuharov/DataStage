@@ -17,4 +17,4 @@ def check_pid(*filenames):
             return False
         raise
     else:
-        return True
+        return pid
