@@ -258,13 +258,14 @@ def users_menu():
 
         all_users = leaders | collabs | members
 
-        print "Username      Role"
-        print "=================="
-        for user in all_users:
+        print "Username             Name                           Role"
+        print "================================================================="
+        for user in sorted(all_users):
+            pwuser = pwd.getpwnam(user)
             role = "leader" if user in leaders \
               else "member" if user in members \
               else "collaborator" 
-            print "%<20s %s" % (user, role)
+            print "%-20s %-30s %s" % (user, pwuser.pw_gecos, role)
         if not all_users:
             print "--- There are currently no users defined ---"
 
@@ -305,11 +306,22 @@ def add_user():
                    prompt="Pick one> ")
 
 def create_user(username, name, role):
-    result = subprocess.call(['adduser', username, '--gecos', name])
+    result = subprocess.call(['useradd', username, '--comment', name])
     if result:
         yield ExitMenu(1)
     # Add to the right group
     subprocess.call(['usermod', '-a', '-G', 'datastage-%s' % role, username])
+
+    password = ''.join(random.choice(string.letters+string.digits) for i in range(12))
+    with open(os.devnull, 'w') as devnull:
+        for prog in ('passwd', 'smbpasswd'):
+            passwd = subprocess.Popen([prog, username], stdin=subprocess.PIPE, stdout=devnull, stderr=devnull)
+            import time; time.sleep(0.4)
+            passwd.stdin.write('%s\n%s\n' % (password, password))
+            passwd.stdin.close()
+            passwd.wait()
+
+    print "The password for the new user is:  %s" % password
 
     yield ExitMenu(2)
 
