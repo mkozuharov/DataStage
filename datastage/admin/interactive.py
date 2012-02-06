@@ -1,12 +1,16 @@
+import grp
 import os
+import pwd
 import re
 import socket
 import struct
 import subprocess
 import sys
 
+import libmount
+
 from datastage.config import settings
-from .menu_util import interactive, menu
+from .menu_util import interactive, menu, ExitMenu
 from .util import check_pid
 
 def get_ips():
@@ -82,7 +86,7 @@ def samba_menu():
     yield
     
 
-def services_menu():
+def config_menu():
     def service_check(label, check_port, pid_filenames, service_name, firewall_ports):
         actions = {}
         listening_on = set()
@@ -127,7 +131,7 @@ def services_menu():
                                      'apache2', ['www/tcp']))
         
         if os.path.exists('/etc/apache2/sites-enabled/000-default'):
-            print "             Warning:      Default site exists at /etc/apache2/sites-enabled/000-default;"
+            print "             Warning:      Default site exists at /etc/apache2/sites-enabled/000-default"
             print "             \033[95mAction:       Type 'defaultsite' to remove it and restart Apache\033[0m"
             actions['defaultsite'] = remove_default_apache_site()
         
@@ -137,9 +141,14 @@ def services_menu():
                                                'netbios-ssn/tcp', 'microsoft-ds/tcp']))
         
         if SambaConfigurer.needs_configuring():
-            print "             Warning:      Samba is not configured to serve DataStage files;"
+            print "             Warning:      Samba is not configured to serve DataStage files"
             print "             \033[95mAction:       Type 'confsamba' to configure and restart Samba\033[0m"
             actions['confsamba'] = SambaConfigurer()
+
+        if FilesystemAttributes.needs_configuring():
+            print "             Warning:      The filesystem frpm which DataStage will serve data is missing mount options "
+            print "             \033[95mAction:       Type 'fs' to ensure the filesystem is mounted with acl and user_xattr options\033[0m"
+            actions['fs'] = FilesystemAttributes()
 
         yield menu(actions)
 
@@ -206,36 +215,104 @@ class SambaConfigurer(object):
         return not (cls.BLOCK_START in lines and cls.BLOCK_END in lines)
 
 class FilesystemAttributes(object):
-    MOUNT_RE = re.compile(r'^(?P<source>[^ ]+) on (?P<mountpoint>[^ ]+) type (?P<type>[^ ]+) \((?P<options>[^\)]+)\)$')
+    OPTIONS = frozenset(['user_xattr','acl'])
 
     @classmethod
-    def get_mount_output(self):
-        output = subprocess.check_output(["mount"]).strip().split('\n')
-        output = [self.MOUNT_RE.match(l).groupdict() for l in  output]
-        for l in output:
-            l['options'] = l.get('options', '').split(',')
-        return output
-
-    @classmethod
-    def get_mount_point(cls):
-        output = cls.get_mount_output()
-        mount = {'mountpoint': ''}
-        for line in output:
-            mp = line['mountpoint']
-            if os.path.commonprefix([mp, settings.DATA_DIRECTORY]) == mp and len(mp) > len(mount['mountpoint']):
-                mount = line
-        return mount
+    def get_filesystem(cls):
+        return libmount.get_current_mounts().find_fs_containing(settings.DATA_DIRECTORY)
 
     @classmethod
     def needs_configuring(cls):
-        mount = cls.get_mount_point()
-        return not ('user_xattr' in mount['options'] and 'acl' in mount['options'])
+        fs = cls.get_filesystem()
+        return not ('user_xattr' in fs.options and 'acl' in fs.options)
 
     def __call__(self):
-        mount = self.get_mount_point()
-        print mount
-        mount['options'] = set(mount['options']) | set(['remount', 'acl', 'user_xattr'])
-        print subprocess.call(['mount', mount['mountpoint'], '-o', ','.join(mount['options'])])
+        #print "Updating /etc/fstab"
+        #with libmount.FilesystemTable() as fstab:
+        #    fs = fstab.find_fs_containing(settings.DATA_DIRECTORY)
+        #    fs.options |= self.OPTIONS
+        #    fstab.save()
+
+        print "Remounting the filesystem with the necessary options"
+        fs = self.get_filesystem()
+        options = fs.options | frozenset(['remount']) | self.OPTIONS
+        subprocess.call(['mount', fs.target, '-o', ','.join(options)])
+
+        print "Filesystem configuration done."
+
+def users_menu():
+    while True:
+        print "User management"
+        print
+
+        leaders = set(grp.getgrnam('datastage-leader').gr_mem)
+        collabs = set(grp.getgrnam('datastage-collaborator').gr_mem)
+        members = set(grp.getgrnam('datastage-member').gr_mem)
+
+        all_users = leaders | collabs | members
+
+        print "Username      Role"
+        print "=================="
+        for user in all_users:
+            role = "leader" if user in leaders \
+              else "member" if user in members \
+              else "collaborator" 
+            print "%<20s %s" % (user, role)
+        if not all_users:
+            print "--- There are currently no users defined ---"
+
+        yield menu({'add': add_user,
+                    'edit': edit_user,
+                    'remove': remove_user})
+
+def add_user():
+    yield
+    username, name, role = None, None, None
+
+    print "Add user (press Ctrl-D to cancel)"
+
+    while True:
+        print
+        if username:
+            username = raw_input("Username [%s]: " % username) or username
+        else:
+            username = raw_input("Username: ")
+        if name:
+            name = raw_input("Name [%s]: " % name) or name
+        else:
+            name = raw_input("Name: ")
+
+        role = menu({'leader': 'leader',
+                     'collaborator': 'collaborator',
+                     'member': 'member'},
+                    with_quit=False,
+                    question="What role should this user have?",
+                    prompt="Pick one> ")
+
+        print "\nCreating user with these details:"
+        print "  Username: %s" % username
+        print "  Name: %s" % name
+        print "  Role: %s" % role
+        yield menu({'yes': create_user(username, name, role),
+                    'no': None},
+                   question="Is this correct?",
+                   prompt="Pick one> ")
+
+def create_user(username, name, role):
+    result = subprocess.call(['adduser', username, '--gecos', name])
+    if result:
+        yield ExitMenu(1)
+    # Add to the right group
+    subprocess.call(['usermod', '-a', '-G', 'datastage-%s' % role, username])
+
+    yield ExitMenu(2)
+
+def edit_user():
+    pass
+
+def remove_user():
+    pass
+
 
 def main_menu():
     print "Welcome to the interactive DataStage set-up system."
@@ -249,9 +326,10 @@ def main_menu():
     
     while True:
         print
-        print "You should start by checking that all the network services are up"
-        print "and running by typing 's'."
-        yield menu({'services': services_menu})
+        print "You should start by checking that the system configuration is correct"
+        print "by typing 'c'."
+        yield menu({'config': config_menu,
+                    'users': users_menu})
 
 
 

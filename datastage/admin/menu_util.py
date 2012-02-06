@@ -1,10 +1,17 @@
 import types
 
 NotUnique = object()
-ExitMenu = object()
 
-def menu(options):
-    options['quit'] = ExitMenu
+class ExitMenu(object):
+    def __init__(self, depth=1):
+        self.depth = depth
+
+def menu(options,
+         with_quit=True,
+         question="*** Commands ***",
+         prompt="What now> "):
+    if with_quit:
+        options['quit'] = ExitMenu()
     def unique_prefix(prefix):
         if prefix in names:
             return prefix
@@ -30,7 +37,7 @@ def menu(options):
 
     print
     while True:
-        print "*** Commands ***"
+        print question
         for i, name in enumerate(names, 1):
             print ("  %2d. [%s]%s" % (i,
                                      name[:prefix_lengths[name]],
@@ -38,7 +45,7 @@ def menu(options):
             if i % columns == 0 or i == len(names):
                 print
         
-        input = raw_input("What now> ")
+        input = raw_input(prompt)
         if not input:
             print "Please choose an option."
             continue
@@ -68,7 +75,10 @@ def interactive(start_menu):
                 result = result()
             if isinstance(result, types.GeneratorType):
                 menu_stack.append(result)
-            elif result is ExitMenu:
-                menu_stack.pop()
+            elif isinstance(result, ExitMenu):
+                menu_stack[-result.depth:] = []
         except StopIteration:
+            menu_stack.pop()
+        except (KeyboardInterrupt, EOFError):
+            print "\n[Backing out of menu]"
             menu_stack.pop()
