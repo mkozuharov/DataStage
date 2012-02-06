@@ -266,7 +266,6 @@ def users_menu():
                     'remove': remove_user})
 
 def add_user():
-    yield
     username, name, role = None, None, None
 
     print "Add user (press Ctrl-D to cancel)"
