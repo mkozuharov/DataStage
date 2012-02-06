@@ -1,6 +1,8 @@
 from base import Dataset
 from sword2 import Connection, HttpLayer, HttpResponse, UrlLib2Layer, Entry
 import urllib2
+import logging
+logger = logging.getLogger(__name__)
 
 class Sword2(object):
     def preflight_submission(self, dataset, opener, repository):
@@ -73,51 +75,23 @@ class Sword2(object):
 
         return response.headers.get('Location', response.url)
     """
-    def complete_submission(self, dataset, opener, repository, update_status):
-        pass
+    def complete_submission(self, dataset, opener, dataset_submission, filename):
+        # create a connection
+        repository = dataset_submission.repository
+        conn = Connection(repository.sword2_sd_url, error_response_raises_exceptions=False, http_impl=UrlLib2Layer(opener))
+        
+        # get hold of a copy of the deposit reciept
+        edit_uri = dataset_submission.remote_url
+        receipt = conn.get_deposit_receipt(edit_uri)
+        
+        with open(filename, "rb") as data:
+            new_receipt = conn.update(dr = receipt,
+                            payload=data,
+                            mimetype="application/zip",
+                            filename=dataset.identifier + ".zip", 
+                            packaging='http://dataflow.ox.ac.uk/package/DataBankBagIt')
     
     """
-    Reference ...
-    update_status('started')
-        
-    logger.debug("Updating manifest in readiness for submitting dataset")
-    self.save()
-    
-    fd, filename = tempfile.mkstemp('.zip')
-    try:
-        # We only wanted the file created; we're not going to write to it
-        # directly.
-        os.close(fd)
-        
-        # Try a compressed ZIP first, otherwise try without. The zipfile
-        # documentation talks of zlib compression being potentially unavailable.
-        
-        logger.info("Beginning to write zip archive to %r", filename)
-        try:
-            zip = zipfile.ZipFile(filename, 'w', compression=zipfile.ZIP_DEFLATED)
-        except RuntimeError:
-            zip = zipfile.ZipFile(filename, 'w', compression=zipfile.ZIP_STORED)
-        
-        for base, dirs, files in os.walk(self._path):
-            relbase = os.path.relpath(base, self._path)
-            for fn in files:
-                print base, relbase, fn
-                if os.path.normpath(os.path.join(relbase, fn)) == 'manifest.rdf':
-                    continue
-                zip.write(os.path.join(self._path, base, fn),
-                          os.path.join(self.identifier, relbase, fn))
-                logger.debug("Added %r to zip archive at %r",
-                             os.path.join(self._path, base, fn),
-                             os.path.join(self.identifier, relbase, fn))
-        
-        zip.write(os.path.join(self._manifest_filename), 'manifest.rdf')
-        logger.debug("Added manifest.rdf to zip archive")
-        
-        zip.close()
-        
-        update_status('transfer')
-        logger.debug("Starting transfer to repository")
-        
         stat_info = os.stat(filename)
         with open(filename, 'rb') as data:
             data = MultiPartFormData(files=[{'name': 'file',
@@ -139,10 +113,4 @@ class Sword2(object):
                     method='POST',
                     headers={'Content-type': data.content_type,
                              'Content-length': data.content_length})
-        
-    finally:
-        os.unlink(filename)
-        
-        
-        update_status('submitted')
     """

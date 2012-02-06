@@ -101,6 +101,7 @@ class OXDSDataset(Dataset):
         # if this is a sword2 repository, hand off the management of that to 
         # the sword2 implementation
         if repository.type == "sword2":
+            logger.info("Using SWORDv2 depositor")
             s = Sword2()
             return s.preflight_submission(self, opener, repository)
         
@@ -128,15 +129,10 @@ class OXDSDataset(Dataset):
 
             return response.headers.get('Location', response.url)
     
-    def complete_submission(self, opener, repository, update_status):
-        # if this is a sword2 repository, hand off the management of that to 
-        # the sword2 implementation
-        if repository.type == "sword2":
-            s = Sword2()
-            return s.complete_submission(self, opener, repository, update_status)
-    
-        # otherwise, carry on as before ...
-    
+    def complete_submission(self, opener, dataset_submission, update_status):
+        # pull the repository out explicitly
+        repository = dataset_submission.repository
+        
         update_status('started')
         
         logger.debug("Updating manifest in readiness for submitting dataset")
@@ -176,6 +172,15 @@ class OXDSDataset(Dataset):
             
             update_status('transfer')
             logger.debug("Starting transfer to repository")
+            
+            # if this is a sword2 repository, hand off the management of that to 
+            # the sword2 implementation
+            if repository.type == "sword2":
+                logger.info("Using SWORDv2 depositor")
+                s = Sword2()
+                return s.complete_submission(self, opener, dataset_submission, filename)
+    
+            # otherwise, carry on as before ...
             
             stat_info = os.stat(filename)
             with open(filename, 'rb') as data:
