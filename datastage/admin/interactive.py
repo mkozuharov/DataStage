@@ -126,6 +126,10 @@ def config_menu():
         print
         print "Status of some services"
         
+        actions.update(service_check('DataStage', settings.get('server:port'),
+                                     ['/var/run/datastage.pid'],
+                                     'datastage', ['']))
+
         actions.update(service_check('SSH', 22,
                                      ['/var/run/sshd.pid'],
                                      'sshd', ['ssh/tcp']))
