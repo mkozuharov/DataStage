@@ -200,3 +200,28 @@ comment out the opener.open call, as it is to a non-existant URL
 # Make sure we're authenticated
 #opener.open(repository.homepage + 'states')
 
+10/ Install and start Redis
+
+- First the install
+
+wget http://redis.googlecode.com/files/redis-2.4.6.tar.gz
+tar xzf redis-2.4.6.tar.gz
+cd redis-2.4.6
+make
+
+- now start it
+
+cd src/
+./redis-server
+
+10/ Start the "longliving" django service
+
+in datastage/web:
+
+python manage.py longliving --settings=datastage.web.settings
+
+NOTE: at time of writing, this won't work because the out-of-the box longliving
+code isn't quite right.  I have submitted a patch which when applied will make this
+work.
+
+
