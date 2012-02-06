@@ -100,8 +100,10 @@ a2enmod proxy_scgi
 case "$1" in
     install)
 
-    /etc/init.d/datastage_longliving start
+    service datastage start
     ;;
 esac
 
 django-admin collectstatic --settings=datastage.web.settings --noinput --link
+
+echo "\033[1m\033[92mRun datastage-config to complete the set-up\033[0m"

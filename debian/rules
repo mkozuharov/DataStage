@@ -38,7 +38,7 @@ override_dh_link:
 	ln -s ../sites-available/datastage.conf debian/dataflow-datastage/etc/apache2/sites-enabled/datastage.conf
 
 	mkdir -p debian/dataflow-datastage/etc/init.d
-	ln -s /usr/share/dataflow-datastage/conf/longliving-init-script debian/dataflow-datastage/etc/init.d/datastage_longliving
+	ln -s /usr/share/dataflow-datastage/conf/init-script debian/dataflow-datastage/etc/init.d/datastage
 
 	mkdir -p debian/dataflow-datastage/etc/default
 	ln -s /usr/share/dataflow-datastage/conf/default debian/dataflow-datastage/etc/default/dataflow-datastage
