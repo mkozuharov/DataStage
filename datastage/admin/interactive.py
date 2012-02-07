@@ -14,6 +14,7 @@ import libmount
 from datastage.config import settings
 from .menu_util import interactive, menu, ExitMenu
 from .util import check_pid
+from .sync_permissions import sync_permissions
 
 def get_ips():
     addrs = (re.findall(r"addr: ?([\d:.a-f]+)", subprocess.check_output('/sbin/ifconfig')))
@@ -322,6 +323,8 @@ def create_user(username, name, role):
             passwd.wait()
 
     print "The password for the new user is:  %s" % password
+
+    sync_permissions()
 
     yield ExitMenu(2)
 
