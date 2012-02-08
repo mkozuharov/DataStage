@@ -40,7 +40,7 @@ import libmount
 from datastage.config import settings
 from .menu_util import interactive, menu, ExitMenu
 from .util import check_pid
-from .sync_permissions import sync_permissions
+from .sync_permissions import sync_permissions, get_members
 
 def get_ips():
     addrs = (re.findall(r"addr: ?([\d:.a-f]+)", subprocess.check_output('/sbin/ifconfig')))
@@ -279,9 +279,9 @@ def users_menu():
         print "User management"
         print
 
-        leaders = set(grp.getgrnam('datastage-leader').gr_mem)
-        collabs = set(grp.getgrnam('datastage-collaborator').gr_mem)
-        members = set(grp.getgrnam('datastage-member').gr_mem)
+        leaders = get_members('datastage-leader')
+        collabs = get_members('datastage-collaborator')
+        members = get_members('datastage-member')
 
         all_users = leaders | collabs | members
 
