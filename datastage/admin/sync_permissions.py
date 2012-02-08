@@ -54,6 +54,9 @@ def sync_permissions():
             if not os.path.exists(path):
                 os.makedirs(path)
 
+            # Make sure the directory is owned by the right person
+            os.chown(path, datastage_user.pw_uid, datastage_user.pw_gid)
+
             acl_text = 'u::rwx,g::-,o::-,m::rwx,u:datastage:rwx'
 
             if name in ('private', 'shared'):
