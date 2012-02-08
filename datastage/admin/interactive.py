@@ -333,11 +333,12 @@ def add_user():
                    prompt="Pick one> ")
 
 def create_user(username, name, role):
-    result = subprocess.call(['useradd', username, '--comment', name])
+    result = subprocess.call(['useradd', username,
+                                         '--comment', name,
+                                         '-N',
+                                         '-g', str(grp.getgrnam('datastage-%s' % role).gr_gid)])
     if result:
         yield ExitMenu(1)
-    # Add to the right group
-    subprocess.call(['usermod', '-a', '-G', 'datastage-%s' % role, username])
     
     password = ''.join(random.choice(string.letters+string.digits) for i in range(12))
     with open(os.devnull, 'w') as devnull:

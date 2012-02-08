@@ -34,10 +34,14 @@ from datastage.config import settings
 def get_name(username):
     return pwd.getpwnam(username).pw_gecos.split(',')[0]
 
+def get_members(group_name):
+    group = grp.getgrnam(group_name)
+    return set(group.gr_mem) | set(u.pw_name for u in pwd.getpwall() if u.pw_gid == group.gr_gid)
+
 def sync_permissions():
-    leaders = set(grp.getgrnam('datastage-leader').gr_mem)
-    members = set(grp.getgrnam('datastage-member').gr_mem)
-    collabs = set(grp.getgrnam('datastage-collaborator').gr_mem)
+    leaders = get_members('datastage-leader')
+    members = get_members('datastage-member')
+    collabs = get_members('datastage-collaborator')
 
     data_directory = settings.DATA_DIRECTORY
     
