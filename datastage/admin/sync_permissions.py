@@ -3,6 +3,8 @@ import os
 import posix1e
 import pwd
 
+from django.contrib.auth.models import User
+
 from datastage.config import settings
 
 def get_name(username):
@@ -16,6 +18,11 @@ def sync_permissions():
     data_directory = settings.DATA_DIRECTORY
     
     datastage_user = pwd.getpwnam(settings.get('main:datastage_user'))
+
+    # Force leaders to be superusers
+    for user in User.objects.all():
+        user.is_staff = user.is_superuser = user.username in leaders
+        user.save()
 
     for user in leaders | members:
         for name in ('private', 'shared', 'collab'):
