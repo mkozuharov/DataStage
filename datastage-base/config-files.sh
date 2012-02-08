@@ -1,16 +1,37 @@
+# ---------------------------------------------------------------------
+#
+# Copyright (c) 2012 University of Oxford
+#
+# Permission is hereby granted, free of charge, to any person obtaining
+# a copy of this software and associated documentation files (the
+# "Software"), to deal in the Software without restriction, including
+# without limitation the rights to use, copy, modify, merge, publish,
+# distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so, subject to
+# the following conditions:
+#
+# The above copyright notice and this permission notice shall be
+# included in all copies or substantial portions of the Software.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, --INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+# IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+# CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+# TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+# SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+# 
+# ---------------------------------------------------------------------
+
 cp sudoers /root/sudoers
 cp smb.conf /etc/samba/smb.conf
-cp krb5.conf /etc/krb5.conf
 cp ssh_config /root/ssh_config
 cp sshd_config /root/sshd_config
 cp common-password /root/common-password
-cp ntp.conf /etc/ntp.conf
 cp apache-default-ssl /root/apache-default-ssl
 cp apache-default /root/apache-default
-cp apache-databank-proxy /root/apache-databank-proxy
 cp make-apache2-cert.sh /root/make-apache2-cert.sh
 cp openssl.cnf /etc/ssl/openssl.cnf
-cp nrpe.cfg /root/nrpe.cfg
 cp aliases /root/aliases
 cp main.cf /root/main.cf
 cp common-auth /root/common-auth
