@@ -312,16 +312,16 @@ def create_user(username, name, role):
         yield ExitMenu(1)
     # Add to the right group
     subprocess.call(['usermod', '-a', '-G', 'datastage-%s' % role, username])
-
+    
     password = ''.join(random.choice(string.letters+string.digits) for i in range(12))
     with open(os.devnull, 'w') as devnull:
-        for prog in ('passwd', 'smbpasswd'):
-            passwd = subprocess.Popen([prog, username], stdin=subprocess.PIPE, stdout=devnull, stderr=devnull)
-            import time; time.sleep(0.4)
+        for args in (['passwd'], ['smbpasswd', '-a', '-s']):
+            passwd = subprocess.Popen(args + [username], stdin=subprocess.PIPE, stdout=devnull, stderr=devnull)
             passwd.stdin.write('%s\n%s\n' % (password, password))
             passwd.stdin.close()
             passwd.wait()
 
+    
     print "The password for the new user is:  %s" % password
 
     sync_permissions()
