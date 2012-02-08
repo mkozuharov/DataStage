@@ -48,10 +48,17 @@ def sync_permissions():
         user.is_staff = user.is_superuser = user.username in leaders
         user.save()
 
-    for user in leaders | members:
-        pw_user = pwd.getpwnam(user)
 
-        for name in ('private', 'shared', 'collab'):
+    for name in ('private', 'shared', 'collab'):
+        path = os.path.join(data_directory, name)
+        if not os.path.exists(path):
+            os.makedirs(path)
+        os.chown(path, datastage_user.pw_uid, datastage_user.pw_gid)
+        os.chmod(path, 0755)
+
+        for user in leaders | members:
+            pw_user = pwd.getpwnam(user)
+
             path = os.path.join(data_directory, name, user)
             if not os.path.exists(path):
                 os.makedirs(path)
