@@ -49,13 +49,15 @@ def sync_permissions():
         user.save()
 
     for user in leaders | members:
+        pw_user = pwd.getpwnam(user)
+
         for name in ('private', 'shared', 'collab'):
             path = os.path.join(data_directory, name, user)
             if not os.path.exists(path):
                 os.makedirs(path)
 
             # Make sure the directory is owned by the right person
-            os.chown(path, datastage_user.pw_uid, datastage_user.pw_gid)
+            os.chown(path, pw_user.pw_uid, pw_user.pw_gid)
 
             acl_text = 'u::rwx,g::-,o::-,m::rwx,u:datastage:rwx'
 
