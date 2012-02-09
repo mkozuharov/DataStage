@@ -72,12 +72,10 @@ class DropPrivilegesMiddleware(object):
         if os.geteuid() != 0:
             return
 
-        # Don't do this if we're heading to the login view, as this would break PAM
-        # Oh, the hours I've spent wrestling with it.
         if view_func is auth_views.login:
-            return
-
-        if request.user.is_authenticated():
+            # We need to be able to reach /etc/shadow
+            username = 'root'
+        elif request.user.is_authenticated():
             username = request.user.username
         else:
             username = settings['main:datastage_user']
