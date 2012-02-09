@@ -355,7 +355,7 @@ def create_user(username, name, email, role):
             passwd.stdin.close()
             passwd.wait()
 
-    user = User.objects.get_or_create(username=username)
+    user, _ = User.objects.get_or_create(username=username)
     user.email = email
     user.save()
     
