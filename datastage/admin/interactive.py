@@ -37,6 +37,8 @@ import sys
 
 import libmount
 
+from django.contrib.auth.models import User
+
 from datastage.config import settings
 from .menu_util import interactive, menu, ExitMenu
 from .util import check_pid
@@ -301,7 +303,7 @@ def users_menu():
                     'remove': remove_user})
 
 def add_user():
-    username, name, role = None, None, None
+    username, name, email, role = None, None, None, None
 
     print "Add user (press Ctrl-D to cancel)"
 
@@ -315,6 +317,10 @@ def add_user():
             name = raw_input("Name [%s]: " % name) or name
         else:
             name = raw_input("Name: ")
+        if email:
+            email = raw_input("Email [%s]: " % email) or email
+        else:
+            email = raw_input("Email: ")
 
         role = menu({'leader': 'leader',
                      'collaborator': 'collaborator',
@@ -326,13 +332,14 @@ def add_user():
         print "\nCreating user with these details:"
         print "  Username: %s" % username
         print "  Name: %s" % name
+        print "  Email: %s" % email
         print "  Role: %s" % role
-        yield menu({'yes': create_user(username, name, role),
+        yield menu({'yes': create_user(username, name, email, role),
                     'no': None},
                    question="Is this correct?",
                    prompt="Pick one> ")
 
-def create_user(username, name, role):
+def create_user(username, name, email, role):
     result = subprocess.call(['useradd', username,
                                          '--comment', name,
                                          '-N',
@@ -348,6 +355,9 @@ def create_user(username, name, role):
             passwd.stdin.close()
             passwd.wait()
 
+    user = User.objects.get_or_create(username=username)
+    user.email = email
+    user.save()
     
     print "The password for the new user is:  %s" % password
 
