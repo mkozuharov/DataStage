@@ -49,7 +49,7 @@ def sync_permissions():
 
     # Force leaders to be superusers
     for username in leaders | members | collabs:
-        user = User.objects.get_or_create(username=username)
+        user, _ = User.objects.get_or_create(username=username)
         user.is_staff = user.is_superuser = user.username in leaders
         user.save()
 
