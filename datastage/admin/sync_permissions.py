@@ -48,7 +48,8 @@ def sync_permissions():
     datastage_user = pwd.getpwnam(settings.get('main:datastage_user'))
 
     # Force leaders to be superusers
-    for user in User.objects.all():
+    for username in leaders | members | collabs:
+        user = User.objects.get_or_create(username=username)
         user.is_staff = user.is_superuser = user.username in leaders
         user.save()
 
