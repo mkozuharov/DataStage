@@ -370,11 +370,11 @@ def edit_user():
     pass
 
 def purge_user(username):
-    result = subprocess.call(['userdel', username, '-r')
+    result = subprocess.call(['userdel', username, '-r'])
     if result:
         yield ExitMenu(1)
     
-    res = subprocess.call(['smbpasswd', username, '-x')
+    res = subprocess.call(['smbpasswd', username, '-x'])
    
     data_directory = settings.DATA_DIRECTORY
    
@@ -387,11 +387,11 @@ def purge_user(username):
     
     
 def delete_user(username):
-    result = subprocess.call(['userdel', username, '-r')
+    result = subprocess.call(['userdel', username, '-r'])
     if result:
         yield ExitMenu(1)
     
-    res = subprocess.call(['smbpasswd', username, '-x')
+    res = subprocess.call(['smbpasswd', username, '-x'])
    
     data_directory = settings.DATA_DIRECTORY
     datastage_orphan = pwd.getpwnam(settings.get('main:datastage_orphan'))
