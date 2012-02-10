@@ -380,7 +380,9 @@ def purge_user(username):
     res = subprocess.call(['smbpasswd', username, '-x'])
     result = subprocess.call(['userdel', username])
     if result:
-        yield ExitMenu(1)
+        yield ExitMenu()
+
+    sync_permissions()
         
     yield ExitMenu(2)
     
@@ -395,9 +397,11 @@ def delete_user(username):
         
     result = subprocess.call(['userdel', username])
     if result:
-        yield ExitMenu(1)
+        yield ExitMenu()
     
     res = subprocess.call(['smbpasswd', username, '-x'])
+
+    sync_permissions()
 
     yield ExitMenu(2)
 
@@ -417,7 +421,7 @@ def remove_user():
 
         yield menu({'purge': purge_user(username),
                     'yes': delete_user(username),
-                    'cancel':None},
+                    'cancel': ExitMenu()},
                    question="Is this correct?",
                    prompt="Pick one> ")
 
