@@ -34,7 +34,7 @@ import string
 import struct
 import subprocess
 import sys
-
+import shutil
 import libmount
 
 from django.contrib.auth.models import User
@@ -369,35 +369,35 @@ def create_user(username, name, email, role):
 def edit_user():
     pass
 
-def purge_user(username):
-    result = subprocess.call(['userdel', username, '-r'])
-    if result:
-        yield ExitMenu(1)
-    
-    res = subprocess.call(['smbpasswd', username, '-x'])
-   
+def purge_user(username):  
     data_directory = settings.DATA_DIRECTORY
    
     for name in ('private', 'shared', 'collab'):
-        path = os.path.join(data_directory, name)
+        path = os.path.join(data_directory, name , username)
         if os.path.exists(path):
-          shutil.chown(path, True)
-
+          shutil.rmtree(path, True)
+           
+    res = subprocess.call(['smbpasswd', username, '-x'])
+    result = subprocess.call(['userdel', username ])
+    if result:
+        yield ExitMenu(1)
+        
     yield ExitMenu(2)
     
     
-def delete_user(username):
-    result = subprocess.call(['userdel', username, '-r'])
-    if result:
-        yield ExitMenu(1)
-    
-    res = subprocess.call(['smbpasswd', username, '-x'])
-   
+def delete_user(username):   
     data_directory = settings.DATA_DIRECTORY
+    path = os.path.join(data_directory, name , username)
     datastage_orphan = pwd.getpwnam(settings.get('main:datastage_orphan'))
     
     for name in ('private', 'shared', 'collab'):
         os.chown(path, datastage_orphan.pw_uid, datastage_orphan.pw_gid)
+        
+    result = subprocess.call(['userdel', username, '-r'])
+    if result:
+        yield ExitMenu(1)
+    
+    res = subprocess.call(['smbpasswd', username, '-x'])
 
     yield ExitMenu(2)
 
