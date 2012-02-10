@@ -415,7 +415,7 @@ def remove_user():
 
         print "\nRemoving user: %s" % username
 
-        yield menu({'purge': pruge_user(username),
+        yield menu({'purge': purge_user(username),
                     'no': delete_user(username),
                     'cancel':None},
                    question="Is this correct?",
