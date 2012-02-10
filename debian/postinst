@@ -50,8 +50,13 @@ case "$1" in
       addgroup --quiet --system datastage-$x 2>/dev/null || true
     fi
   done
+  
+  # Add an user to manage orphaned data
+  useradd datastage_orphan --comment Orphaned-data -N -g datastage-orphan
   ;;
 esac
+
+
 
 
 # Configure the database and database user

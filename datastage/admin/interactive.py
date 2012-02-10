@@ -385,6 +385,7 @@ def purge_user(username):
     
 def delete_user(username):   
     data_directory = settings.DATA_DIRECTORY
+   
     datastage_orphan = pwd.getpwnam(settings.get('main:datastage_orphan'))
     
     for name in ('private', 'shared', 'collab'):
