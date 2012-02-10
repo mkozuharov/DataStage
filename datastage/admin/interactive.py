@@ -365,10 +365,61 @@ def create_user(username, name, email, role):
 
     yield ExitMenu(2)
 
+    
 def edit_user():
     pass
 
+def purge_user(username):
+    result = subprocess.call(['userdel', username, '-r')
+    if result:
+        yield ExitMenu(1)
+    
+    res = subprocess.call(['smbpasswd', username, '-x')
+   
+    data_directory = settings.DATA_DIRECTORY
+   
+    for name in ('private', 'shared', 'collab'):
+        path = os.path.join(data_directory, name)
+        if os.path.exists(path):
+          shutil.chown(path, True)
+
+    yield ExitMenu(2)
+    
+    
+def delete_user(username):
+    result = subprocess.call(['userdel', username, '-r')
+    if result:
+        yield ExitMenu(1)
+    
+    res = subprocess.call(['smbpasswd', username, '-x')
+   
+    data_directory = settings.DATA_DIRECTORY
+    datastage_orphan = pwd.getpwnam(settings.get('main:datastage_orphan'))
+    
+    for name in ('private', 'shared', 'collab'):
+        os.chown(path, datastage_orphan.pw_uid, datastage_orphan.pw_gid)
+
+    yield ExitMenu(2)
+
 def remove_user():
+username = None
+
+    print "Remove user (press Ctrl-D to cancel)"
+
+    while True:
+        print
+        if username:
+            username = raw_input("Username [%s]: " % username) or username
+        else:
+            username = raw_input("Username: ")
+
+        print "\nRemoving user: %s" % username
+
+        yield menu({'purge': pruge_user(username),
+                    'no': delete_user(username),
+                    'cancel':None},
+                   question="Is this correct?",
+                   prompt="Pick one> ")
     pass
 
 
