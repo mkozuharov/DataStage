@@ -402,7 +402,7 @@ def delete_user(username):
     yield ExitMenu(2)
 
 def remove_user():
-username = None
+    username = None
 
     print "Remove user (press Ctrl-D to cancel)"
 
@@ -420,7 +420,6 @@ username = None
                     'cancel':None},
                    question="Is this correct?",
                    prompt="Pick one> ")
-    pass
 
 
 def main_menu():
