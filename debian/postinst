@@ -44,8 +44,8 @@ case "$1" in
       chmod u=rwx,g=rxs,o= $SERVER_HOME
   fi
 
-  # Add our three groups
-  for x in leader collaborator member ; do
+  # Add our four groups
+  for x in leader collaborator member orphan ; do
     if ! getent group | grep -q "datastage-$x:" ; then
       addgroup --quiet --system datastage-$x 2>/dev/null || true
     fi
