@@ -378,7 +378,7 @@ def purge_user(username):
           shutil.rmtree(path, True)
            
     res = subprocess.call(['smbpasswd', username, '-x'])
-    result = subprocess.call(['userdel', username ])
+    result = subprocess.call(['userdel', username])
     if result:
         yield ExitMenu(1)
         
@@ -387,13 +387,13 @@ def purge_user(username):
     
 def delete_user(username):   
     data_directory = settings.DATA_DIRECTORY
-    path = os.path.join(data_directory, name , username)
     datastage_orphan = pwd.getpwnam(settings.get('main:datastage_orphan'))
     
     for name in ('private', 'shared', 'collab'):
+        path = os.path.join(data_directory, name , username)
         os.chown(path, datastage_orphan.pw_uid, datastage_orphan.pw_gid)
         
-    result = subprocess.call(['userdel', username, '-r'])
+    result = subprocess.call(['userdel', username])
     if result:
         yield ExitMenu(1)
     
@@ -416,7 +416,7 @@ def remove_user():
         print "\nRemoving user: %s" % username
 
         yield menu({'purge': purge_user(username),
-                    'no': delete_user(username),
+                    'yes': delete_user(username),
                     'cancel':None},
                    question="Is this correct?",
                    prompt="Pick one> ")
