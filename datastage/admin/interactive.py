@@ -299,7 +299,6 @@ def users_menu():
             print "--- There are currently no users defined ---"
 
         yield menu({'add': add_user,
-                    'edit': edit_user,
                     'remove': remove_user})
 
 def add_user():
@@ -365,9 +364,6 @@ def create_user(username, name, email, role):
 
     yield ExitMenu(2)
 
-    
-def edit_user():
-    pass
 
 def purge_user(username):  
     data_directory = settings.DATA_DIRECTORY
@@ -379,7 +375,7 @@ def purge_user(username):
            
     res = subprocess.call(['smbpasswd', username, '-x'])
     result = subprocess.call(['userdel', username])
-    if result:
+    if res or result:
         yield ExitMenu()
 
     sync_permissions()
@@ -394,13 +390,12 @@ def delete_user(username):
     for name in ('private', 'shared', 'collab'):
         path = os.path.join(data_directory, name , username)
         os.chown(path, datastage_orphan.pw_uid, datastage_orphan.pw_gid)
-        
+    
+    res = subprocess.call(['smbpasswd', username, '-x'])    
     result = subprocess.call(['userdel', username])
-    if result:
+    if res or result:
         yield ExitMenu()
     
-    res = subprocess.call(['smbpasswd', username, '-x'])
-
     sync_permissions()
 
     yield ExitMenu(2)
