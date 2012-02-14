@@ -63,9 +63,9 @@ def menu(options,
     while True:
         print question
         for i, name in enumerate(names, 1):
-            print ("  %2d. [%s]%s" % (i,
+            print ("  [%s] %s" % (
                                      name[:prefix_lengths[name]],
-                                     name[prefix_lengths[name]:])).ljust(max_length + 8),
+                                     name)).ljust(max_length + 8),
             if i % columns == 0 or i == len(names):
                 print
         
