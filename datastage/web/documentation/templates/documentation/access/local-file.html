@@ -34,7 +34,7 @@
 
 <p>Data files are accessed from Windows as a network share:
 <blockquote>
-<code>\\{{ hostname }}\data</code>
+<code>\\{{ hostname }}\datastage</code>
 </blockquote>
 A username and password will be required to complete a connection.
 The username entered should be in workgroup <code>{{ settings.GROUP_NAME }}</code>; e.g. <code>{{ settings.GROUP_NAME }}\<cite>username</cite></code>.
@@ -56,14 +56,14 @@ and also to read all files in the <code>shared</code> and <code>collab</code> ar
 
 <p>Data files may be accessed from your Mac as a Windows network share:
 <blockquote>
-<code>smb://{{ hostname }}/data</code>
+<code>smb://{{ hostname }}/datastage</code>
 </blockquote>
 A username and password will be required to complete a connection.
 </p>
 
 <p>To connect a Windows share from your Mac, use the Finder "Go > Connect to server..." menu command (or COMMAND-K shortcut), and enter
 <blockquote>
-  <code>smb://<cite>username</cite>@{{ hostname }}/data</code> as the server address.
+  <code>smb://<cite>username</cite>@{{ hostname }}/datastage</code> as the server address.
 </blockquote>
 The system will then prompt for the specified user's password.	
 </p>
@@ -90,7 +90,7 @@ and also to read all files in the <code>shared</code> and <code>collab</code> ar
 <p><strong>For advanced users</strong>, it is also possible to mount the filesystem directly, using the command:
 <blockquote>
 <code>
-mount.cifs //{{ hostname }}/data <cite>mountpoint</cite> -o rw,user=<cite>username</cite>,password=<cite>userpass</cite>,nounix,forcedirectio
+mount.cifs //{{ hostname }}/datastage <cite>mountpoint</cite> -o rw,user=<cite>username</cite>,password=<cite>userpass</cite>,nounix,forcedirectio
 </code>
 </blockquote>
 
