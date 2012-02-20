@@ -268,7 +268,7 @@ setup(
     description='A framework for secure personalized file management environments for use at the research group level.',
     author='The DataFlow Project',
     author_email='jisc.dataflow@gmail.com',
-    version='0.1',
+    version='0.1.9',
     packages=packages,
     long_description=open('README.rst').read(),
     classifiers=['Development Status :: 4 - Beta',
