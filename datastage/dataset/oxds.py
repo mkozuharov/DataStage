@@ -14,7 +14,7 @@ from datastage.namespaces import OXDS, DCTERMS, RDF, FOAF, bind_namespaces
 from datastage.dataset.base import Dataset
 import datastage.util.serializers
 from datastage.util.multipart import MultiPartFormData
-from datastage.dataset.sword2depositor import Sword2
+from datastage.dataset.sword2depositor import Sword2, SwordSlugRejected, SwordServiceError, SwordDepositError
 
 logger = logging.getLogger(__name__)
 
@@ -102,8 +102,15 @@ class OXDSDataset(Dataset):
         # the sword2 implementation
         if repository.type == "sword2":
             logger.info("Using SWORDv2 depositor")
-            s = Sword2()
-            return s.preflight_submission(self, opener, repository)
+            try:
+                s = Sword2()
+                return s.preflight_submission(self, opener, repository)
+            except SwordSlugRejected as e:
+                raise self.DatasetIdentifierRejected
+            except SwordDepositError as e:
+                raise
+            except SwordServiceError as e:
+                raise
         
         # otherwise, carry on as before ...
         

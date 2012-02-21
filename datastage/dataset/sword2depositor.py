@@ -4,14 +4,26 @@ import urllib2
 import logging
 logger = logging.getLogger(__name__)
 
+class SwordSlugRejected(Exception):
+    pass
+
+class SwordDepositError(Exception):
+    def __init__(self, receipt):
+        self.receipt = receipt
+        
+class SwordServiceError(Exception):
+    def __init__(self, msg):
+        self.msg = msg
+
 class Sword2(object):
     def preflight_submission(self, dataset, opener, repository):
+        logger.info("Carrying out pre-flight submission")
+        
         # verify that we can get a service document, and that there
         # is at least one silo and that we can authenticate
         
         if repository.sword2_sd_url is None:
-            #FIXME: what kind of error to raise here?
-            raise Exception("No sword2 service-document URL for repository configuration")
+            raise SwordServiceError("No sword2 service-document URL for repository configuration")
             
         # get the service document (for which we must be authenticated)
         conn = Connection(repository.sword2_sd_url, error_response_raises_exceptions=False, http_impl=UrlLib2Layer(opener))
@@ -19,23 +31,19 @@ class Sword2(object):
         
         # we require there to be at least one workspace
         if conn.sd is None:
-            # FIXME: what kind of error to raise here?
-            raise Exception("did not successfully retrieve a service document")
+            raise SwordServiceError("did not successfully retrieve a service document")
         
         if conn.sd.workspaces is None:
-            # FIXME: what kind of error to raise here?
-            raise Exception("no workspaces defined in service document")
+            raise SwordServiceError("no workspaces defined in service document")
         
         if len(conn.sd.workspaces) == 0:
-            # FIXME: what kind of error to raise here?
-            raise Exception("no workspaces defined in service document")
+            raise SwordServiceError("no workspaces defined in service document")
         
         workspace = conn.sd.workspaces[0][1]
         
         # we require there to be at least one collection
         if len(workspace) == 0:
-            # FIXME: what kind of error to raise here?
-            raise Exception("no collections defined in workspace")
+            raise SwordServiceError("no collections defined in workspace")
             
         # FIXME: we don't currently have a mechanism to make decisions about
         # which collection to put stuff in, so we just put stuff in the first
@@ -46,8 +54,19 @@ class Sword2(object):
         # FIXME: is there anything further we need to do about the metadata here?
         e = Entry(id=dataset.identifier, title=dataset.title, dcterms_abstract=dataset.description)
         
-        # create the item using the metadata-only approach
+        # create the item using the metadata-only approach (suppress errors along the way,
+        # we'll check for them below)
         receipt = conn.create(col_iri=col.href, metadata_entry=e, suggested_identifier=dataset.identifier)
+        
+        # check for errors
+        if receipt.code >= 400:
+            # this is an error
+            logger.debug("Received error message from server: " + receipt.to_xml())
+            if receipt.error_href == "http://databank.ox.ac.uk/errors/DatasetConflict":
+                raise SwordSlugRejected()
+            raise SwordDepositError(receipt)
+        
+        logger.info("Deposit carried out to: " + receipt.location)
         
         return receipt.location
         

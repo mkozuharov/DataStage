@@ -22,6 +22,9 @@ from datastage.web.dataset.models import DatasetSubmission, Repository, Reposito
 from datastage.web.dataset import openers, forms
 from datastage.dataset import Dataset, SUBMISSION_QUEUE
 
+import logging
+v_l = logging.getLogger(__name__)
+
 
 class IndexView(HTMLView):
     def get(self, request):
@@ -94,22 +97,23 @@ class SubmitView(HTMLView, RedisView):
         if not form.is_valid():
             return self.render(request, context, 'dataset/submit')
         
-        form.save()
         dataset = form.instance.dataset
-
         cleaned_data = form.cleaned_data
-
         repository = cleaned_data['repository']
-        
         redirect_url = '?%s' % urllib.urlencode({'path': context['path'],
                                                  'queued': 'true'})
         
+        # First thing is to try the preflight_submission
         try:
             opener = openers.get_opener(repository, request.user)
             form.instance.remote_url = dataset.preflight_submission(opener, repository)
         except openers.SimpleCredentialsRequired:
-            form.instance.status = 'new'
-            form.instance.save()
+            # FIXME: If we get this error we HAVE to save the form, so we must
+            # make sure that we undo any save operation if there is an error
+            # later on...
+            
+            form.status = 'new'
+            form.instance.save() # we have to save the form, or the redirect will fail
             url = '%s?%s' % (
                 reverse('dataset:simple-credentials'),
                 urllib.urlencode({'next': '%s?%s' % (request.path, urllib.urlencode({'path': context['path'],
@@ -120,16 +124,54 @@ class SubmitView(HTMLView, RedisView):
         except Dataset.DatasetIdentifierRejected, e:
             form.errors['identifier'] = ErrorList([unicode(e)])
             return self.render(request, context, 'dataset/submit')
-            
+        except Exception as e:
+            v_l.info("General failure during submission")
+            form.errors['repository'] = ErrorList(["Failed to connect to repository for initial deposit; please try again later"])
+            return self.render(request, context, 'dataset/submit')
+        
+        # if we get to here, preflight submission was successful and we are
+        # safe to record the deposit
+        form.instance.status = 'queued'
+        form.instance.queued_at = datastage.util.datetime.now()
+        form.instance.save()
+
+        self.redis.rpush(SUBMISSION_QUEUE, self.pack(form.instance.id))
+
+        # only save this once it has completed
+        # form.save()  # FIXME: what are we saving here?
+        
+        return HttpResponseSeeOther(redirect_url)
+        """
+        # First thing is to try the preflight_submission
+        try:
+            opener = openers.get_opener(repository, request.user)
+            form.instance.remote_url = dataset.preflight_submission(opener, repository)
+        except openers.SimpleCredentialsRequired:
+            form.instance.status = 'new'
+            form.instance.save() # FIXME: what are we saving here?
+            url = '%s?%s' % (
+                reverse('dataset:simple-credentials'),
+                urllib.urlencode({'next': '%s?%s' % (request.path, urllib.urlencode({'path': context['path'],
+                                                                                     'id': form.instance.id})),
+                                  'repository': repository.id}),
+            )
+            return HttpResponseSeeOther(url)
+        except Dataset.DatasetIdentifierRejected, e:
+            form.errors['identifier'] = ErrorList([unicode(e)])
+            return self.render(request, context, 'dataset/submit')
+        
+        # FIXME: we probably don't want this else here, it's probably what's
+        # messing things up
         else:
             form.instance.status = 'queued'
             form.instance.queued_at = datastage.util.datetime.now()
-            form.instance.save()
+            form.instance.save()  # FIXME: what are we saving here?
 
             self.redis.rpush(SUBMISSION_QUEUE, self.pack(form.instance.id))
 
-        
-        return HttpResponseSeeOther(redirect_url)
+        # only save this once it has completed
+        form.save()  # FIXME: what are we saving here?
+        """
 
 class SimpleCredentialsView(HTMLView):
     def common(self, request):
