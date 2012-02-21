@@ -104,7 +104,6 @@ class SubmitView(HTMLView, RedisView):
         redirect_url = '?%s' % urllib.urlencode({'path': context['path'],
                                                  'queued': 'true'})
         
-        
         try:
             opener = openers.get_opener(repository, request.user)
             form.instance.remote_url = dataset.preflight_submission(opener, repository)

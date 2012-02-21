@@ -38,7 +38,8 @@ class Repository(models.Model):
     
     def discover(self):
         from datastage.dataset import discovery
-        discovery.discover(self)
+        # discovery.discover(self)
+        discovery.analyse_endpoint(self)
     
     def save(self, *args, **kwargs):
         if self.type is None:
