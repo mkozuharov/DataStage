@@ -299,7 +299,7 @@ def users_menu():
             print "--- There are currently no users defined ---"
         
         print
-        print "Select add(a) to add a new datastage user. Select r to remove(r) the datastage user."
+        print "Select add(a) to add a new datastage user. Select remove(r) to remove a datastage user."
         
         yield menu({'add': add_user,
                     'remove': remove_user})
@@ -308,6 +308,19 @@ def add_user():
     username, name, email, role = None, None, None, None
 
     print "Add user (press Ctrl-D to cancel)"
+    print "\nThe Role of the user needs to be provied while creating the account."
+    print " Role: Leader/Member/Collaborator"
+    print "       Leader - The leader/head of the research group selects this role."
+    print "                 A leader has read/write access to his private area and only read access to all other private areas."
+    print "                 A leader has read/write access to all the shared and collaborative areas."
+    print "        Member - Any member who is not the head/leader of the research group selects this role."
+    print "                 A member has read/write access to his own private area but has no access to other members' private areas."
+    print "                 A member has read/write access his own shared area but has only read access to other members' sharea areas."
+    print "                 A member has read/write access to all the collaborative ares."
+    print "  Collaborator - A person from one group holds this role within another research group for collaboration."
+    print "                 A collaborator does not have his own private/shared/collaborative areas."
+    print "                 A collaborator does not have read/write access to any of the private/shared areas."
+    print "                 A collaborator has read/write access to all the collaborative ares."
 
     while True:
         print
@@ -334,16 +347,16 @@ def add_user():
         print "\nCreating user with these details:"
         print "\nRole: Leader/Member/Collaborator"
         print "\n      Leader - The leader/head of the research group selects this role."
-        print "\n               A leader has read/write access to his private area and only read access to all other private areas."
-        print "\n               A leader has read/write access to all the shared and collaborative areas."
-        print "\n      Member - Any member who is not the head/leader of the research group selects this role."
-        print "\n               A member has read/write access to his own private area but has no access to other members' private areas."
-        print "\n               A member has read/write access his own shared area but has only read access to other members' sharea areas."
-        print "\n               A member has read/write access to all the collaborative ares."
-        print "\nCollaborator - A person from one group holds this role within another research group for collaboration."
-        print "\n               A collaborator does not have his own private/shared/collaborative areas."
-        print "\n               A collaborator does not have read/write access to any of the private/shared areas."
-        print "\n               A collaborator has read/write access to all the collaborative ares."
+        print "                 A leader has read/write access to his private area and only read access to all other private areas."
+        print "                 A leader has read/write access to all the shared and collaborative areas."
+        print "        Member - Any member who is not the head/leader of the research group selects this role."
+        print "                 A member has read/write access to his own private area but has no access to other members' private areas."
+        print "                 A member has read/write access his own shared area but has only read access to other members' sharea areas."
+        print "                 A member has read/write access to all the collaborative ares."
+        print "  Collaborator - A person from one group holds this role within another research group for collaboration."
+        print "                 A collaborator does not have his own private/shared/collaborative areas."
+        print "                 A collaborator does not have read/write access to any of the private/shared areas."
+        print "                 A collaborator has read/write access to all the collaborative ares."
         print "  Username: %s" % username
         print "  Name: %s" % name
         print "  Email: %s" % email
@@ -430,7 +443,7 @@ def remove_user():
 
         print "\nRemoving user: %s" % username
 
-        print "\nSelect purge(p) to delete the user areas with their data and also the user account:"
+        print "\nSelect purge(p) to delete the user areas with their data and also the user account."
         print "\nSelect yes(y) to only delete the user account and not the data. This process orphans the data."
         yield menu({'purge': purge_user(username),
                     'yes': delete_user(username),
