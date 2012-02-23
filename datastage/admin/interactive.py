@@ -278,8 +278,9 @@ class FilesystemAttributes(object):
 
 def users_menu():
     while True:
+        print "======================="
         print "List of Datatsage users"
-        print "================================================================="
+        print "======================="
 
         leaders = get_members('datastage-leader')
         collabs = get_members('datastage-collaborator')
@@ -297,8 +298,9 @@ def users_menu():
             print "%-20s %-30s %s" % (user, pwuser.pw_gecos, role)
         if not all_users:
             print "--- There are currently no users defined ---"
-        
-        print
+        print "=============="
+        print " Manage users "
+        print "=============="
         print "Select add(a) to add a new datastage user. Select remove(r) to remove a datastage user."
         
         yield menu({'add': add_user,
@@ -306,11 +308,12 @@ def users_menu():
 
 def add_user():
     username, name, email, role = None, None, None, None
-
+    print "================================="
     print "Add user (press Ctrl-D to cancel)"
+    print "================================="
     print "\nThe Role of the user needs to be provided while creating the account."
     print "Role: Leader/Member/Collaborator"
-    print "r/w - Read/Write ; r - read only"
+    print "r/w - Read/Write ; r - read only; NA - No Area"
     print "Leader:"
     print "The leader/head of the research group selects this role."
     print "          Own area      Other's area"
@@ -329,7 +332,7 @@ def add_user():
     print "          Own area      Other's area"
     print " Private: no access       no access"
     print " Shared : no access       no access"
-    print " Collab :   r/w              r/w"
+    print " Collab :   NA               r/w"
 
 
     while True:
@@ -427,9 +430,9 @@ def delete_user(username):
 
 def remove_user():
     username = None
-
+    print "===================================="
     print "Remove user (press Ctrl-D to cancel)"
-
+    print "===================================="
     while True:
         print
         if username:
@@ -459,7 +462,9 @@ def main_menu():
     
     
     while True:
-        print
+        print "========="
+        print "Main Menu"
+        print "========="
         print "Using the config(c) option start/ensure that the system services are running to be able to use the datastage system. Select users(u) to add/remove the datastage users."
         yield menu({'config': config_menu,
                     'users': users_menu})
