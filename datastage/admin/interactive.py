@@ -278,8 +278,8 @@ class FilesystemAttributes(object):
 
 def users_menu():
     while True:
-        print "User management"
-        print
+        print "List of Datatsage users"
+        print "================================================================="
 
         leaders = get_members('datastage-leader')
         collabs = get_members('datastage-collaborator')
@@ -297,7 +297,10 @@ def users_menu():
             print "%-20s %-30s %s" % (user, pwuser.pw_gecos, role)
         if not all_users:
             print "--- There are currently no users defined ---"
-
+        
+        print
+        print "Select add(a) to add a new datastage user. Select r to remove(r) the datastage user."
+        
         yield menu({'add': add_user,
                     'remove': remove_user})
 
@@ -329,6 +332,18 @@ def add_user():
                     prompt="Pick one> ")
 
         print "\nCreating user with these details:"
+        print "\nRole: Leader/Member/Collaborator"
+        print "\n      Leader - The leader/head of the research group selects this role."
+        print "\n               A leader has read/write access to his private area and only read access to all other private areas."
+        print "\n               A leader has read/write access to all the shared and collaborative areas."
+        print "\n      Member - Any member who is not the head/leader of the research group selects this role."
+        print "\n               A member has read/write access to his own private area but has no access to other members' private areas."
+        print "\n               A member has read/write access his own shared area but has only read access to other members' sharea areas."
+        print "\n               A member has read/write access to all the collaborative ares."
+        print "\nCollaborator - A person from one group holds this role within another research group for collaboration."
+        print "\n               A collaborator does not have his own private/shared/collaborative areas."
+        print "\n               A collaborator does not have read/write access to any of the private/shared areas."
+        print "\n               A collaborator has read/write access to all the collaborative ares."
         print "  Username: %s" % username
         print "  Name: %s" % name
         print "  Email: %s" % email
@@ -415,6 +430,8 @@ def remove_user():
 
         print "\nRemoving user: %s" % username
 
+        print "\nSelect purge(p) to delete the user areas with their data and also the user account:"
+        print "\nSelect yes(y) to only delete the user account and not the data. This process orphans the data."
         yield menu({'purge': purge_user(username),
                     'yes': delete_user(username),
                     'cancel': ExitMenu()},
@@ -434,12 +451,11 @@ def main_menu():
     
     while True:
         print
-        print "You should start by checking that the system configuration is correct"
-        print "by typing 'c'."
+        print "Using the config(c) option start/ensure that the system services are running to be able to use the datastage system. Select users(u) to add/remove the datastage users."
         yield menu({'config': config_menu,
                     'users': users_menu})
 
-
+ 
 
 def main():
     interactive(main_menu())
