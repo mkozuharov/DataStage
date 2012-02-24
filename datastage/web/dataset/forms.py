@@ -38,9 +38,10 @@ class StageOneForm(forms.Form):
 class DatasetSubmissionForm(forms.ModelForm):
     identifier = forms.CharField()
     title = forms.CharField()
+
     class Meta:
         model = DatasetSubmission
-        fields = ('repository', 'identifier', 'title', 'description')
+        fields = ('repository', 'addrepository','identifier', 'title', 'description')
     
 class SimpleCredentialsForm(forms.Form):
     username = forms.CharField()
