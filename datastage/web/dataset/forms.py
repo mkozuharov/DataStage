@@ -41,7 +41,7 @@ class DatasetSubmissionForm(forms.ModelForm):
 
     class Meta:
         model = DatasetSubmission
-        fields = ('repository', 'addrepository','identifier', 'title', 'description')
+        fields = ('repository', 'identifier', 'title', 'description')
     
 class SimpleCredentialsForm(forms.Form):
     username = forms.CharField()

@@ -88,7 +88,6 @@ class DatasetSubmission(models.Model):
     title = models.TextField()
     description = models.TextField()
     identifier = models.TextField()
-    addrepository = models.TextField()
     path_on_disk = models.TextField()
     submitting_user = models.ForeignKey(User)
     repository = models.ForeignKey(Repository)
