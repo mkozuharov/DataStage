@@ -330,8 +330,8 @@ def add_user():
     print " A person from one group holds this role within another research group for collaboration."
     print " A collaborator does not have his own private/shared/collab areas, but just holds an account on the system."
     print "          Own area      Other's area"
-    print " Private: no access       no access"
-    print " Shared : no access       no access"
+    print " Private:   NA            no access"
+    print " Shared :   NA            no access"
     print " Collab :   NA               r/w"
 
 
