@@ -2,6 +2,7 @@ from base import Dataset
 from sword2 import Connection, HttpLayer, HttpResponse, UrlLib2Layer, Entry
 import urllib2
 import logging
+import time
 logger = logging.getLogger(__name__)
 
 class SwordSlugRejected(Exception):
@@ -94,15 +95,60 @@ class Sword2(object):
 
         return response.headers.get('Location', response.url)
     """
-    def complete_submission(self, dataset, opener, dataset_submission, filename):
+    def complete_submission(self, dataset, opener, dataset_submission, filename, retry_limit=3, retry_delay=2):
+        logger.info("Carrying out complete submission")
+        
         # create a connection
         repository = dataset_submission.repository
         conn = Connection(repository.sword2_sd_url, error_response_raises_exceptions=False, http_impl=UrlLib2Layer(opener))
         
         # get hold of a copy of the deposit reciept
         edit_uri = dataset_submission.remote_url
-        receipt = conn.get_deposit_receipt(edit_uri)
         
+        receipt = None
+        
+        try:
+            receipt = conn.get_deposit_receipt(edit_uri)
+        except urllib2.URLError as e:
+            # The sword2 client does not catch network errors like this one,
+            # which indicates that the url couldn't be reached at all
+            
+            # don't do anything about it here - we'll try again in a moment
+            # and then error out appropriately later
+            pass
+            
+            # at this stage we need to ensure that we actually got back a deposit
+            # receipt
+            i = 0
+            while (receipt is None or receipt.code >= 400) and i < retry_limit:
+                err = None
+                if receipt is None:
+                    err = "<unable to reach server>"
+                else:
+                    err = str(receipt.code)
+                logger.info("Attempt to retrieve Entry Document failed with error " + str(err) + " ... trying again in " + str(retry_delay) + " seconds")
+                i += 1
+                time.sleep(retry_delay)
+                try:
+                    receipt = conn.get_deposit_receipt(edit_uri)
+                except urllib2.URLError as e:
+                    # The sword2 client does not catch network errors like this one,
+                    # which indicates that the url couldn't be reached at all
+                    
+                    # just try again up to the retry_limit
+                    continue
+            
+        # if we get to here, and the receipt code is still an error, we give
+        # up and re-set the item status
+        if receipt is None or receipt.code >= 400:
+            logger.info("Attempt to retrieve Entry Document failed " + str(retry_limit + 1) + " times ... giving up")
+            dataset_submission.status = "error" # FIXME: this is not very descriptive, but we are limited to 10 characters and from the allowed list of values
+            dataset_submission.save()
+            return
+        
+        logger.info("Entry Document retrieved ... continuing to full package deposit")
+        
+        # if we get to here we can go ahead with the deposit for real
         with open(filename, "rb") as data:
             new_receipt = conn.update(dr = receipt,
                             payload=data,
