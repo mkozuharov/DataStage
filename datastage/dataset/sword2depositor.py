@@ -71,30 +71,6 @@ class Sword2(object):
         
         return receipt.location
         
-    """
-    Reference ...
-    # Make sure we're authenticated
-    opener.open(repository.homepage + 'states')
-    
-    dataset_list = opener.json(repository.homepage)
-    
-    if self.identifier in dataset_list:
-        raise self.DatasetIdentifierAlreadyExists
-    else:
-        try:
-            # Attempt to create new dataset
-            response = opener.open(repository.homepage + 'datasets/' + self.identifier,
-                                   urllib.urlencode({'title': self.title}))
-        except urllib2.HTTPError, e:
-            if e.code == 400 and e.msg == 'Bad request. Dataset name not valid':
-                raise self.DatasetIdentifierRejected
-            elif 200 <= e.code < 300:
-                response = e
-            else: 
-                raise
-
-        return response.headers.get('Location', response.url)
-    """
     def complete_submission(self, dataset, opener, dataset_submission, filename, retry_limit=3, retry_delay=2):
         logger.info("Carrying out complete submission")
         
@@ -117,65 +93,53 @@ class Sword2(object):
             # and then error out appropriately later
             pass
             
-            # at this stage we need to ensure that we actually got back a deposit
-            # receipt
-            i = 0
-            while (receipt is None or receipt.code >= 400) and i < retry_limit:
-                err = None
-                if receipt is None:
-                    err = "<unable to reach server>"
-                else:
-                    err = str(receipt.code)
-                logger.info("Attempt to retrieve Entry Document failed with error " + str(err) + " ... trying again in " + str(retry_delay) + " seconds")
-                i += 1
-                time.sleep(retry_delay)
-                try:
-                    receipt = conn.get_deposit_receipt(edit_uri)
-                except urllib2.URLError as e:
-                    # The sword2 client does not catch network errors like this one,
-                    # which indicates that the url couldn't be reached at all
-                    
-                    # just try again up to the retry_limit
-                    continue
+        # at this stage we need to ensure that we actually got back a deposit
+        # receipt
+        i = 0
+        while (receipt is None or receipt.code >= 400) and i < retry_limit:
+            err = None
+            if receipt is None:
+                err = "<unable to reach server>"
+            else:
+                err = str(receipt.code)
+            logger.info("Attempt to retrieve Entry Document failed with error " + str(err) + " ... trying again in " + str(retry_delay) + " seconds")
+            i += 1
+            time.sleep(retry_delay)
+            try:
+                receipt = conn.get_deposit_receipt(edit_uri)
+            except urllib2.URLError as e:
+                # The sword2 client does not catch network errors like this one,
+                # which indicates that the url couldn't be reached at all
+                
+                # just try again up to the retry_limit
+                continue
             
         # if we get to here, and the receipt code is still an error, we give
         # up and re-set the item status
         if receipt is None or receipt.code >= 400:
-            logger.info("Attempt to retrieve Entry Document failed " + str(retry_limit + 1) + " times ... giving up")
-            dataset_submission.status = "error" # FIXME: this is not very descriptive, but we are limited to 10 characters and from the allowed list of values
-            dataset_submission.save()
-            return
+            return self._set_error(dataset_submission, "error", "Attempt to retrieve Entry Document failed " + str(retry_limit + 1) + " times ... giving up")
         
         logger.info("Entry Document retrieved ... continuing to full package deposit")
         
         # if we get to here we can go ahead with the deposit for real
-        with open(filename, "rb") as data:
-            new_receipt = conn.update(dr = receipt,
-                            payload=data,
-                            mimetype="application/zip",
-                            filename=dataset.identifier + ".zip", 
-                            packaging='http://dataflow.ox.ac.uk/package/DataBankBagIt')
+        try:
+            with open(filename, "rb") as data:
+                new_receipt = conn.update(dr = receipt,
+                                payload=data,
+                                mimetype="application/zip",
+                                filename=dataset.identifier + ".zip", 
+                                packaging='http://dataflow.ox.ac.uk/package/DataBankBagIt')
+            
+            if new_receipt.code >= 400:
+                return self._set_error(dataset_submission, "error", "Attempt to deposit content failed")
+            
+        except urllib2.URLError as e:
+            # The sword2 client does not catch network errors like this one,
+            # which indicates that the url couldn't be reached at all
+            return self._set_error(dataset_submission, "error", "Attempt to deposit content failed")
     
-    """
-        stat_info = os.stat(filename)
-        with open(filename, 'rb') as data:
-            data = MultiPartFormData(files=[{'name': 'file',
-                                             'filename': self.identifier + '.zip',
-                                             'stream': data,
-                                             'mimetype': 'application/zip',
-                                             'size': stat_info.st_size}])
-            opener.open(repository.homepage + 'datasets/' + self.identifier,
-                        data=data,
-                        method='POST',
-                        headers={'Content-type': data.content_type,
-                                 'Content-length': data.content_length})
-        
-        data = MultiPartFormData(fields=[('filename', self.identifier + '.zip'),
-                                         ('id', self.identifier)])
-        
-        opener.open(repository.homepage + 'items/' + self.identifier,
-                    data=data,
-                    method='POST',
-                    headers={'Content-type': data.content_type,
-                             'Content-length': data.content_length})
-    """
+    def _set_error(self, dataset_submission, error, log_message):
+        logger.info(log_message)
+        dataset_submission.status = error # FIXME: this is not very descriptive, but we are limited to 10 characters and from the allowed list of values
+        dataset_submission.save()
+        return
