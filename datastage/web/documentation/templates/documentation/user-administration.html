@@ -30,49 +30,88 @@
 
 <h1>Adding and removing users</h1>
 
-<p>Currently, in order to add or remove users you will have to be logged in via <a href="../docs/accessdirect.html">SSH</a>
-as the user <code>datastage</code>.</p>
+<p>Currently, in order to add or remove users you will have to be logged into the <code>datastage</code> server.</p>
+
+<h2> Admin Command line interface </h2>
+<p> At the admin command line interface type:
+   <code> sudo datastage-config </code> </p>
+<p>  If it prompts for the password enter the admin password.</p> 
+<p>   Select u -'users' to add/delete accounts </p> 
 
 <h2>To add a user:</h2>
+<p>Follow the instructions stated in the 'admin command line interface' section.</p>
+<p>   Select a -'add' to add a new user(note the password it generates) or </p> 
 
-<p>Run the command <code>sudo su -</code> to have administrative access, using the password for the <code>datastage</code>
-user.  Then run the command 
+<p> The Role of the user needs to be provided while creating the account.</p> 
+<p> Role: Leader/Member/Collaborator</p> 
+<p> r/w - Read/Write ; r - read only; NA - No Area</p> 
+
+<h4> Leader:</h4> 
+<p> The leader/head of the research group selects this role.</p> 
 <blockquote>
-<code>/root/datastageuseradd.sh <cite>username</cite> "<cite>full name</cite>" <cite>grouprole</cite> [<cite>room number</cite> <cite>telephone number</cite> <cite>userpass</cite>]</code>
+<code>  
+<table>    
+ <tr><td></td><td> Own area </td><td>  Other's area</td></tr>
+ <tr><td>Private : </td><td> r/w </td><td> r</td>               
+ <tr><td>Shared  :</td><td> r/w</td><td>  r </td></tr>               
+ <tr><td>Collab  :</td><td> r/w </td><td>r/w</td></tr>               
+ </code>
+ </table>  
+ </blockquote>
+
+<h4> Member:</h4> 
+<p> Any member who is not the head/leader of the research group selects this role.</p> 
+<blockquote>
+<code>  
+<table>
+ <tr><td></td><td> Own area</td><td> Other's area</td></tr>
+ <tr><td> Private: </td><td>r/w</td><td>no access</td></tr>
+ <tr><td> Shared :</td><td>r/w</td><td>r</td></tr>
+ <tr><td> Collab : </td><td>r/w</td><td>r/w</td></tr>
+ </code>
+ </table>  
+ </blockquote>
+ 
+<h4> Collaborator:</h4> 
+<p>  A person from one group holds this role within another research group for collaboration.
+ A collaborator does not have his own private/shared/collab areas, but just holds an account on the system.
+</p> 
+<blockquote>
+<code>  
+<table> 
+<tr><td> </td><td>Own area </td><td>  Other's area</td></tr>
+<tr><td> Private: </td><td>   NA </td><td> no access</td></tr>
+<tr><td> Shared :</td><td>   NA </td><td> no access</td></tr>
+<tr><td>  Collab :</td><td>   NA </td><td>    r/w</td></tr>
+</code>  
+</table>  
 </blockquote>
-The last two options (room number and telephone number) are optional.  <cite>grouprole</cite> must be one of <code>RGMember</code> (an ordinary member of
-the research group), <code>RGLeader</code> (the group leader, who is able to view the private files of all members of the group), or <code>RGCollaborator</code>
-(an external collaborator who will have read-only access to the <code>collab</code> area of the file-store).</p>
-<p>Once you have run this command, you will be prompted to set an initial password for the user, and then the relevant filespaces will be created and the
-appropriate permissions set.</p>
-<p><strong>You must then also type <code>/etc/init.d/apache2 restart</code> for these configurations to take effect.</strong></p>
+
 
 <h2>To change a user password</h2>
-
-Log in via <a href="../docs/accessdirect.html">SSH</a>, and use the <code>smbpasswd</code> command.
-
-To change your own password:
+<p>The users can change their own passwords by logging into their accounts and executing the following commands.
+</p>
+<p>To change your own password:
 <blockquote>
 <code>passwd</code>
 <code>smbpasswd</code>
 </blockquote>
-the system will prompt for the old password, then the new password to be entered twice.
+the system will prompt for the old password, then the new password to be entered twice.</p>
 
-If you are logged in to an account with system administration capabilities, 
+<p>If you are logged in to an account with system administration capabilities, 
 you can also change the password for any user without having to enter the 
 previous password:
 <blockquote>
 <code>sudo su -</code><br/>
 <code>passwd <cite>username</cite></code>
 <code>smbpasswd -a <cite>username</cite></code>
-</blockquote>
+</blockquote></p>
 
 <h2>To remove a user:</h2>
-
-<p>Similarly to the process for adding a user you must first issue the command <code>sudo su -</code> .  Then run the command
-<blockquote>
-<code>/root/datastageuserddel.sh <cite>username</cite></code>
-</blockquote>
+<p>Follow the instructions stated in the 'admin command line interface' section.</p>
+<p>Select r - 'remove' to remove an existing user.</p>
+<p>Select 'purge' to delete the data and the account or </p>
+<p>Select 'yes' to delete the account and retain the data in which case the data remains orphaned. 
 The user will be removed form the filesystem and all their files will be changed to ownership by a special "orphaned data" account (datastage-orphan).
 The effect of this is that the original owners access rights are removed.  Specifically, only the group leader
 can access the users private files.
