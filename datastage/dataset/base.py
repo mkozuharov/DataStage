@@ -32,7 +32,7 @@ class Dataset(object):
             return "The remote repository rejected the proposed identifier for your dataset."
     class DatasetIdentifierAlreadyExists(DatasetIdentifierRejected):
         def __unicode__(self):
-            return "A dataset already exists in the remote repositoy with the proposed identifier."
+            return "A dataset already exists in the remote repository with the proposed identifier."
 
     def __init__(self, path):
         self._path = path
