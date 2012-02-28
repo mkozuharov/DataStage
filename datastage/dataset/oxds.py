@@ -129,21 +129,21 @@ class OXDSDataset(Dataset):
         # raise self.DatasetIdentifierAlreadyExists
         # else:
         
-            try:
-                # Attempt to create new dataset
-                response = opener.open(repository.homepage + 'datasets/' + self.identifier,
+        try:
+           # Attempt to create new dataset
+           response = opener.open(repository.homepage + 'datasets/' + self.identifier,
                                        urllib.urlencode({'title': self.title}))
-            except urllib2.HTTPError, e:
-                if e.code == 400 and e.msg == 'Bad request. Dataset name not valid':
-                    raise self.DatasetIdentifierRejected
-                elif e.code == 409 :
-                     raise self.DatasetIdentifierAlreadyExists             
-                elif 200 <= e.code < 300:
-                    response = e
-                else: 
-                    raise
-
-            return response.headers.get('Location', response.url)
+        except urllib2.HTTPError, e:
+           if e.code == 400 and e.msg == 'Bad request. Dataset name not valid':
+              raise self.DatasetIdentifierRejected
+           elif e.code == 409 :
+              raise self.DatasetIdentifierAlreadyExists             
+           elif 200 <= e.code < 300:
+              response = e
+           else: 
+              raise
+              
+        return response.headers.get('Location', response.url)
     
     def complete_submission(self, opener, repository, update_status):
         update_status('started')
