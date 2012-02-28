@@ -122,7 +122,7 @@ class OXDSDataset(Dataset):
     
     def preflight_submission(self, opener, repository):
         # Make sure we're authenticated
-          opener.open(repository.homepage + 'states')      
+        opener.open(repository.homepage + 'states')      
             
         # dataset_list = opener.json(repository.homepage)       
         # if self.identifier in dataset_list:
