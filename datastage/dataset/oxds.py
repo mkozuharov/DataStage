@@ -131,7 +131,7 @@ class OXDSDataset(Dataset):
         
         try:
            # Attempt to create new dataset
-           response = opener.open(repository.homepage + 'datasets', urllib.urlencode({'id':self.identifier}),
+           response = opener.open(repository.homepage + 'datasets/', urllib.urlencode({'id': self.identifier}),
                                        urllib.urlencode({'title': self.title}))
         except urllib2.HTTPError, e:
            if e.code == 400 and e.msg == 'Bad request. Dataset name not valid':
