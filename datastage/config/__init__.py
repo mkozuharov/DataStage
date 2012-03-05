@@ -69,6 +69,7 @@ class Settings(object):
     
     config_item = lambda key: property(lambda self: self[key])
     SITE_NAME = config_item('main:site_name')
+    SITE_VERSION = config_item('main:site_version')
     GROUP_NAME = config_item('group:name')
     GROUP_URL = config_item('group:url')
     del config_item
