@@ -151,8 +151,6 @@ p
 	top: -1000px;
 }
 
-
-
 header.pageHeader {
 
 	background: #3e786e; /* for non-css3 browsers */
@@ -182,6 +180,14 @@ header.pageHeader h1
 	padding: 0px;
 
 }
+
+
+span.version {
+  font-size: 0.7em;
+  padding-left: 5px;
+  letter-spacing: -0.1em;
+}
+
 
 header.pageHeader h1 a,
 header.pageHeader h1 a:link,
