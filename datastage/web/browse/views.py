@@ -244,7 +244,7 @@ class ZipView(ContentNegotiatedView):
 
 class IndexView(ContentNegotiatedView):
     data_directory = None
-    error_template_names = MergeDict({httplib.FORBIDDEN: ' Permission Denied:  You can only submit your own private/shared area file. However, you can submit any file from any collab area.'}, ErrorCatchingView.error_template_names)
+    error_template_names = MergeDict({httplib.FORBIDDEN: 'browse/403'}, ErrorCatchingView.error_template_names)
     directory_view = staticmethod(DirectoryView.as_view())
     file_view = staticmethod(FileView.as_view())
     forbidden_view = staticmethod(ForbiddenView.as_view())

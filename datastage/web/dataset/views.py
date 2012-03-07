@@ -26,6 +26,7 @@
 import errno
 import os
 import urllib
+import httplib
 
 from django.contrib.formtools.wizard import FormWizard
 from django.http import Http404
@@ -35,7 +36,8 @@ from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from django.forms.util import ErrorList
-from django_conneg.views import HTMLView, JSONView
+from django.utils.datastructures import MergeDict
+from django_conneg.views import HTMLView, JSONView, ErrorCatchingView
 from django_conneg.http import HttpResponseSeeOther
 import posix1e
 
@@ -60,7 +62,8 @@ class IndexView(HTMLView):
         }
         return self.render(request, context, 'dataset/index')
 
-class SubmitView(HTMLView, RedisView):
+class SubmitView(HTMLView, RedisView, ErrorCatchingView):
+    error_template_names = MergeDict({httplib.FORBIDDEN: 'dataset/403'}, ErrorCatchingView.error_template_names)
     @method_decorator(login_required)
     def dispatch(self, request):
         return super(SubmitView, self).dispatch(request)
@@ -80,7 +83,7 @@ class SubmitView(HTMLView, RedisView):
                 raise PermissionDenied
             raise
         if posix1e.ACL_WRITE not in permissions:
-            raise PermissionDenied
+            raise  PermissionDenied
 
         previous_submissions = DatasetSubmission.objects.filter(path_on_disk=path_on_disk)
         
@@ -189,6 +192,7 @@ class DatasetSubmissionView(HTMLView):
         dataset_submission = get_object_or_404(DatasetSubmission, id=id)
         context = {'dataset_submission': dataset_submission}
         return self.render(request, context, 'dataset/submission-detail')
-
+        
+       
 #class SubmitWizard(HTMLView, JSONView, CookieWizardView):
 #    pass
