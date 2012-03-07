@@ -25,6 +25,7 @@
 
 body {
   font-family: "Liberation Sans", Arial, sans-serif;
+  border: 10px solid red;
 }
 
 .meta-title, .meta-description {
