@@ -33,8 +33,9 @@ import tempfile
 import urllib
 import xattr
 import zipfile
+import httplib
 from wsgiref.handlers import format_date_time
-
+from django.utils.datastructures import MergeDict
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, Http404, HttpResponsePermanentRedirect
@@ -42,7 +43,7 @@ from django.views.generic import View
 from django.utils.decorators import method_decorator
 from django_conneg.http import HttpResponseSeeOther
 from django_conneg.decorators import renderer
-from django_conneg.views import ContentNegotiatedView, HTMLView, JSONView, TextView
+from django_conneg.views import ContentNegotiatedView, HTMLView, JSONView, TextView, ErrorCatchingView
 import posix1e
 
 from datastage.web.auth.decorators import login_required
@@ -243,7 +244,7 @@ class ZipView(ContentNegotiatedView):
 
 class IndexView(ContentNegotiatedView):
     data_directory = None
-
+    error_template_names = MergeDict({httplib.FORBIDDEN: ' Permission Denied:  You can only submit your own private/shared area file. However, you can submit any file from any collab area.'}, ErrorCatchingView.error_template_names)
     directory_view = staticmethod(DirectoryView.as_view())
     file_view = staticmethod(FileView.as_view())
     forbidden_view = staticmethod(ForbiddenView.as_view())
