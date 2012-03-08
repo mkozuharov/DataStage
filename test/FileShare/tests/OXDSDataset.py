@@ -36,11 +36,9 @@ import unittest
 import rdflib
 import xattr
 sys.path.append("../..")
-from datastage.namespaces import OXDS, DCTERMS, RDF, FOAF, bind_namespaces
-from datastage.dataset.base import Dataset
-import datastage.util.serializers
-from datastage.util.multipart import MultiPartFormData
 
+#from datastage.util.multipart import MultiPartFormData
+from multipart import MultiPartFormData
 
 logger = logging.getLogger(__name__)
 
@@ -63,10 +61,25 @@ class OXDSDataset(unittest.TestCase):
             fname = "/tmp/a.txt" 
             stat_info = os.stat(fname)
             with open(fname, 'rb') as fileData:
-					opener = self.get_opener()
-					data = MultiPartFormData(files=[{'name': 'file','filename': fname,'stream': fileData,'mimetype': 'text/plain','size': stat_info.st_size}])
-					#data = MultiPartFormData(files=[{'name': 'file','filename': fname,'stream': fileData,'mimetype': 'text/plain','size': stat_info.st_size,'Content-type': data.content_type,'Content-length': data.content_length}])
-					opener.open('http://databank/datastage/'+ 'datasets/' + 'dd', data=data, method='POST',headers={'Content-type': data.content_type,'Content-length': data.content_length})
+              #urllib.urlencode({'name': 'file','filename': fname})
+              #data = MultiPartFormData(files=[{'name': 'file','filename': fname,'stream': fileData,'mimetype': 'text/plain','size': stat_info.st_size}])
+			  #data = MultiPartFormData(files=[{'name': 'file','filename': fname,'data': fileData, 'Content-type': 'text/plain','Content-length':1223}])
+             
+	         #try:
+	         #       opener = self.get_opener()
+	         #       # Attempt to create new dataset
+	         #       response = opener.open('http://databank/datastage/datasets/', urllib.urlencode({'id': 'dff'}))
+	         #except urllib2.HTTPError, e:
+	         #       if e.code == 400 and e.msg == 'Bad request. Dataset name not valid':
+	         #           raise
+	         #       elif 200 <= e.code < 300:
+	         #           response = e
+	         #       else: 
+	         #           raise
+	        opener = self.get_opener()
+	        opener.open('http://databank/datastage/datasets/', urllib.urlencode({'id': 'dff2'}))
+            #opener.open('http://databank/datastage/datasets/dff2/', urllib.urlencode({'name': 'file','filename': fname,'data': fileData,'Content-type': 'text/plain','Content-length': stat_info.st_size}))	    
+            opener.open('http://databank/datastage/datasets/dff2', urllib.urlencode({'name': 'file','filename': fname,'data': fileData,'Content-type': 'text/plain','Content-length': stat_info.st_size}))
             return
             
 class PreemptiveBasicAuthHandler(urllib2.HTTPBasicAuthHandler):
