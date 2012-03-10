@@ -146,13 +146,20 @@ p
 /* START OF additional style changes applicable to both 'Bank and 'Stage, April 2012   */
 
 
+blockquote
+{
+  font-size: 1em;
+}
 
 code
 {
   font-size: 1.3em;
 }
 
-
+ul.siteAdmin {
+  float: right;
+  clear: none;
+  }
 
 /* END OF additional style changes applicable to both 'Bank and 'Stage, April 2012   */
 
@@ -736,7 +743,8 @@ color: #fff;
 
 .intro,
 .pleaseNote,
-.message{
+.message,
+.siteAdmin{
   background: #fdfefe; /* for non-css3 browsers */
 		filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fdfefe', endColorstr='#f4f7fa'); /* for IE */
 		background: -webkit-gradient(linear, left top, left bottom, from(#fdfefe), to(#f4f7fa)); /* for webkit browsers */
