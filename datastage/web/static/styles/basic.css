@@ -143,6 +143,21 @@ p
 }
 
 
+/* START OF additional style changes applicable to both 'Bank and 'Stage, April 2012   */
+
+
+
+code
+{
+  font-size: 1.3em;
+}
+
+
+
+/* END OF additional style changes applicable to both 'Bank and 'Stage, April 2012   */
+
+
+
 /*  hide h2's in mainnav */
 #mainnav h2,
 #subnav h2
