@@ -30,18 +30,16 @@
 
 <h1>Data file access from MacOS</h1>
 
-<p>Data files may be accessed from MacOS as a Windows network share:
+<p>Data files may be accessed from MacOS as a Windows network share:</p>
 <blockquote>
 <code>smb://{{ hostname }}/datastage</code>
 </blockquote>
-A username and password will be required to complete a connection.
+<p>A username and password will be required to complete a connection.
 </p>
 
-<p>To connect a Windows share from MacOS, use the Finder "Go > Connect to server..." menu command (or COMMAND-K shortcut), and enter
-<blockquote>
-  <code>smb://<cite>username</cite>@{{ hostname }}/datastage</code> as the server address.
-</blockquote>
-The system will then prompt for the specified user's password.	
+<p>To connect a Windows share from MacOS, use the Finder <strong>Go > Connect to server...</strong> menu command (or <strong>COMMAND-K</strong> shortcut), and enter:
+
+  <code>smb://<cite>username</cite>@{{ hostname }}/datastage</code> as the server address. The system will then prompt for the specified user's password.	
 </p>
 
 <p>Once connected, a user will be able to read/write files in their own private area,
