@@ -490,13 +490,13 @@ div.actions form div.collapsible{
   padding: 7px 5px 0px 5px;
   position: absolute;
   top: 18px;
-  width: 270px;
+  width: 350px;
  
 }
 
 div.actions form.upload div.panel input.fileUpload{ 
 
-  width: 200px;
+  width: 240px;
   
   }
 
