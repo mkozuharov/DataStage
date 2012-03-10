@@ -909,3 +909,11 @@ Error messages
 
 
 
+/*  styling for inline editign of metadata */
+
+.meta-title, .meta-description  {
+  border: 1px solid #ccc;
+  font-family: monospace;
+  font-size: 1.1em;
+}
+
