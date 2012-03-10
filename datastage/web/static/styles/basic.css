@@ -38,7 +38,6 @@ h1, h2, h3, h4, h5, h6
 	color: #3e786e;
 	font-weight: normal;
 	margin: 0.8em 0px 0.2em 0px;
-	text-transform: uppercase;
 	
 }
 
@@ -198,8 +197,12 @@ header.pageHeader h1
 	font-size: 5.5555em;
 	font-weight: bold;
 	letter-spacing: -0.16em;
+	/*
 	margin: -10px 0px -10px -7px;
+	*/
+	margin: 0px;
 	padding: 0px;
+	text-transform: uppercase;
 
 }
 
@@ -688,6 +691,12 @@ header.pageHeader nav a {
 	text-decoration: none;	 
 
 
+}
+
+#mainnav ul {
+
+margin: 0px;
+padding: 0px;
 }
 
 
