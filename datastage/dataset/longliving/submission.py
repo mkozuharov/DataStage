@@ -58,8 +58,9 @@ class SubmissionThread(LonglivingThread):
                     dataset_submission.repository.homepage)
         
         dataset = dataset_submission.dataset
+        
         opener = openers.get_opener(dataset_submission.repository,
-                                    dataset_submission.submitting_user)
+                                    dataset_submission.repository_user)
         
         def update_status(status):
             logger.debug("Status updated to %r", status)

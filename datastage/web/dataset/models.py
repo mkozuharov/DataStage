@@ -90,6 +90,7 @@ class DatasetSubmission(models.Model):
     identifier = models.TextField()
     path_on_disk = models.TextField()
     submitting_user = models.ForeignKey(User)
+    repository_user =  models.ForeignKey(RepositoryUser)
     repository = models.ForeignKey(Repository)
     status = models.CharField(max_length=10, choices=DATASET_STATUS_CHOICES, default='new')
     queued_at = models.DateTimeField(auto_now_add=True)
