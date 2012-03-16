@@ -206,7 +206,7 @@ class PreviousSubmissionsView(HTMLView, RedisView, ErrorCatchingView):
         context = self.common(request)
         if context['dataset_submission'].status not in ('new', 'submitted', 'error'):
             return self.render(request, context, 'dataset/submitted')
-        return self.render(request, context, 'dataset/update')
+        return self.render(request, context, 'dataset/previous-submissions')
     
     def post(self, request):
         context = self.common(request)
@@ -216,7 +216,7 @@ class PreviousSubmissionsView(HTMLView, RedisView, ErrorCatchingView):
             return self.render(request, context, 'dataset/submitted')
 
         if not form.is_valid():
-            return self.render(request, context, 'dataset/update')
+            return self.render(request, context, 'dataset/previous-submissions')
         
         form.save()
         dataset = form.instance.dataset
