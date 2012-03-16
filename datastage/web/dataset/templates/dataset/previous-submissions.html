@@ -65,7 +65,7 @@
           <td>{{ submission.status }}</td>
           <td>
             <a href="{{ submission.get_absolute_url }}">View</a> /
-            <a href="{{ submission.get_absolute_url }}">Update</a>
+            <a href="/dataset/submit/?path={{ path }}&num={{ submission.id }}">Update</a>
           </td>
         </tr>{% endfor %}
       </tbody>

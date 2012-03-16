@@ -30,12 +30,19 @@
 {% block content %}
 
 <article>
-  <h1>Submit as data package</h1>
-
+  {% if num %}
+  	<h1>Update an existing data package</h1>
+  {% else %}
+  	<h1>Submit as data package</h1>
+  {% endif %}
   <p>Submitting <tt>{{ path }}</tt> as a data package.</p>
 
   <section>
-    <h2>New submission</h2>
+    {% if num %}
+    	<h2>Update submission</h2>
+    {% else %}
+        <h2>New submission</h2>
+    {% endif %}
     <form method="post" action="">{% csrf_token %}
 
 

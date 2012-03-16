@@ -70,6 +70,7 @@ class SubmitView(HTMLView, RedisView, ErrorCatchingView):
 
     def common(self, request):
         path = request.REQUEST.get('path')
+        num = request.REQUEST.get('num')
         if not path:
             raise Http404
         path_parts = path.rstrip('/').split('/')
@@ -95,10 +96,14 @@ class SubmitView(HTMLView, RedisView, ErrorCatchingView):
         else:
             dataset_submission = DatasetSubmission(path_on_disk=path_on_disk,
                                                    submitting_user=request.user)
-
+                                                           
+        if 'num' in request.REQUEST:           
+           dataset_submission = get_object_or_404(DatasetSubmission, id=num)       
+           
         form = forms.DatasetSubmissionForm(request.POST or None, instance=dataset_submission)
         
         return {'path': path,
+                'num':num,
                 'form': form,
                 'path_on_disk': path_on_disk,
                 'previous_submissions': previous_submissions,
@@ -108,8 +113,10 @@ class SubmitView(HTMLView, RedisView, ErrorCatchingView):
 
     def get(self, request):
         context = self.common(request)
-        if context['dataset_submission'].status not in ('new', 'submitted', 'error'):
-            return self.render(request, context, 'dataset/submitted')
+        #if context['dataset_submission'].status not in ('new', 'submitted', 'error'):
+        #    return self.render(request, context, 'dataset/submitted')
+        #if context['dataset_submission'].status in ('new', 'submitted', 'error'):
+        #     return self.render(request, context, 'dataset/submitted')
         return self.render(request, context, 'dataset/submit')
     
     def post(self, request):
@@ -131,29 +138,30 @@ class SubmitView(HTMLView, RedisView, ErrorCatchingView):
         
         redirect_url = '/dataset/submission/%s?%s' % (form.instance.id, urllib.urlencode({'path': context['path']}))
 
-        try:
-            opener = openers.get_opener(repository, request.user)
-            form.instance.remote_url = dataset.preflight_submission(opener, repository)
-        except openers.SimpleCredentialsRequired:
-            form.instance.status = 'new'
-            form.instance.save()
-            url = '%s?%s' % (
-                reverse('dataset:simple-credentials'),
-                urllib.urlencode({'next': '%s?%s' % (request.path, urllib.urlencode({'path': context['path'],
-                                                                                     'id': form.instance.id})),
-                                  'repository': repository.id}),
-            )
-            return HttpResponseSeeOther(url)
-        except Dataset.DatasetIdentifierRejected, e:
-            form.errors['identifier'] = ErrorList([unicode(e)])
-            return self.render(request, context, 'dataset/submit')
+        if not context['num']:
+	        try:
+	            opener = openers.get_opener(repository, request.user)
+	            form.instance.remote_url = dataset.preflight_submission(opener, repository)
+	        except openers.SimpleCredentialsRequired:
+	            form.instance.status = 'new'
+	            form.instance.save()
+	            url = '%s?%s' % (
+	                reverse('dataset:simple-credentials'),
+	                urllib.urlencode({'next': '%s?%s' % (request.path, urllib.urlencode({'path': context['path'],
+	                                                                                     'id': form.instance.id})),
+	                                  'repository': repository.id}),
+	            )
+	            return HttpResponseSeeOther(url)
+	        except Dataset.DatasetIdentifierRejected, e:
+	            form.errors['identifier'] = ErrorList([unicode(e)])
+	            return self.render(request, context, 'dataset/submit')
             
-        else:
-            form.instance.status = 'queued'
-            form.instance.queued_at = datastage.util.datetime.now()
-            form.instance.save()
+        #else:
+        form.instance.status = 'queued'
+        form.instance.queued_at = datastage.util.datetime.now()
+        form.instance.save()
 
-            self.redis.rpush(SUBMISSION_QUEUE, self.pack(form.instance.id))
+        self.redis.rpush(SUBMISSION_QUEUE, self.pack(form.instance.id))
 
         
         return HttpResponseSeeOther(redirect_url)
@@ -191,6 +199,7 @@ class PreviousSubmissionsView(HTMLView, RedisView, ErrorCatchingView):
         else:
             dataset_submission = DatasetSubmission(path_on_disk=path_on_disk,
                                                    submitting_user=request.user)
+                         
 
         form = forms.DatasetSubmissionForm(request.POST or None, instance=dataset_submission)
         
