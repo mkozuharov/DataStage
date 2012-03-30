@@ -33,7 +33,7 @@
 {% if message %}
 	<div class="message">
 {% else %}
-	<div class="message" style="display: none"style="display: none" >
+	<div class="message" style="display:none" >
 {% endif %}	
 
 <p id="message" name="message" > {{ message }} </p>
@@ -101,35 +101,36 @@
           {% else %}—{% endif %}</td>
       <td>{% if subpath.owner_name %}{{ subpath.owner_name }} ({{ subpath.owner_username }}){% endif %}</td>
       {% if subpath.can_read %}
-      {% if subpath.can_write %}
-      <td><input class="meta-title" type="text" name="meta-title-{{ subpath.name|urlencode }}" value="{{ subpath.title|default:"" }}"/></td>
-      <td><textarea class="meta-description" name="meta-description-{{ subpath.name|urlencode }}">{{ subpath.description|default:"" }}</textarea></td>
-      <td class="delete">
+	      {% if subpath.can_write %}
+	      <td><input class="meta-title" type="text" name="meta-title-{{ subpath.name|urlencode }}" value="{{ subpath.title|default:"" }}"/></td>
+	      <td><textarea class="meta-description" name="meta-description-{{ subpath.name|urlencode }}">{{ subpath.description|default:"" }}</textarea></td>
+	      <td class="delete">
+   		
+	    		<a class="action" href="?action=confirm&filename={{ subpath.name|urlencode }}" >delete</a>
 
-
-    		
-    		<a class="action" href="{{ subpath.url }}?action=delete" >delete</a>
-    		
-    		<!--s
-    		
-    		end to confirm delete page  
-    		
-    		'yes, delete' or 'no, cancel' -
-    		
-    		either option returns you to the directory page,
-    		
-    		if you selected 'yes, delete' then provide a message at the top of the page which reports success or failure 
-    		-->
-    	
-
-     </td>
-      
+	    		<!--s
+	    		
+	    		end to confirm delete page  
+	    		
+	    		'yes, delete' or 'no, cancel' -
+	    		
+	    		either option returns you to the directory page,
+	    		
+	    		if you selected 'yes, delete' then provide a message at the top of the page which reports success or failure 
+	    		-->
+	    	
+	
+	      </td> 
+	      {% else %}
+	      <td>{{ subpath.title|default:"" }}</td>
+	      <td>{{ subpath.description|default:"" }}</td>
+	      <td></td>      
+	      {% endif %}
       {% else %}
-      <td>{{ subpath.title|default:"" }}</td>
-      <td>{{ subpath.description|default:"" }}</td>
+      <td></td> 
+      <td></td> 
       <td></td>
-      
-      {% endif %}{% else %}<td></td> <td></td> <td></td>{% endif %}
+      {% endif %}
      
      </tr>
 {% empty %}

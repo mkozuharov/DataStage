@@ -28,6 +28,7 @@ import errno
 import httplib
 import mimetypes
 import os
+import io
 from os.path import abspath, dirname
 import pwd
 import tempfile
@@ -36,6 +37,7 @@ import xattr
 import zipfile
 import httplib
 import shutil
+from django.core.exceptions import PermissionDenied
 from wsgiref.handlers import format_date_time
 from django.utils.datastructures import MergeDict
 from django.core.exceptions import PermissionDenied
@@ -65,17 +67,26 @@ def can_read(path):
         if e.errno == errno.EACCES:
             return False
         raise
+    except IOError, e:
+        return False                  
+    except PermissionDenied:
+        return False  
+        
 def can_write(path):
     try:
         if os.path.isdir(path):
             return False
         else:
-            with open(path, 'r+'):
+            with  open(path, 'r+'):
                 return True
     except OSError, e:
         if e.errno == errno.EACCES:
             return False
-        raise
+        raise      
+    except IOError, e:
+        return False                  
+    except PermissionDenied:
+        return False    
 
 class DirectoryView(HTMLView, JSONView):
     _json_indent = 2
@@ -106,6 +117,8 @@ class DirectoryView(HTMLView, JSONView):
                 'url': request.build_absolute_uri(reverse('browse:index',
                                                           kwargs={'path': subpath['path']})),
                 'link': can_read(subpath_on_disk),
+                'can_read': can_read(subpath_on_disk),
+                'can_write': can_write(subpath_on_disk),
             })
             print subpath_on_disk, subpath['link']
             try:
@@ -199,7 +212,32 @@ class ForbiddenView(HTMLView, JSONView, TextView):
         }
         return self.render(request, context, 'browse/forbidden')
       
+class ConfirmDeleteView(HTMLView):
+   
+    def dispatch(self, request, filename, path):
+        context = {'path': path, 'filename':filename}
+        return self.render(request, context, 'browse/confirm')
 
+class DeleteView(HTMLView):
+    def post(self, request, path_on_disk, filename, path):
+        if not os.path.isdir(path_on_disk):
+            raise Http404
+        msg = None
+
+        try:
+            os.remove(path_on_disk+"/"+filename)
+            msg =  "The file: ' " + filename + " ' has been successfully deleted!"
+        except Exception, e:
+            msg = "Delete was unsuccessful !"
+        msgcontext={'path_on_disk':path_on_disk,'message': msg }
+        url = '%s?%s' % ( '/data/'+path, urllib.urlencode({'message': msg}))
+        
+        msgcontext={'path_on_disk':path_on_disk,'message': msg }
+        url = '%s?%s' % ( '/data/'+path, urllib.urlencode({'message': msg}))
+                            
+        return HttpResponseSeeOther(url)
+
+               
 class ZipView(ContentNegotiatedView):
     _default_format = 'zip'
     _force_fallback_format = 'zip'
@@ -208,14 +246,7 @@ class ZipView(ContentNegotiatedView):
         if not os.path.isdir(path_on_disk):
             raise Http404
         return self.render_to_format(request,{'path_on_disk': path_on_disk}, 'application/zip','zip')
-        
-   # def post(self, request, path_on_disk, source_file, path):
-   #     if not os.path.isdir(path_on_disk):
-   #         raise Http404
-   #     return self.render_to_format(request, {'path_on_disk': path_on_disk, 'source_file': source_file },'text/html','html')        
-
-        
-        
+ 
     @renderer(format='zip', mimetypes=('application/zip',), name='ZIP archive')
     def render_zip(self, request, context, template_name):
 
@@ -294,7 +325,7 @@ class UploadView(ContentNegotiatedView):
         
         msgcontext={'path_on_disk':path_on_disk,'message': msg }
         url = '%s?%s' % ( '/data/'+path, urllib.urlencode({'message': msg}))
-                            
+
         return HttpResponseSeeOther(url)
 
           
@@ -307,12 +338,16 @@ class IndexView(ContentNegotiatedView):
     file_view = staticmethod(FileView.as_view())
     forbidden_view = staticmethod(ForbiddenView.as_view())
 
-    action_views = {'zip': ZipView.as_view(),'upload': UploadView.as_view()}
+    action_views = {'zip': ZipView.as_view(),
+                    'upload': UploadView.as_view(),
+                    'confirm': ConfirmDeleteView.as_view(),
+                    'delete': DeleteView.as_view()}
 
     @method_decorator(login_required)
     def dispatch(self, request, path):
         path_parts = path.rstrip('/').split('/')
         message = request.GET.get('message') 
+
         if path and any(part in ('.', '..', '') for part in path_parts):
             raise Http404
 
@@ -328,27 +363,46 @@ class IndexView(ContentNegotiatedView):
 
         try:
             # action views are additional bits of behaviour for a location
-            action_view = self.action_views.get(request.REQUEST.get('action'))
+            action = request.REQUEST.get('action')
+            action_view = self.action_views.get(action)
             src_file = None
-            if request.method == 'POST':
-                #src_file = "/Users/bhavana/Desktop/services.sh"
-            	src_file = request.FILES['file']
-            if action_view:
-                if src_file:
-                	return action_view(request, path_on_disk, src_file, path)
-                else:
-                	return action_view(request, path_on_disk,path)
-            elif request.method.lower() in ('get', 'head'):
-                view = self.directory_view if os.path.isdir(path_on_disk) else self.file_view
-                if view == self.directory_view and path and not path.endswith('/'):
-                    return HttpResponsePermanentRedirect(reverse('browse:index', kwargs={'path':path + '/', 'message':message}))
-                response = view(request, path_on_disk, path, message)
+            filename = None
+            response = None   
+      
+            if request.method.lower() in ('get', 'head'):            
+                 if action == 'confirm':
+                   filename = request.REQUEST.get('filename')
+                   return action_view(request,filename,path)
+                 if action == 'zip':
+                   return action_view(request, path_on_disk, path)
+                 else:
+                   if os.path.isdir(path_on_disk):
+                     view = self.directory_view
+                   else:
+                     view = self.file_view                    
+                   if view == self.directory_view and path and not path.endswith('/'):
+                    	return HttpResponsePermanentRedirect(reverse('browse:index ', kwargs={'path':path + '/', 'message':message}))                    	
+                   if message:
+                   		response = view(request, path_on_disk, path, message) # for viewing the status message of the operation performed
+                   else:  
+                        response = view(request, path_on_disk, path)  # for viewing the file contents                 
+            elif  request.method.lower()  in ('post'):            
+                 if action == 'upload':
+                   src_file = request.FILES['file']
+                   return action_view(request, path_on_disk, src_file, path)
+                 elif action == 'delete':
+                    filename = request.REQUEST.get('filename')
+                    return action_view(request, path_on_disk, filename, path)
+                 else:	
+                    return action_view(request, path_on_disk, src_file, path)             
             else:
                 response = super(IndexView, self).dispatch(request, path)
+         
             response['Allow'] = ','.join(m.upper() for m in self.http_method_names)
             response['DAV'] = "1,2"
             response['MS-Author-Via'] = 'DAV'
             return response
+            
         except PermissionDenied:
             return self.forbidden_view(request, path)
         except:
