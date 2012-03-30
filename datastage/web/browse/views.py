@@ -38,6 +38,7 @@ import zipfile
 import httplib
 import shutil
 from django.core.exceptions import PermissionDenied
+from datastage.util.path import get_permissions
 from wsgiref.handlers import format_date_time
 from django.utils.datastructures import MergeDict
 from django.core.exceptions import PermissionDenied
@@ -294,8 +295,11 @@ class UploadView(ContentNegotiatedView):
         temp_file = tempfile.NamedTemporaryFile(delete=False)
         basename = os.path.basename(path_on_disk)
         src_file=source_file
-        msg = None
-
+       	temp_dir = tempfile.gettempdir()
+       	temp_path = os.path.join(temp_dir, temp_file.name)
+       	parent_acl = posix1e.ACL(file=path_on_disk.encode('utf-8'))
+       	msg = None
+       	
         try:
 	        if src_file.multiple_chunks() == True:
 	           for chunk in src_file.chunks():
@@ -306,7 +310,11 @@ class UploadView(ContentNegotiatedView):
 	             fileName, fileExtension = os.path.splitext(src_file.name)
 	             
 	        if fileExtension == ".zip":
-	             msg =  "The package: ' " + src_file.name + " ' has been successfully unpacked!"	   
+	             msg =  "The package: ' " + src_file.name + " ' has been successfully unpacked!"	
+	             
+                 # Get the parent acl and apply it to the zip file before the zip is unpacked
+	             parent_acl.applyto(temp_path)
+	                
 	             zip_ref = zipfile.ZipFile(temp_file, 'r')
 	             zip_ref.extractall(path_on_disk)
 	             zip_ref.close() 
@@ -314,9 +322,14 @@ class UploadView(ContentNegotiatedView):
 	             msg =  "The file: ' " + src_file.name + " ' has been successfully uploaded!"
 	             temp_file.write(src_file.read())
 	             temp_file.close()
-	             temp_dir = tempfile.gettempdir()
+
 	             temp_path = os.path.join(temp_dir, temp_file.name)
 	             shutil.copy2(temp_path,path_on_disk+"/"+src_file.name)
+                
+                 # Get the parent acl and apply it to the child entry
+	             child_entry = path_on_disk+'/'+src_file.name
+	             parent_acl.applyto(child_entry)
+
 
         except Exception, e:
             msg = "Upload was unsuccessful !"
@@ -325,7 +338,7 @@ class UploadView(ContentNegotiatedView):
         
         msgcontext={'path_on_disk':path_on_disk,'message': msg }
         url = '%s?%s' % ( '/data/'+path, urllib.urlencode({'message': msg}))
-
+        
         return HttpResponseSeeOther(url)
 
           
