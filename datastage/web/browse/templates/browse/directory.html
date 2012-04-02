@@ -48,7 +48,7 @@
     <input type="submit" value="upload" />
     <p>You can upload Zip files, the contents of the zip file will be unpacked into the current directory.</p>
   </div> 
-<!-- form should submit to the current location - and provide a messahe on success or otherwise of the upload. e.g. "the file/package {filename} has been successfully upload/unpacked" -->
+<!-- form should submit to the current location - and provide a message on success or otherwise of the upload. e.g. "the file/package {filename} has been successfully upload/unpacked" -->
 </form> 
 <a class="action" href="{% url dataset:submit %}?path=/{{ path|urlencode }}" title="Submit this directory as a dataset">Submit as data package</a>
 <a class="action" href="{% url dataset:previous-submissions %}?path=/{{ path|urlencode }}" title="Update an existing data package">Update an existing data package</a>
@@ -104,22 +104,8 @@
 	      {% if subpath.can_write %}
 	      <td><input class="meta-title" type="text" name="meta-title-{{ subpath.name|urlencode }}" value="{{ subpath.title|default:"" }}"/></td>
 	      <td><textarea class="meta-description" name="meta-description-{{ subpath.name|urlencode }}">{{ subpath.description|default:"" }}</textarea></td>
-	      <td class="delete">
-   		
-	    		<a class="action" href="?action=confirm&filename={{ subpath.name|urlencode }}" >delete</a>
-
-	    		<!--s
-	    		
-	    		end to confirm delete page  
-	    		
-	    		'yes, delete' or 'no, cancel' -
-	    		
-	    		either option returns you to the directory page,
-	    		
-	    		if you selected 'yes, delete' then provide a message at the top of the page which reports success or failure 
-	    		-->
-	    	
-	
+	      <td class="delete">  		
+	    		<a class="action" href="?action=confirm&filename={{ subpath.name|urlencode }}" >delete</a>	
 	      </td> 
 	      {% else %}
 	      <td>{{ subpath.title|default:"" }}</td>

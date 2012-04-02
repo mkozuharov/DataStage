@@ -299,46 +299,46 @@ class UploadView(ContentNegotiatedView):
        	temp_path = os.path.join(temp_dir, temp_file.name)
        	parent_acl = posix1e.ACL(file=path_on_disk.encode('utf-8'))
        	msg = None
-       	
-        try:
-	        if src_file.multiple_chunks() == True:
-	           for chunk in src_file.chunks():
-	        	 temp_file.write(chunk)
-	        	 temp_file.close()
-	        else:
-	             temp_file.write(src_file.read())
-	             fileName, fileExtension = os.path.splitext(src_file.name)
-	             
-	        if fileExtension == ".zip":
-	             msg =  "The package: ' " + src_file.name + " ' has been successfully unpacked!"	
-	             
-                 # Get the parent acl and apply it to the zip file before the zip is unpacked
-	             parent_acl.applyto(temp_path)
+       	url = '%s' % ('/data/'+path)
+       	if src_file:
+	        try:
+		        if src_file.multiple_chunks() == True:
+		           for chunk in src_file.chunks():
+		        	 temp_file.write(chunk)
+		        	 temp_file.close()
+		        else:
+		             temp_file.write(src_file.read())
+		             fileName, fileExtension = os.path.splitext(src_file.name)
+		             
+		        if fileExtension == ".zip":
+		             msg =  "The package: ' " + src_file.name + " ' has been successfully unpacked!"	
+		             
+	                 # Get the parent acl and apply it to the zip file before the zip is unpacked
+		             parent_acl.applyto(temp_path)
+		                
+		             zip_ref = zipfile.ZipFile(temp_file, 'r')
+		             zip_ref.extractall(path_on_disk)
+		             zip_ref.close() 
+		        else:
+		             msg =  "The file: ' " + src_file.name + " ' has been successfully uploaded!"
+		             temp_file.write(src_file.read())
+		             temp_file.close()
+	
+		             temp_path = os.path.join(temp_dir, temp_file.name)
+		             shutil.copy2(temp_path,path_on_disk+"/"+src_file.name)
 	                
-	             zip_ref = zipfile.ZipFile(temp_file, 'r')
-	             zip_ref.extractall(path_on_disk)
-	             zip_ref.close() 
-	        else:
-	             msg =  "The file: ' " + src_file.name + " ' has been successfully uploaded!"
-	             temp_file.write(src_file.read())
-	             temp_file.close()
-
-	             temp_path = os.path.join(temp_dir, temp_file.name)
-	             shutil.copy2(temp_path,path_on_disk+"/"+src_file.name)
-                
-                 # Get the parent acl and apply it to the child entry
-	             child_entry = path_on_disk+'/'+src_file.name
-	             parent_acl.applyto(child_entry)
-
-
-        except Exception, e:
-            msg = "Upload was unsuccessful !"
-        msgcontext={'path_on_disk':path_on_disk,'message': msg }
-        url = '%s?%s' % ( '/data/'+path, urllib.urlencode({'message': msg}))
-        
-        msgcontext={'path_on_disk':path_on_disk,'message': msg }
-        url = '%s?%s' % ( '/data/'+path, urllib.urlencode({'message': msg}))
-        
+	                 # Get the parent acl and apply it to the child entry
+		             child_entry = path_on_disk+'/'+src_file.name
+		             parent_acl.applyto(child_entry)
+		
+	        except Exception, e:
+	            msg = "Upload was unsuccessful !"
+	        msgcontext={'path_on_disk':path_on_disk,'message': msg }
+	        url = '%s?%s' % ( '/data/'+path, urllib.urlencode({'message': msg}))
+	        
+	        msgcontext={'path_on_disk':path_on_disk,'message': msg }
+	        url = '%s?%s' % ( '/data/'+path, urllib.urlencode({'message': msg}))
+	        
         return HttpResponseSeeOther(url)
 
           
@@ -350,7 +350,7 @@ class IndexView(ContentNegotiatedView):
     directory_view = staticmethod(DirectoryView.as_view())
     file_view = staticmethod(FileView.as_view())
     forbidden_view = staticmethod(ForbiddenView.as_view())
-
+    
     action_views = {'zip': ZipView.as_view(),
                     'upload': UploadView.as_view(),
                     'confirm': ConfirmDeleteView.as_view(),
@@ -381,7 +381,7 @@ class IndexView(ContentNegotiatedView):
             src_file = None
             filename = None
             response = None   
-      
+
             if request.method.lower() in ('get', 'head'):            
                  if action == 'confirm':
                    filename = request.REQUEST.get('filename')
@@ -401,7 +401,8 @@ class IndexView(ContentNegotiatedView):
                         response = view(request, path_on_disk, path)  # for viewing the file contents                 
             elif  request.method.lower()  in ('post'):            
                  if action == 'upload':
-                   src_file = request.FILES['file']
+                   if  'file' in request.FILES:
+                   	src_file = request.FILES['file']                          
                    return action_view(request, path_on_disk, src_file, path)
                  elif action == 'delete':
                     filename = request.REQUEST.get('filename')
