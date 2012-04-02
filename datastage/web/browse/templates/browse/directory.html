@@ -51,13 +51,13 @@
 <!-- form should submit to the current location - and provide a message on success or otherwise of the upload. e.g. "the file/package {filename} has been successfully upload/unpacked" -->
 </form> 
 <a class="action" href="{% url dataset:submit %}?path=/{{ path|urlencode }}" title="Submit this directory as a dataset">Submit as data package</a>
-<a class="action" href="{% url dataset:previous-submissions %}?path=/{{ path|urlencode }}" title="Update an existing data package">Update an existing data package</a>
-
+{% if  dataset_submissions.count %} <a class="action" href="{% url dataset:previous-submissions %}?path=/{{ path|urlencode }}" title="Update an existing data package">Update an existing data package</a>
+{% endif %}
 
 <!-- 
  <a class="action" href="?action=zip" title="Upload to this directory">upload to this directory</a>
  <a class="action" href="{% url dataset:index %}?path=/{{ path|urlencode }}">Submitted {{ dataset_submissions.count }} times</a>
-{% if  dataset_submissions.count %} <a class="action" href="{% url dataset:submit %}?path=/{{ path|urlencode }}" title="update an existing data package">update an existing data package</a>
+{% if  dataset_submissions.count %} <a class="action" href="{% url dataset:submit %}?path=/{{ path|urlencode }}" title="update an existing data package ">update an existing data package </a>
 {% endif %}
 -->
 
