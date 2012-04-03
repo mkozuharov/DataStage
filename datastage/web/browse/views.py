@@ -242,7 +242,7 @@ class DeleteView(HTMLView):
             
         filename=None    
         filename = request.REQUEST.get('filename')
-           
+        abs_path = request.build_absolute_uri(reverse('browse:index',kwargs={'path': path}))
         data_directory=settings.DATA_DIRECTORY
         path_parts = path.rstrip('/').split('/')
         if path and any(part in ('.', '..', '') for part in path_parts):
@@ -258,7 +258,18 @@ class DeleteView(HTMLView):
             msg =  "The file: ' " + filename + " ' has been successfully deleted!"
         except Exception, e:
             msg = "Delete was unsuccessful !"
-        
+        except Exception, e:
+            if e.errno == errno.ENOENT:
+                   raise Http404
+            elif e.errno == errno.EACCES:
+                   msg = "Files in your area can only be deleted!"
+            else :
+                   msg = "Delete was unsuccessful !"
+            msgcontext={'message': msg }
+            uri = abs_path + "?" +  urllib.urlencode({'message': msg})
+            return HttpResponseSeeOther(uri)
+            
+        return HttpResponsePermanentRedirect(abs_path)
         msgcontext={'message': msg }
         abs_path =  request.build_absolute_uri(reverse('browse:index',kwargs={'path': path}))
         uri = abs_path + "?" +  urllib.urlencode({'message': msg})             
@@ -318,7 +329,7 @@ class ZipView(ContentNegotiatedView):
         
         
         
-class UploadView(ContentNegotiatedView):
+class UploadView(HTMLView):
         
     def post(self, request, path):
         data_directory=settings.DATA_DIRECTORY
@@ -340,7 +351,7 @@ class UploadView(ContentNegotiatedView):
        	temp_path = os.path.join(temp_dir, temp_file.name)
        	parent_acl = posix1e.ACL(file=path_on_disk.encode('utf-8'))
        	msg = None
-       	url = '%s' % ('/data/'+path)
+       	abs_path = request.build_absolute_uri(reverse('browse:index',kwargs={'path': path}))
        	if src_file:
             try:
 		        if src_file.multiple_chunks() == True:
@@ -373,11 +384,17 @@ class UploadView(ContentNegotiatedView):
 		             parent_acl.applyto(child_entry)
 		
             except Exception, e:
-                msg = "Upload was unsuccessful !"
+                if e.errno == errno.ENOENT:
+                    raise Http404
+                elif e.errno == errno.EACCES:
+                    msg = "Files can only be uploaded in your own area!"
+                else :
+                   msg = "Upload was unsuccessful !"
             msgcontext={'message': msg }
-            abs_path = request.build_absolute_uri(reverse('browse:index',kwargs={'path': path}))
             uri = abs_path + "?" +  urllib.urlencode({'message': msg})
-            return HttpResponsePermanentRedirect(uri)
+            return HttpResponseSeeOther(uri)
+            
+        return HttpResponsePermanentRedirect(abs_path)     
          	        
 class IndexView(ContentNegotiatedView):
     data_directory = None
