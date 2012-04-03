@@ -258,14 +258,11 @@ class DeleteView(HTMLView):
             msg =  "The file: ' " + filename + " ' has been successfully deleted!"
         except Exception, e:
             msg = "Delete was unsuccessful !"
-        msgcontext={'path_on_disk':path_on_disk,'message': msg }
-        url = '%s?%s' % ( '/data/'+path, urllib.urlencode({'message': msg}))
         
-        msgcontext={'path_on_disk':path_on_disk,'message': msg }
-        url = '%s?%s' % ( '/data/'+path, urllib.urlencode({'message': msg}))
-                            
-        return HttpResponseSeeOther(url)
-
+        msgcontext={'message': msg }
+        abs_path =  request.build_absolute_uri(reverse('browse:index',kwargs={'path': path}))
+        uri = abs_path + "?" +  urllib.urlencode({'message': msg})             
+        return HttpResponsePermanentRedirect(uri)
                
 class ZipView(ContentNegotiatedView):
     _default_format = 'zip'
@@ -345,7 +342,7 @@ class UploadView(ContentNegotiatedView):
        	msg = None
        	url = '%s' % ('/data/'+path)
        	if src_file:
-	        try:
+            try:
 		        if src_file.multiple_chunks() == True:
 		           for chunk in src_file.chunks():
 		        	 temp_file.write(chunk)
@@ -375,18 +372,13 @@ class UploadView(ContentNegotiatedView):
 		             child_entry = path_on_disk+'/'+src_file.name
 		             parent_acl.applyto(child_entry)
 		
-	        except Exception, e:
-	            msg = "Upload was unsuccessful !"
-	        msgcontext={'path_on_disk':path_on_disk,'message': msg }
-	        url = '%s?%s' % ( '/data/'+path, urllib.urlencode({'message': msg}))
-	        
-	        msgcontext={'path_on_disk':path_on_disk,'message': msg }
-	        url = '%s?%s' % ( '/data/'+path, urllib.urlencode({'message': msg}))
-	        
-        return HttpResponseSeeOther(url)
-
-          
-	        
+            except Exception, e:
+                msg = "Upload was unsuccessful !"
+            msgcontext={'message': msg }
+            abs_path = request.build_absolute_uri(reverse('browse:index',kwargs={'path': path}))
+            uri = abs_path + "?" +  urllib.urlencode({'message': msg})
+            return HttpResponsePermanentRedirect(uri)
+         	        
 class IndexView(ContentNegotiatedView):
     data_directory = None
     error_template_names = MergeDict({httplib.FORBIDDEN: 'browse/403'}, ErrorCatchingView.error_template_names)
@@ -426,7 +418,10 @@ class IndexView(ContentNegotiatedView):
             else:
                    view = self.directory_view if os.path.isdir(path_on_disk) else self.file_view                 
                    if view == self.directory_view and path and not path.endswith('/'):
-                    	return HttpResponsePermanentRedirect(reverse('browse:index ', kwargs={'path':path + '/', 'message':message}))                    	
+                           abs_path =  request.build_absolute_uri(reverse('browse:index',kwargs={'path': path + '/'}))
+                           uri = abs_path + "?" +  urllib.urlencode({'message': message}) if message else  abs_path           
+                           return HttpResponsePermanentRedirect(uri)
+                    	#return HttpResponsePermanentRedirect(reverse('browse:index', kwargs={'path':path + '/', 'message':message}))                    	
                    response = view(request, path)
          
             response['Allow'] = ','.join(m.upper() for m in self.http_method_names)
