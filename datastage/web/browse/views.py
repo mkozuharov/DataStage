@@ -145,11 +145,8 @@ class DirectoryView(HTMLView, JSONView):
 
 
     def get(self, request, path):
-    
-        message=None
-        message = request.GET.get('message') 
-        
         data_directory=settings.DATA_DIRECTORY
+
         path_parts = path.rstrip('/').split('/')
         if path and any(part in ('.', '..', '') for part in path_parts):
             raise Http404
@@ -167,7 +164,7 @@ class DirectoryView(HTMLView, JSONView):
         stat = os.stat(path_on_disk)
         context = {
             'path': path,
-            'message': message,
+            'message': request.GET.get('message'),
             'parent_url': parent_url,
             'subpaths': subpaths,
             'stat': statinfo_to_dict(stat),
