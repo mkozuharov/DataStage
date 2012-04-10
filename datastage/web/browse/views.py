@@ -78,7 +78,7 @@ def can_write(path):
         if os.path.isdir(path):
             return False
         else:
-            with  open(path, 'r+'):
+            with open(path, 'r+'):
                 return True
     except OSError, e:
         if e.errno == errno.EACCES:
@@ -255,11 +255,11 @@ class DeleteView(HTMLView):
             msg = "Delete was unsuccessful !"
         except Exception, e:
             if e.errno == errno.ENOENT:
-                   raise Http404
+                raise Http404
             elif e.errno == errno.EACCES:
-                   msg = "Files in your area can only be deleted!"
-            else :
-                   msg = "Delete was unsuccessful !"
+                msg = "Files in your area can only be deleted!"
+            else:
+                msg = "Delete was unsuccessful !"
             msgcontext={'message': msg }
             uri = abs_path + "?" +  urllib.urlencode({'message': msg})
             return HttpResponseSeeOther(uri)
@@ -342,49 +342,49 @@ class UploadView(HTMLView):
         temp_file = tempfile.NamedTemporaryFile(delete=False)
         basename = os.path.basename(path_on_disk)
 
-       	temp_dir = tempfile.gettempdir()
-       	temp_path = os.path.join(temp_dir, temp_file.name)
-       	parent_acl = posix1e.ACL(file=path_on_disk.encode('utf-8'))
-       	msg = None
-       	abs_path = request.build_absolute_uri(reverse('browse:index',kwargs={'path': path}))
-       	if src_file:
+        temp_dir = tempfile.gettempdir()
+        temp_path = os.path.join(temp_dir, temp_file.name)
+        parent_acl = posix1e.ACL(file=path_on_disk.encode('utf-8'))
+        msg = None
+        abs_path = request.build_absolute_uri(reverse('browse:index',kwargs={'path': path}))
+        if src_file:
             try:
-		        if src_file.multiple_chunks() == True:
-		           for chunk in src_file.chunks():
-		        	 temp_file.write(chunk)
-		        	 temp_file.close()
-		        else:
-		             temp_file.write(src_file.read())
-		             fileName, fileExtension = os.path.splitext(src_file.name)
-		             
-		        if fileExtension == ".zip":
-		             msg =  "The package: ' " + src_file.name + " ' has been successfully unpacked!"	
-		             
-	                 # Get the parent acl and apply it to the zip file before the zip is unpacked
-		             parent_acl.applyto(temp_path)
-		                
-		             zip_ref = zipfile.ZipFile(temp_file, 'r')
-		             zip_ref.extractall(path_on_disk)
-		             zip_ref.close() 
-		        else:
-		             msg =  "The file: ' " + src_file.name + " ' has been successfully uploaded!"
-		             temp_file.write(src_file.read())
-		             temp_file.close()
-	
-		             temp_path = os.path.join(temp_dir, temp_file.name)
-		             shutil.copy2(temp_path,path_on_disk+"/"+src_file.name)
-	                
-	                 # Get the parent acl and apply it to the child entry
-		             child_entry = path_on_disk+'/'+src_file.name
-		             parent_acl.applyto(child_entry)
-		
+                if src_file.multiple_chunks() == True:
+                    for chunk in src_file.chunks():
+                        temp_file.write(chunk)
+                        temp_file.close()
+                else:
+                    temp_file.write(src_file.read())
+                    fileName, fileExtension = os.path.splitext(src_file.name)
+
+                if fileExtension == ".zip":
+                    msg =  "The package: ' " + src_file.name + " ' has been successfully unpacked!"
+
+                    # Get the parent acl and apply it to the zip file before the zip is unpacked
+                    parent_acl.applyto(temp_path)
+
+                    zip_ref = zipfile.ZipFile(temp_file, 'r')
+                    zip_ref.extractall(path_on_disk)
+                    zip_ref.close()
+                else:
+                    msg =  "The file: ' " + src_file.name + " ' has been successfully uploaded!"
+                    temp_file.write(src_file.read())
+                    temp_file.close()
+
+                    temp_path = os.path.join(temp_dir, temp_file.name)
+                    shutil.copy2(temp_path,path_on_disk+"/"+src_file.name)
+
+                    # Get the parent acl and apply it to the child entry
+                    child_entry = path_on_disk+'/'+src_file.name
+                    parent_acl.applyto(child_entry)
+
             except Exception, e:
                 if e.errno == errno.ENOENT:
                     raise Http404
                 elif e.errno == errno.EACCES:
                     msg = "Files can only be uploaded in your own area!"
-                else :
-                   msg = "Upload was unsuccessful !"
+                else:
+                    msg = "Upload was unsuccessful !"
             msgcontext={'message': msg }
             uri = abs_path + "?" +  urllib.urlencode({'message': msg})
             return HttpResponseSeeOther(uri)
@@ -426,15 +426,15 @@ class IndexView(ContentNegotiatedView):
             response = None   
 
             if action_view:
-                   return action_view(request,path)           
+                return action_view(request, path)
             else:
-                   view = self.directory_view if os.path.isdir(path_on_disk) else self.file_view                 
-                   if view == self.directory_view and path and not path.endswith('/'):
-                           abs_path =  request.build_absolute_uri(reverse('browse:index',kwargs={'path': path + '/'}))
-                           uri = abs_path + "?" +  urllib.urlencode({'message': message}) if message else  abs_path           
-                           return HttpResponsePermanentRedirect(uri)
-                    	#return HttpResponsePermanentRedirect(reverse('browse:index', kwargs={'path':path + '/', 'message':message}))                    	
-                   response = view(request, path)
+                view = self.directory_view if os.path.isdir(path_on_disk) else self.file_view
+                if view == self.directory_view and path and not path.endswith('/'):
+                    abs_path =  request.build_absolute_uri(reverse('browse:index',kwargs={'path': path + '/'}))
+                    uri = abs_path + "?" +  urllib.urlencode({'message': message}) if message else  abs_path
+                    return HttpResponsePermanentRedirect(uri)
+                #return HttpResponsePermanentRedirect(reverse('browse:index', kwargs={'path':path + '/', 'message':message}))
+                response = view(request, path)
          
             response['Allow'] = ','.join(m.upper() for m in self.http_method_names)
             response['DAV'] = "1,2"
