@@ -239,8 +239,6 @@ class ConfirmDeleteView(HTMLView):
 
 class DeleteView(HTMLView):
     def post(self, request, path):
-            
-        filename=None    
         filename = request.REQUEST.get('filename')
         abs_path = request.build_absolute_uri(reverse('browse:index',kwargs={'path': path}))
         data_directory=settings.DATA_DIRECTORY
