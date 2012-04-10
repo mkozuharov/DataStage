@@ -317,7 +317,7 @@ class ZipView(ContentNegotiatedView, PathView):
         
         
         
-class UploadView(HTMLView):
+class UploadView(HTMLView, PathView):
         
     def post(self, request, path):
         src_file = None
