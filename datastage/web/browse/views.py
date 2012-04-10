@@ -80,7 +80,7 @@ class PathView(View):
             else:
                 with open(path, 'r'):
                     return True
-        except OSError, e:
+        except IOError, e:
             if e.errno == errno.EACCES:
                 return False
             raise
@@ -93,7 +93,7 @@ class PathView(View):
             else:
                 with open(path, 'r+'):
                     return True
-        except OSError, e:
+        except IOError, e:
             if e.errno == errno.EACCES:
                 return False
             raise
