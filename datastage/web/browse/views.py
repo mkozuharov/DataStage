@@ -233,7 +233,7 @@ class ForbiddenView(HTMLView, JSONView, TextView):
       
 class ConfirmDeleteView(HTMLView, PathView):
    
-    def dispatch(self, request, path):
+    def get(self, request, path):
         filename = request.REQUEST.get('filename')
         context = {'path': self.path, 'filename':filename}
         return self.render(request, context, 'browse/confirm')
