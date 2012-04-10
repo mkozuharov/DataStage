@@ -45,46 +45,60 @@ from django_conneg.http import HttpResponseSeeOther
 from django_conneg.decorators import renderer
 from django_conneg.views import ContentNegotiatedView, HTMLView, JSONView, TextView, ErrorCatchingView
 import posix1e
+import xattr
 
 from datastage.web.auth.decorators import login_required
 from datastage.web.dataset.models import DatasetSubmission
 from datastage.config import settings
 from datastage.util.path import statinfo_to_dict
 
-def can_read(path):
-    try:
-        if os.path.isdir(path):
-            os.stat(os.path.join(path, '.'))
-        else:
-            with open(path, 'r'):
-                pass
-        return True
-    except OSError, e:
-        if e.errno == errno.EACCES:
-            return False
-        raise
-    except IOError, e:
-        return False                  
-    except PermissionDenied:
-        return False  
-        
-def can_write(path):
-    try:
-        if os.path.isdir(path):
-            return False
-        else:
-            with open(path, 'r+'):
-                return True
-    except OSError, e:
-        if e.errno == errno.EACCES:
-            return False
-        raise      
-    except IOError, e:
-        return False                  
-    except PermissionDenied:
-        return False    
+class PathView(View):
+    @property
+    def path_on_disk(self):
+        try:
+            return self._path_on_disk
+        except AttributeError:
+            data_directory, path = settings.DATA_DIRECTORY, self.path
 
-class DirectoryView(HTMLView, JSONView):
+            path_parts = path.rstrip('/').split('/')
+            if path and any(part in ('.', '..', '') for part in path_parts):
+                raise Http404
+            self._path_on_disk = os.path.normpath(os.path.join(data_directory, *path_parts))
+            return self._path_on_disk
+
+    def dispatch(self, request, path, *args, **kwargs):
+        self.path = path
+        self.path_on_disk
+        return super(PathView, self).dispatch(request, path, *args, **kwargs)
+
+    def can_read(self, path=None):
+        path = path or self.path_on_disk
+        try:
+            if os.path.isdir(path):
+                os.stat(os.path.join(path, '.'))
+                return True
+            else:
+                with open(path, 'r'):
+                    return True
+        except OSError, e:
+            if e.errno == errno.EACCES:
+                return False
+            raise
+
+    def can_write(self, path=None):
+        path = path or self.path_on_disk
+        try:
+            if os.path.isdir(path):
+                return False
+            else:
+                with open(path, 'r+'):
+                    return True
+        except OSError, e:
+            if e.errno == errno.EACCES:
+                return False
+            raise
+
+class DirectoryView(HTMLView, JSONView, PathView):
     _json_indent = 2
 
     sorts = {
@@ -93,7 +107,7 @@ class DirectoryView(HTMLView, JSONView):
         'modified': lambda sp: sp['last_modified'],
     }
 
-    def get_subpath_data(self, request, path_on_disk, path):
+    def get_subpath_data(self, request, path):
         try:
             sort_name = request.GET.get('sort') or 'name'
             sort_function = self.sorts[request.GET.get('sort', 'name')]
@@ -101,20 +115,26 @@ class DirectoryView(HTMLView, JSONView):
         except KeyError:
             raise Http404
 
-        subpaths = [{'name': name} for name in os.listdir(path_on_disk) if not name.startswith('.')]
+        subpaths = [{'name': name} for name in os.listdir(self.path_on_disk) if not name.startswith('.')]
         for subpath in subpaths:
-            subpath_on_disk = os.path.join(path_on_disk, subpath['name'])
-            subpath_stat = os.lstat(subpath_on_disk)
-            subpath['path'] = '%s%s' % (path, subpath['name']) if path else subpath['name']
+            subpath_on_disk = os.path.join(self.path_on_disk, subpath['name'])
+            try:
+                subpath_stat = os.stat(subpath_on_disk)
+            except OSError, e:
+                if e.errno == errno.ENOENT:
+                    subpath['type'] = 'missing'
+                    continue
+                raise
+            subpath['path'] = '%s%s' % (self.path, subpath['name']) if self.path else subpath['name']
             subpath.update({
                 'type': 'dir' if os.path.isdir(subpath_on_disk) else 'file',
                 'stat': statinfo_to_dict(subpath_stat),
                 'last_modified': datetime.datetime.fromtimestamp(subpath_stat.st_mtime),
                 'url': request.build_absolute_uri(reverse('browse:index',
                                                           kwargs={'path': subpath['path']})),
-                'link': can_read(subpath_on_disk),
-                'can_read': can_read(subpath_on_disk),
-                'can_write': can_write(subpath_on_disk),
+                'link': self.can_read(subpath_on_disk),
+                'can_read': self.can_read(subpath_on_disk),
+                'can_write': self.can_write(subpath_on_disk),
             })
             print subpath_on_disk, subpath['link']
             try:
@@ -140,25 +160,17 @@ class DirectoryView(HTMLView, JSONView):
 
 
     def get(self, request, path):
-        data_directory=settings.DATA_DIRECTORY
-
-        path_parts = path.rstrip('/').split('/')
-        if path and any(part in ('.', '..', '') for part in path_parts):
-            raise Http404
-        self.path_on_disk = path_on_disk = os.path.normpath(os.path.join(data_directory, *path_parts))
-        
-        
-        if path:
+        if self.path:
             parent_url = request.build_absolute_uri(reverse('browse:index',
                                                     kwargs={'path': ''.join(p + '/' for p in path.split('/')[:-2])}))
         else:
             parent_url = None
 
-        subpaths, sort_name, sort_reverse = self.get_subpath_data(request, path_on_disk, path)
+        subpaths, sort_name, sort_reverse = self.get_subpath_data(request, path)
 
-        stat = os.stat(path_on_disk)
+        stat = os.stat(self.path_on_disk)
         context = {
-            'path': path,
+            'path': self.path,
             'message': request.GET.get('message'),
             'parent_url': parent_url,
             'subpaths': subpaths,
@@ -169,17 +181,17 @@ class DirectoryView(HTMLView, JSONView):
             'sort_name': sort_name,
             'sort_reverse': sort_reverse,
             'column_names': (('name', 'Name'), ('modified', 'Last modified'), ('size', 'Size'), ('owner_name', 'Owner')),
-            'dataset_submissions': DatasetSubmission.objects.filter(path_on_disk=path_on_disk),
+            'dataset_submissions': DatasetSubmission.objects.filter(path_on_disk=self.path_on_disk),
         }
 
         return self.render(request, context, 'browse/directory')
 
-    def post(self, request, path_on_disk, path):
-        subpaths, sort_name, sort_reverse = self.get_subpath_data(request, path_on_disk, path)
+    def post(self, request, path):
+        subpaths, sort_name, sort_reverse = self.get_subpath_data(request, path)
 
         for subpath in subpaths:
-            subpath_on_disk = os.path.join(path_on_disk, subpath['name'])
-            if 'write' not in subpath['permissions']:
+            subpath_on_disk = os.path.join(self.path_on_disk, subpath['name'])
+            if not subpath.get('can_write'):
                 continue
             part = urllib.quote(subpath['name'])
             subpath_xattr = xattr.xattr(subpath_on_disk)
@@ -190,21 +202,18 @@ class DirectoryView(HTMLView, JSONView):
                     del subpath_xattr[key]
                 elif value:
                     subpath_xattr[key] = value
-        return HttpResponseSeeOther('')
+        if request.is_ajax():
+            return HttpResponse('', status=httplib.NO_CONTENT)
+        else:
+            return HttpResponseSeeOther('')
 
 
-class FileView(View):
+class FileView(PathView):
     def get(self, request, path):
-        data_directory=settings.DATA_DIRECTORY
-        path_parts = path.rstrip('/').split('/')
-        if path and any(part in ('.', '..', '') for part in path_parts):
-            raise Http404
-        self.path_on_disk = path_on_disk = os.path.normpath(os.path.join(data_directory, *path_parts))
-        
-        mimetype, encoding = mimetypes.guess_type(path_on_disk)
-        stat = os.stat(path_on_disk)
+        mimetype, encoding = mimetypes.guess_type(self.path_on_disk)
+        stat = os.stat(self.path_on_disk)
   
-        response = HttpResponse(open(path_on_disk, 'rb'), mimetype=mimetype)
+        response = HttpResponse(open(self.path_on_disk, 'rb'), mimetype=mimetype)
         response['Last-Modified'] = format_date_time(stat.st_mtime)
         response['Content-Length'] = stat.st_size
         if not mimetype:
@@ -222,29 +231,24 @@ class ForbiddenView(HTMLView, JSONView, TextView):
         }
         return self.render(request, context, 'browse/forbidden')
       
-class ConfirmDeleteView(HTMLView):
+class ConfirmDeleteView(HTMLView, PathView):
    
     def dispatch(self, request, path):
         filename = request.REQUEST.get('filename')
-        context = {'path': path, 'filename':filename}
+        context = {'path': self.path, 'filename':filename}
         return self.render(request, context, 'browse/confirm')
 
-class DeleteView(HTMLView):
+class DeleteView(HTMLView, PathView):
     def post(self, request, path):
         filename = request.REQUEST.get('filename')
         abs_path = request.build_absolute_uri(reverse('browse:index',kwargs={'path': path}))
-        data_directory=settings.DATA_DIRECTORY
-        path_parts = path.rstrip('/').split('/')
-        if path and any(part in ('.', '..', '') for part in path_parts):
-            raise Http404
-        self.path_on_disk = path_on_disk = os.path.normpath(os.path.join(data_directory, *path_parts))
-           
-        if not os.path.isdir(path_on_disk):
+
+        if not os.path.isdir(self.path_on_disk):
             raise Http404
         msg = None
 
         try:
-            os.remove(path_on_disk+"/"+filename)
+            os.remove(self.path_on_disk+"/"+filename)
             msg =  "The file: ' " + filename + " ' has been successfully deleted!"
         except Exception, e:
             msg = "Delete was unsuccessful !"
@@ -265,24 +269,18 @@ class DeleteView(HTMLView):
         uri = abs_path + "?" +  urllib.urlencode({'message': msg})             
         return HttpResponsePermanentRedirect(uri)
                
-class ZipView(ContentNegotiatedView):
+class ZipView(ContentNegotiatedView, PathView):
     _default_format = 'zip'
     _force_fallback_format = 'zip'
 
     def get(self, request, path):
-        data_directory=settings.DATA_DIRECTORY
-        path_parts = path.rstrip('/').split('/')
-        if path and any(part in ('.', '..', '') for part in path_parts):
+        if not os.path.isdir(self.path_on_disk):
             raise Http404
-        self.path_on_disk = path_on_disk = os.path.normpath(os.path.join(data_directory, *path_parts))
-   
-        if not os.path.isdir(path_on_disk):
-            raise Http404
-        return self.render_to_format(request,{'path_on_disk': path_on_disk}, 'application/zip','zip')
+
+        return self.render_to_format(request, {'path_on_disk': self.path_on_disk}, 'application/zip','zip')
  
     @renderer(format='zip', mimetypes=('application/zip',), name='ZIP archive')
     def render_zip(self, request, context, template_name):
-
         temp_file = tempfile.TemporaryFile()
         basename = os.path.basename(context['path_on_disk'])
 
@@ -292,8 +290,8 @@ class ZipView(ContentNegotiatedView):
             zip_file = zipfile.ZipFile(temp_file, 'w')
 
         for root, dirs, files in os.walk(context['path_on_disk']):
-            dirs[:] = [d for d in dirs if can_read(os.path.join(root, d))]
-            files[:] = [f for f in files if can_read(os.path.join(root, f))]
+            dirs[:] = [d for d in dirs if self.can_read(os.path.join(root, d))]
+            files[:] = [f for f in files if self.can_read(os.path.join(root, f))]
             for fn in files:
                 fn = os.path.join(root, fn)
                 zip_file.write(fn,
@@ -322,24 +320,19 @@ class ZipView(ContentNegotiatedView):
 class UploadView(HTMLView):
         
     def post(self, request, path):
-        data_directory=settings.DATA_DIRECTORY
-        path_parts = path.rstrip('/').split('/')
-        if path and any(part in ('.', '..', '') for part in path_parts):
-            raise Http404
-        self.path_on_disk = path_on_disk = os.path.normpath(os.path.join(data_directory, *path_parts))
-        
-        src_file=None
-        if  'file' in request.FILES:
+        src_file = None
+        if 'file' in request.FILES:
             src_file = request.FILES['file']    
                    
-        if not os.path.isdir(path_on_disk):
+        if not os.path.isdir(self.path_on_disk):
             raise Http404
+
         temp_file = tempfile.NamedTemporaryFile(delete=False)
-        basename = os.path.basename(path_on_disk)
+        basename = os.path.basename(self.path_on_disk)
 
         temp_dir = tempfile.gettempdir()
         temp_path = os.path.join(temp_dir, temp_file.name)
-        parent_acl = posix1e.ACL(file=path_on_disk.encode('utf-8'))
+        parent_acl = posix1e.ACL(file=self.path_on_disk.encode('utf-8'))
         msg = None
         abs_path = request.build_absolute_uri(reverse('browse:index',kwargs={'path': path}))
         if src_file:
@@ -359,7 +352,7 @@ class UploadView(HTMLView):
                     parent_acl.applyto(temp_path)
 
                     zip_ref = zipfile.ZipFile(temp_file, 'r')
-                    zip_ref.extractall(path_on_disk)
+                    zip_ref.extractall(self.path_on_disk)
                     zip_ref.close()
                 else:
                     msg =  "The file: ' " + src_file.name + " ' has been successfully uploaded!"
@@ -367,10 +360,10 @@ class UploadView(HTMLView):
                     temp_file.close()
 
                     temp_path = os.path.join(temp_dir, temp_file.name)
-                    shutil.copy2(temp_path,path_on_disk+"/"+src_file.name)
+                    shutil.copy2(temp_path, self.path_on_disk+"/"+src_file.name)
 
                     # Get the parent acl and apply it to the child entry
-                    child_entry = path_on_disk+'/'+src_file.name
+                    child_entry = self.path_on_disk+'/'+src_file.name
                     parent_acl.applyto(child_entry)
 
             except Exception, e:
@@ -383,16 +376,16 @@ class UploadView(HTMLView):
             msgcontext={'message': msg }
             uri = abs_path + "?" +  urllib.urlencode({'message': msg})
             return HttpResponseSeeOther(uri)
-            
+
         return HttpResponsePermanentRedirect(abs_path)     
-         	        
-class IndexView(ContentNegotiatedView):
+
+class IndexView(ErrorCatchingView, PathView):
     data_directory = None
     error_template_names = MergeDict({httplib.FORBIDDEN: 'browse/403'}, ErrorCatchingView.error_template_names)
     directory_view = staticmethod(DirectoryView.as_view())
     file_view = staticmethod(FileView.as_view())
     forbidden_view = staticmethod(ForbiddenView.as_view())
-    
+
     action_views = {'zip': ZipView.as_view(),
                     'upload': UploadView.as_view(),
                     'confirm': ConfirmDeleteView.as_view(),
@@ -400,21 +393,17 @@ class IndexView(ContentNegotiatedView):
 
     @method_decorator(login_required)
     def dispatch(self, request, path):
-        message = request.GET.get('message') 
-        path_parts = path.rstrip('/').split('/')
-        if path and any(part in ('.', '..', '') for part in path_parts):
-            raise Http404
-        self.path_on_disk = path_on_disk = os.path.normpath(os.path.join(self.data_directory, *path_parts))
-        
-        try:
-            if not can_read(path_on_disk):
-                return self.forbidden_view(request, path)
-        except IOError, e:
-            if e.errno == errno.ENOENT and request.method not in ('PUT',):
-                raise Http404
-            raise
+        self.path = path
 
         try:
+            try:
+                if not self.can_read():
+                    raise PermissionDenied
+            except IOError, e:
+                if e.errno == errno.ENOENT and request.method not in ('PUT',):
+                    raise Http404
+                raise
+
             # action views are additional bits of behaviour for a location
             action = request.REQUEST.get('action')
             action_view = self.action_views.get(action)
@@ -423,10 +412,11 @@ class IndexView(ContentNegotiatedView):
             if action_view:
                 return action_view(request, path)
             else:
-                view = self.directory_view if os.path.isdir(path_on_disk) else self.file_view
+                view = self.directory_view if os.path.isdir(self.path_on_disk) else self.file_view
                 if view == self.directory_view and path and not path.endswith('/'):
-                    abs_path =  request.build_absolute_uri(reverse('browse:index',kwargs={'path': path + '/'}))
-                    uri = abs_path + "?" +  urllib.urlencode({'message': message}) if message else  abs_path
+                    abs_path =  request.build_absolute_uri(reverse('browse:index', kwargs={'path': path + '/'}))
+                    message = request.GET.get('message')
+                    uri = abs_path + "?" +  urllib.urlencode({'message': message}) if message else abs_path
                     return HttpResponsePermanentRedirect(uri)
                 #return HttpResponsePermanentRedirect(reverse('browse:index', kwargs={'path':path + '/', 'message':message}))
                 response = view(request, path)
