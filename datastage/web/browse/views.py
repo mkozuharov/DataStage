@@ -28,17 +28,12 @@ import errno
 import httplib
 import mimetypes
 import os
-import io
-from os.path import abspath, dirname
 import pwd
+import shutil
 import tempfile
 import urllib
-import xattr
 import zipfile
-import httplib
-import shutil
-from django.core.exceptions import PermissionDenied
-from datastage.util.path import get_permissions
+
 from wsgiref.handlers import format_date_time
 from django.utils.datastructures import MergeDict
 from django.core.exceptions import PermissionDenied
