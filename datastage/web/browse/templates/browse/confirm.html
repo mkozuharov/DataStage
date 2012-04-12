@@ -22,28 +22,37 @@
 # 
 -->
 
-{% extends "documentation/base.html" %}
 
-{% block title %}Access from Mac OS X systems{% endblock %}
+{% extends "dataset/base.html" %}
+
+{% block title %}Delete{% endblock %}
 
 {% block content %}
 
-<h1>Data file access from MacOS</h1>
+<article>
+  	<h1>Confirm delete</h1>
 
-<p>Data files may be accessed from MacOS as a Windows network share:</p>
-<blockquote>
-<code>smb://{{ hostname }}/datastage</code>
-</blockquote>
-<p>A username and password will be required to complete a connection.
-</p>
+  	<h1>Select 'yes' to confirm / 'no' to cancel</h1>
 
-<p>To connect a Windows share from MacOS, use the Finder <strong>Go > Connect to server...</strong> menu command (or <strong>COMMAND-K</strong> shortcut), and enter:
+  <p>Delete <tt>{{ path }}</tt> {{ filename }} ?</p>
 
-  <code>smb://<cite>username</cite>@{{ hostname }}/datastage</code> as the server address. The system will then prompt for the specified user's password.	
-</p>
 
-<p>Once connected, a user will be able to read/write files in their own private area,
-and also to read all files in the <code>shared</code> and <code>collab</code> areas.
-</p>
+  <section>
+    <table>
+        <tr>
+         <form  action="?action=delete&filename={{ filename }}" method="post" enctype="multipart/form-data" > {% csrf_token %}
+             <td colspan="2"><input type="submit" name="yes" value="Yes"/></td>
+         </form>
+         <form  action="" %} method="get" enctype="multipart/form-data" > {% csrf_token %}        
+             <td colspan="2"><input type="submit" name="cancel" value="No"/></td>
+         </form>
+        </tr>
+    </table>
+  </section>
+
+
+</article>
 
 {% endblock %}
+
+

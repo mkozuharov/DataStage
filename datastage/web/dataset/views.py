@@ -87,7 +87,7 @@ class SubmitView(HTMLView, RedisView, ErrorCatchingView):
             raise  PermissionDenied
 
         previous_submissions = DatasetSubmission.objects.filter(path_on_disk=path_on_disk)
-    
+        
         if 'id' in request.REQUEST:
             dataset_submission = get_object_or_404(DatasetSubmission,
                                                    id=request.REQUEST['id'],
@@ -241,8 +241,6 @@ class PreviousSubmissionsView(HTMLView, RedisView, ErrorCatchingView):
         try:
             opener = openers.get_opener(repository, request.user)
             form.instance.remote_url = dataset.preflight_submission(opener, repository)
-            repository_user, _ = RepositoryUser.objects.get_or_create(repository=repository, user=request.user)
-            form.instance.repository_user = repository_user
         except openers.SimpleCredentialsRequired:
             form.instance.status = 'new'
             form.instance.save()

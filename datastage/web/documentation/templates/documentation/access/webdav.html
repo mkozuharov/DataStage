@@ -62,8 +62,8 @@
 <section>
   <h2>Web file access using MacOS</h2>
 
-  <p>To connect a web file system share from MacOS, use the Finder "Go →
-     Connect to server&hellip;" menu command (or ⌘-K shortcut), and enter one
+  <p>To connect a web file system share from MacOS, use the Finder <strong>Go →
+     Connect to server&hellip;</strong> menu command (or <strong>⌘-K</strong> shortcut), and enter one
      of the <a href="#webdav-urls">URLs shown above</a> as the server address.</p>
 
   <p>The system will then prompt for a username and password.</p>
@@ -76,10 +76,10 @@
      accessed in similar fashion to a local file system, but using the web
      address.</p>
 
-  <p>Use the "Places → Connect to server&hellip;" menu command. In the pop-up
-     window, from the "Service type" drop-down menu, select
-     "{% if is_secure %}Secure WebDAV (HTTPS){% else %}WebDAV (HTTP){% endif %}".
-     Under "Server" enter <code>{{ hostname }}</code> and under "Folder" enter
+  <p>Use the <strong>Places → Connect to server&hellip;</strong> menu command. In the pop-up
+     window, from the <strong>Service type</strong> drop-down menu, select
+     <strong>{% if is_secure %}Secure WebDAV (HTTPS){% else %}WebDAV (HTTP){% endif %}</strong>.
+     Under <strong>Server</strong> enter <code>{{ hostname }}</code> and under <strong>Folder</strong> enter
      <code>data/</code>. Fill in the username and password fields with your
      local credentials for this site.</p>
 

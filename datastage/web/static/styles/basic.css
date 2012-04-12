@@ -38,7 +38,6 @@ h1, h2, h3, h4, h5, h6
 	color: #3e786e;
 	font-weight: normal;
 	margin: 0.8em 0px 0.2em 0px;
-	text-transform: uppercase;
 	
 }
 
@@ -143,6 +142,28 @@ p
 }
 
 
+/* START OF additional style changes applicable to both 'Bank and 'Stage, April 2012   */
+
+
+blockquote
+{
+  font-size: 1em;
+}
+
+code
+{
+  font-size: 1.3em;
+}
+
+ul.siteAdmin {
+  float: right;
+  clear: none;
+  }
+
+/* END OF additional style changes applicable to both 'Bank and 'Stage, April 2012   */
+
+
+
 /*  hide h2's in mainnav */
 #mainnav h2,
 #subnav h2
@@ -176,8 +197,12 @@ header.pageHeader h1
 	font-size: 5.5555em;
 	font-weight: bold;
 	letter-spacing: -0.16em;
+	/*
 	margin: -10px 0px -10px -7px;
+	*/
+	margin: 0px;
 	padding: 0px;
+	text-transform: uppercase;
 
 }
 
@@ -378,7 +403,7 @@ table.browse td
 
 table td.delete
 {
-text-align: right;
+text-align: center;
 }
 
 
@@ -490,13 +515,13 @@ div.actions form div.collapsible{
   padding: 7px 5px 0px 5px;
   position: absolute;
   top: 18px;
-  width: 270px;
+  width: 350px;
  
 }
 
 div.actions form.upload div.panel input.fileUpload{ 
 
-  width: 200px;
+  width: 240px;
   
   }
 
@@ -668,6 +693,12 @@ header.pageHeader nav a {
 
 }
 
+#mainnav ul {
+
+margin: 0px;
+padding: 0px;
+}
+
 
 #mainnav a:hover,
 #mainnav a:focus,
@@ -721,7 +752,8 @@ color: #fff;
 
 .intro,
 .pleaseNote,
-.message{
+.message,
+.siteAdmin{
   background: #fdfefe; /* for non-css3 browsers */
 		filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fdfefe', endColorstr='#f4f7fa'); /* for IE */
 		background: -webkit-gradient(linear, left top, left bottom, from(#fdfefe), to(#f4f7fa)); /* for webkit browsers */
@@ -908,4 +940,12 @@ Error messages
 }
 
 
+
+/*  styling for inline editign of metadata */
+
+.meta-title, .meta-description  {
+  border: 1px solid #ccc;
+  font-family: monospace;
+  font-size: 1.1em;
+}
 
