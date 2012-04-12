@@ -27,7 +27,7 @@
 {% block content %}
 <article>
   <h1>Dataset submission: {{ dataset_submission.title }}</h1>
-  
+  <form method="post" action="">{% csrf_token %}
   <table>
     <tbody>
       <tr><th>Title:</th><td>{{ dataset_submission.title }}</td></tr>
@@ -41,5 +41,11 @@
       <tr><th>Remote URL:</th><td><a href="{{ dataset_submission.remote_url }}">{{ dataset_submission.remote_url }}</a></td></tr>
     </tbody>
  </table>
+
+{% if path %}
+
+<p> <input type="submit" name="submit" value="Return to {{ path }}"/> </p>
+
 </article>
+{% endif %}
 {% endblock %}

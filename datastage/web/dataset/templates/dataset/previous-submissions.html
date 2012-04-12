@@ -1,0 +1,87 @@
+<!--
+# Copyright (c) 2012 University of Oxford
+#
+# Permission is hereby granted, free of charge, to any person obtaining
+# a copy of this software and associated documentation files (the
+# "Software"), to deal in the Software without restriction, including
+# without limitation the rights to use, copy, modify, merge, publish,
+# distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so, subject to
+# the following conditions:
+#
+# The above copyright notice and this permission notice shall be
+# included in all copies or substantial portions of the Software.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, --INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+# IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+# CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+# TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+# SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+# 
+-->
+
+
+{% extends "dataset/base.html" %}
+
+{% block title %}Submit dataset{% endblock %}
+
+{% block content %}
+
+<article>
+  <h1>Update an existing data package</h1>
+  
+ 
+  <section>
+    <h2>Previous submissions</h2>
+    
+    <p>
+      This directory has previously been submitted to one or more repositories,
+      and you may wish to resubmit it as opposed to submitting it again.
+    </p>
+    
+    <table>
+      <thead>
+        <tr>
+          <th>Remote repository</th>
+          <th>Remote identifier</th>
+          <th>Title</th>
+          <th>Description</th>
+          {% if "collab" in path %}
+          	<th>Submitting user</th>
+          {% endif %}
+          <th>Last queued for update</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      {% if previous_submissions %}
+	      <tbody>{% for submission in previous_submissions %}
+	        <tr>
+	          <td>{{ submission.repository }}</td>
+	          <td>{{ submission.identifier }}</td>
+	          <td>{{ submission.title }}</td>
+	          <td>{{ submission.description }}</td>
+	          {% if "collab" in path %}
+	          	<td>{{ submission.submitting_user }}</td>
+	          {% endif %}
+	          <td>{{ submission.queued_at }}</td>
+	          <td>{{ submission.status }}</td>
+	          <td>
+	            <a href="{{ submission.get_absolute_url }}">View</a> /
+	            <a href="/dataset/submit/?path={{ path }}&num={{ submission.id }}">Update</a>
+	          </td>
+	        </tr>{% endfor %}
+	      </tbody>
+	   {% endif %}
+    </table>
+  </section>
+
+
+
+</article>
+
+{% endblock %}
+
+

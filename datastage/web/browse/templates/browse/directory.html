@@ -1,4 +1,6 @@
-<!--
+{% extends "browse/base.html" %}{% load datastage_browse %}
+
+{% comment %}
 # Copyright (c) 2012 University of Oxford
 #
 # Permission is hereby granted, free of charge, to any person obtaining
@@ -13,40 +15,70 @@
 # included in all copies or substantial portions of the Software.
 # 
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, --INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+# EXPRESS OR IMPLIED, - INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 # MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
 # IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
 # CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 # 
--->
+{% endcomment %}
 
-{% extends "browse/base.html" %}{% load datastage_browse %}
 
 {% block title %}Index of /{{ path }}{% endblock %}
 
 {% block content %}
 <h1>Index of /{{ path }}</h1>
+<!--
+<div class="message" >
+<p>message for confirmation, clarification, success, error, etc...</p>
+</div>
+-->
 
-<p>
-  <!-- <a class="action" href="?action=upload" title="Upload a file to this directory">Upload a file</a> -->
+<div class="actions " >
+
+ 
+ 
   <a class="action" href="?action=zip" title="Download directory as ZIP archive">Download as ZIP</a>
-  <a class="action" href="{% url dataset:submit %}?path=/{{ path|urlencode }}" title="Submit this directory as a dataset">Submit as data package</a>
-  <a class="action" href="{% url dataset:index %}?path=/{{ path|urlencode }}">Submitted {{ dataset_submissions.count }} times</a>
-</p>
 
-<form method="post" action="">{% csrf_token %}
+ <!--
+ <a class="action" href="?action=zip" title="Upload to this directory">upload to this directory</a>
+ -->
+ 
+<form class="upload"  action="?action=upload" method="post" enctype="multipart/form-data" > {% csrf_token %}
+  <label for="fileUpload" class="fileUpload">upload file</label>
+  <div class="panel">
+    <input type="file" id="fileUpload" class="fileUpload" name="file" />
+    <input type="submit" value="upload" />
+    <p>You can upload Zip files, the contents of the zip file will be unpacked into the current directory.</p>
+  </div>
+  
+  <!-- form should submit to the current location - and provide a messahe on success or otherwise of the upload. e.g. "the file/package {filename} has been successfully upload/unpacked" -->
+  
+  
+  
+   </form>
+  
+  <a class="action" href="{% url dataset:submit %}?path=/{{ path|urlencode }}" title="Submit this directory as a dataset">Submit as data package</a>
+
+  <a class="action" href="{% url dataset:previous-submissions %}?path=/{{ path|urlencode }}" title="Update an existing data package">Update an existing data package</a>
+<!--  <a class="action" href="{% url dataset:index %}?path=/{{ path|urlencode }}">Submitted {{ dataset_submissions.count }} times</a>
+{% if  dataset_submissions.count %} <a class="action" href="{% url dataset:submit %}?path=/{{ path|urlencode }}" title="update an existing data package">update an existing data package</a>
+{% endif %}
+-->
+</div><!-- / div.actions -->
+
+<form method="post" action=".">{% csrf_token %}
 <table class="directory-listing">
   <thead>
     <tr>
-      <th/>
+      <th></th>
       {% for name, label in column_names %}
       <th><a href="?sort={{ name }}&amp;reverse={% if sort_name == name and not sort_reverse %}true{% else %}false{% endif %}">{{ label }}</a>{% if sort_name == name %} {% if sort_reverse %}↑{% else %}↓{% endif %}{% endif %}</th>
       {% endfor %}
       <th class="meta-title-header">Title</th>
       <th>Description</th>
-      <th>Tags</th>
+      <th>Delete</th>
     </tr>
   </thead>
   <tbody>
@@ -54,12 +86,12 @@
     <tr class="row-odd">
       <td>UP</td>
       <td><a href="{{ parent_url }}">Parent directory</a></td>
-      <td/>
-      <td/>
-      <td/>
-      <td/>
-      <td/>
-      <td/>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
     </tr>
 {% endif %}
 {% for subpath in subpaths %}
@@ -77,13 +109,34 @@
       {% if subpath.can_write %}
       <td><input class="meta-title" type="text" name="meta-title-{{ subpath.name|urlencode }}" value="{{ subpath.title|default:"" }}"/></td>
       <td><textarea class="meta-description" name="meta-description-{{ subpath.name|urlencode }}">{{ subpath.description|default:"" }}</textarea></td>
-      <td/>
+      <td class="delete">
+
+
+    		
+    		<a class="action" href="{{ subpath.url }}?action=delete" >delete</a>
+    		
+    		<!--s
+    		
+    		end to confirm delete page  
+    		
+    		'yes, delete' or 'no, cancel' -
+    		
+    		either option returns you to the directory page,
+    		
+    		if you selected 'yes, delete' then provide a message at the top of the page which reports success or failure 
+    		-->
+    	
+
+     </td>
+      
       {% else %}
       <td>{{ subpath.title|default:"" }}</td>
       <td>{{ subpath.description|default:"" }}</td>
-      <td/>
-      {% endif %}{% else %}<td/><td/><td/>{% endif %}
-    </tr>
+      <td></td>
+      
+      {% endif %}{% else %}<td></td> <td></td> <td></td>{% endif %}
+     
+     </tr>
 {% empty %}
     <tr>
       <td colspan="8" class="directory-empty">This directory is empty.</td>

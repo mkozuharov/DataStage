@@ -70,6 +70,7 @@ class SubmitView(HTMLView, RedisView, ErrorCatchingView):
 
     def common(self, request):
         path = request.REQUEST.get('path')
+        num = request.REQUEST.get('num')
         if not path:
             raise Http404
         path_parts = path.rstrip('/').split('/')
@@ -95,6 +96,110 @@ class SubmitView(HTMLView, RedisView, ErrorCatchingView):
         else:
             dataset_submission = DatasetSubmission(path_on_disk=path_on_disk,
                                                    submitting_user=request.user)
+                                                           
+        if 'num' in request.REQUEST:           
+           dataset_submission = get_object_or_404(DatasetSubmission, id=num)       
+           
+        form = forms.DatasetSubmissionForm(request.POST or None, instance=dataset_submission)
+        
+        return {'path': path,
+                'num':num,
+                'form': form,
+                'path_on_disk': path_on_disk,
+                'previous_submissions': previous_submissions,
+                'dataset_submission': dataset_submission,
+                'queued': request.GET.get('queued') == 'true'}
+
+
+    def get(self, request):
+        context = self.common(request)
+        #if context['dataset_submission'].status not in ('new', 'submitted', 'error'):
+        #    return self.render(request, context, 'dataset/submitted')
+        #if context['dataset_submission'].status in ('new', 'submitted', 'error'):
+        #     return self.render(request, context, 'dataset/submitted')
+        return self.render(request, context, 'dataset/submit')
+    
+    def post(self, request):
+        context = self.common(request)
+        form = context['form']
+
+        if form.instance.status not in ('new', 'submitted', 'error'):
+            return self.render(request, context, 'dataset/submitted')
+
+        if not form.is_valid():
+            return self.render(request, context, 'dataset/submit')
+        
+        form.save()
+        dataset = form.instance.dataset
+
+        cleaned_data = form.cleaned_data
+
+        repository = cleaned_data['repository']
+        
+        redirect_url = '/dataset/submission/%s?%s' % (form.instance.id, urllib.urlencode({'path': context['path']}))
+
+        if not context['num']:
+	        try:
+	            opener = openers.get_opener(repository, request.user)
+	            form.instance.remote_url = dataset.preflight_submission(opener, repository)
+	        except openers.SimpleCredentialsRequired:
+	            form.instance.status = 'new'
+	            form.instance.save()
+	            url = '%s?%s' % (
+	                reverse('dataset:simple-credentials'),
+	                urllib.urlencode({'next': '%s?%s' % (request.path, urllib.urlencode({'path': context['path'],
+	                                                                                     'id': form.instance.id})),
+	                                  'repository': repository.id}),
+	            )
+	            return HttpResponseSeeOther(url)
+	        except Dataset.DatasetIdentifierRejected, e:
+	            form.errors['identifier'] = ErrorList([unicode(e)])
+	            return self.render(request, context, 'dataset/submit')
+            
+        #else:
+        form.instance.status = 'queued'
+        form.instance.queued_at = datastage.util.datetime.now()
+        form.instance.save()
+
+        self.redis.rpush(SUBMISSION_QUEUE, self.pack(form.instance.id))
+
+        
+        return HttpResponseSeeOther(redirect_url)
+
+class PreviousSubmissionsView(HTMLView, RedisView, ErrorCatchingView):
+    error_template_names = MergeDict({httplib.FORBIDDEN: 'dataset/403'}, ErrorCatchingView.error_template_names)
+    @method_decorator(login_required)
+    def dispatch(self, request):
+        return super(PreviousSubmissionsView, self).dispatch(request)
+
+    def common(self, request):
+        path = request.REQUEST.get('path')
+        if not path:
+            raise Http404
+        path_parts = path.rstrip('/').split('/')
+        path_on_disk = os.path.normpath(os.path.join(settings.DATA_DIRECTORY, *path_parts))
+        try:
+            permissions = get_permissions(path_on_disk, request.user.username, check_prefixes=True)
+        except IOError, e:
+            if e.errno == errno.ENOENT:
+                raise Http404
+            elif e.errno == errno.EACCES:
+                raise PermissionDenied
+            raise
+        if posix1e.ACL_WRITE not in permissions:
+            raise  PermissionDenied
+
+        previous_submissions = DatasetSubmission.objects.filter(path_on_disk=path_on_disk)
+        
+        if 'id' in request.REQUEST:
+            dataset_submission = get_object_or_404(DatasetSubmission,
+                                                   id=request.REQUEST['id'],
+                                                   status='new',
+                                                   submitting_user=request.user)
+        else:
+            dataset_submission = DatasetSubmission(path_on_disk=path_on_disk,
+                                                   submitting_user=request.user)
+                         
 
         form = forms.DatasetSubmissionForm(request.POST or None, instance=dataset_submission)
         
@@ -110,7 +215,7 @@ class SubmitView(HTMLView, RedisView, ErrorCatchingView):
         context = self.common(request)
         if context['dataset_submission'].status not in ('new', 'submitted', 'error'):
             return self.render(request, context, 'dataset/submitted')
-        return self.render(request, context, 'dataset/submit')
+        return self.render(request, context, 'dataset/previous-submissions')
     
     def post(self, request):
         context = self.common(request)
@@ -120,7 +225,7 @@ class SubmitView(HTMLView, RedisView, ErrorCatchingView):
             return self.render(request, context, 'dataset/submitted')
 
         if not form.is_valid():
-            return self.render(request, context, 'dataset/submit')
+            return self.render(request, context, 'dataset/previous-submissions')
         
         form.save()
         dataset = form.instance.dataset
@@ -159,8 +264,8 @@ class SubmitView(HTMLView, RedisView, ErrorCatchingView):
 
             self.redis.rpush(SUBMISSION_QUEUE, self.pack(form.instance.id))
 
-        
         return HttpResponseSeeOther(redirect_url)
+
 
 class SimpleCredentialsView(HTMLView):
     def common(self, request):
@@ -191,10 +296,16 @@ class SimpleCredentialsView(HTMLView):
 
 class DatasetSubmissionView(HTMLView):
     def get(self, request, id):
+        path = request.REQUEST.get('path')
         dataset_submission = get_object_or_404(DatasetSubmission, id=id)
-        context = {'dataset_submission': dataset_submission}
+        context = {'dataset_submission': dataset_submission, 'path': path}
         return self.render(request, context, 'dataset/submission-detail')
         
-       
+    def post(self, request, id):
+        path = request.REQUEST.get('path')
+        context = {'path': path}
+        return HttpResponseSeeOther('/data'+path)
+
+        
 #class SubmitWizard(HTMLView, JSONView, CookieWizardView):
 #    pass

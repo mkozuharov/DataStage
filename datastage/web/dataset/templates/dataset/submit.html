@@ -30,52 +30,19 @@
 {% block content %}
 
 <article>
-  <h1>Submit as data package</h1>
-
-  <p>Submitting <tt>{{ path }}</tt> as a data package.</p>
-  
-  {% if previous_submissions %}
-  <section>
-    <h2>Previous submissions</h2>
-    
-    <p>
-      This directory has previously been submitted to one or more repositories,
-      and you may wish to resubmit it as opposed to submitting it again.
-    </p>
-    
-    <table>
-      <thead>
-        <tr>
-          <th>Remote repository</th>
-          <th>Remote identifier</th>
-          <th>Title</th>
-          <th>Description</th>
-          <th>Submitting user</th>
-          <th>Last queued for update</th>
-          <th>Status</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>{% for submission in previous_submissions %}
-        <tr>
-          <td>{{ submission.repository }}</td>
-          <td>{{ submission.identifier }}</td>
-          <td>{{ submission.title }}</td>
-          <td>{{ submission.description }}</td>
-          <td>{{ submission.submitting_user }}</td>
-          <td>{{ submission.queued_at }}</td>
-          <td>{{ submission.status }}</td>
-          <td>
-            <a href="{{ submission.get_absolute_url }}">View</a>
-          </td>
-        </tr>{% endfor %}
-      </tbody>
-    </table>
-  </section>
+  {% if num %}
+  	<h1>Update an existing data package</h1>
+  {% else %}
+  	<h1>Submit as data package</h1>
   {% endif %}
+  <p>Submitting <tt>{{ path }}</tt> as a data package.</p>
 
   <section>
-    <h2>New submission</h2>
+    {% if num %}
+    	<h2>Update submission</h2>
+    {% else %}
+        <h2>New submission</h2>
+    {% endif %}
     <form method="post" action="">{% csrf_token %}
 
 
