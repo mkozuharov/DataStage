@@ -1,5 +1,4 @@
-/* ---------------------------------------------------------------------
-#
+<!--
 # Copyright (c) 2012 University of Oxford
 #
 # Permission is hereby granted, free of charge, to any person obtaining
@@ -21,52 +20,39 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 # 
-# -------------------------------------------------------------------- */
-
-body {
-  font-family: "Liberation Sans", Arial, sans-serif;
-  border: 10px solid red;
-}
-
-.meta-title, .meta-description {
-  width:200px;
-  display: block;
-  padding:5px;
-  cursor: pointer;
-  height:100%;
-  min-height:1.5em;
-}
-
-.meta-title:hover, .meta-description:hover {
-  background-color: #eea;
-}
-
-table.directory-listing {
-  border:1px solid #888;
-  border-collapse: collapse;
-  width:100%;
-}
-
-table.directory-listing td, table.directory-listing th {
-  padding: 5px;
-}
-
-table.directory-listing tr:hover {
-  background-color: #ee8;
-}
-
-table.directory-listing th a {
-  color:#ffffff;
-}
+-->
 
 
-tr.row-odd {
-  background-color: #eee;
-}
-tr.row-even {
-  background-color: #ddd;
-}
+{% extends "dataset/base.html" %}
 
-td.directory-empty {
-  text-align:center;
-}
+{% block title %}Delete{% endblock %}
+
+{% block content %}
+
+<article>
+  	<h1>Confirm delete</h1>
+
+  	<h1>Select 'yes' to confirm / 'no' to cancel</h1>
+
+  <p>Delete <tt>{{ path }}</tt> {{ filename }} ?</p>
+
+
+  <section>
+    <table>
+        <tr>
+         <form  action="?action=delete&filename={{ filename }}" method="post" enctype="multipart/form-data" > {% csrf_token %}
+             <td colspan="2"><input type="submit" name="yes" value="Yes"/></td>
+         </form>
+         <form  action="" %} method="get" enctype="multipart/form-data" > {% csrf_token %}        
+             <td colspan="2"><input type="submit" name="cancel" value="No"/></td>
+         </form>
+        </tr>
+    </table>
+  </section>
+
+
+</article>
+
+{% endblock %}
+
+

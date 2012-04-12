@@ -217,7 +217,6 @@ class SambaConfigurer(object):
     BLOCK_START = '# Start of DataStage configuration, inserted by datastage-config\n'
     BLOCK_END   = '# End of DataStage configuration\n'
     def __call__(self):
-        print "HHH"
         with open('/etc/samba/smb.conf') as f:
             lines = list(f)
         try:

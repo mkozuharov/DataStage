@@ -182,6 +182,14 @@ header.pageHeader h1
 }
 
 
+header.pageHeader nav
+{
+	color: #333;
+}
+
+
+
+
 span.version {
   font-size: 0.7em;
   padding-left: 5px;
@@ -246,6 +254,12 @@ list-style: disc;
 list-style: decimal;
 }
 
+
+ul.siteAdmin
+{
+  float: right;
+  margin: 15px;
+}
 
 
 
@@ -360,53 +374,16 @@ table th a:hover
 table.browse td
 {
 
-
-
 }
 
-
-
-/*  system messgae styles */
-
-.message {
-
-background-color: #666;
-border-bottom: 10px solid #999;
-color: #fff;
-padding: 5px;
-margin-bottom: 5px;
-}
-/* good (green is good) */
-
-.success{
-background-color: #2a2;
-border-color: #6c6;
-}
-/* bad (red is baaaaaad) */
-.error {
-background-color: #a22;
-border-color: #c66;
-}
-
-/* are you sure? (blue is cool on the subject..) */
-
-.confirm {
-background-color: #22a;
-border-color: #66c;
-}
-
-
-.message a
+table td.delete
 {
-color: #fff;
+text-align: center;
 }
 
 
-.message ul li
-{
-list-style: none;
-display: inline;
-}
+
+
 
 
 /* breadcrumb */
@@ -428,9 +405,104 @@ background: transparent url('images/icons/breadcrumb-arrow.png') no-repeat cente
 padding-right: 12px;
 }
 
-/* action links */
+
+
+/*
+######################
+DIRECTORY ACTIONS
+######################
+*/
+
+div.actions form,
+div.actions form label{
+ 
+ display: inline;
+  
+}
+
+div.actions form
+{ 
+  width: 50px;
+}
+
+
+div.actions form label{ 
+ /*
+ border: 1px solid #ccc;
+ */
+ float: none;
+ margin: 0px;
+ width: auto;
+}
+
+div.actions form input.fileUpload{ 
+  background-color: #fff;
+  display: inline;
+  border: 1px solid #ccc;
+  color: #454545;
+  width: 180px;
+}
+
+
+div.actions a {
+
+font-weight: bold;
+}
+
+
+div.actions form { 
+  position: relative;
+
+
+}
+
+/* no-js style for the upload div */
+div.actions form div.collapsible.collapsed {
+  
+  position: absolute;
+  top: -9000px;
+}
+
+/* no-js style for the upload div */
+div.actions form div, 
+div.actions form div p{
+  
+  background-color: #fff;
+  display: inline;
+  color: #333;
+  text-transform: none;
+}
+
+/* styles for the class applied with JS when revealing the upload panel */
+
+div.actions form div.collapsible{ 
+ background-color: #fff;
+  border: 1px solid #ccc;
+ box-shadow: #ccc 0.1em 0.1em 0.3em; /* Opera 10.5, IE 9.0 */
+	-webkit-box-shadow: #ccc 0.1em 0.1em 0.3em; /* Chrome Safari */
+	-moz-box-shadow: #ccc 0.1em 0.1em 0.3em; /* Firefox F3.5+ */
+ 
+ display: block;
+ /*
+ height: 36px;
+ */
+ left: -5px;
+  padding: 7px 5px 0px 5px;
+  position: absolute;
+  top: 18px;
+  width: 350px;
+ 
+}
+
+div.actions form.upload div.panel input.fileUpload{ 
+
+  width: 240px;
+  
+  }
+
 .main a.action,
-a.action
+a.action,
+div.actions form
 {
 	  background: #3e786e; /* for non-css3 browsers */
 		filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#3e786e', endColorstr='#5b9473'); /* for IE */
@@ -576,8 +648,8 @@ header.pageHeader nav a {
 }
 
 #mainnav {
-	
-	margin-bottom: 0px;
+	float: left;
+	margin: 5px 0px 0px 0px ;
 	padding: 3px 0px;
 }
 
@@ -655,6 +727,7 @@ color: #fff;
 		background: -webkit-gradient(linear, left top, left bottom, from(#fdfefe), to(#f4f7fa)); /* for webkit browsers */
 		background: -moz-linear-gradient(top,  #fdfefe,  #f4f7fa); /* for firefox 3.6+ */ 
 	border: 1px solid #dfe2e4;
+	border-bottom-width: 3px;
   	-moz-border-radius: 5px; /* Firefox */
   	-webkit-border-radius: 5px; /* Safari, Chrome */
   	border-radius: 5px; /* CSS3 */
@@ -665,16 +738,55 @@ color: #fff;
 }
 
 
-
-.message {
-
-
-}
-
 .intro {
 
 font-weight: bold;
 }
+
+/*  system message styles */
+
+.message {
+
+background-color: #666;
+font-weight: bold;
+padding: 5px;
+margin-bottom: 5px;
+}
+
+
+/* good (green is good) */
+
+.success{
+
+border-color: #6c6;
+}
+/* bad (red is baaaaaad) */
+.error {
+
+
+border-color: #c66;
+}
+
+/* are you sure? (blue is cool on the subject..) */
+
+.confirm {
+
+border-color: #e5c900;
+}
+
+
+.message a
+{
+color: #000;
+}
+
+
+.message ul li
+{
+list-style: none;
+display: inline;
+}
+
 
 
 
@@ -767,4 +879,41 @@ counter-reset: item 2;
 display: block;
 }
 
+
+/*
+
+Error messages
+
+*/
+
+.main .errorlist {
+
+  padding: 0px;
+
+
+}
+
+
+.main .errorlist li {
+
+  /*
+  background-color: #ffd4b2;
+  */
+  color: #b83f15;
+  font-size: 0.9em;
+  font-weight: bold;
+  list-style: none;
+  padding: 0px;
+
+}
+
+
+
+/*  styling for inline editign of metadata */
+
+.meta-title, .meta-description  {
+  border: 1px solid #ccc;
+  font-family: monospace;
+  font-size: 1.1em;
+}
 
