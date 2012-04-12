@@ -77,6 +77,7 @@ class LoginFormHandler(urllib2.BaseHandler):
         if response.url.startswith(self._base_url) and 'login?' in response.url:
             return self.perform_authentication(request, response)
         return response
+    http_request = https_request
     
     def perform_authentication(self, request, response):
         if self._tried:
