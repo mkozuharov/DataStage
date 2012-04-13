@@ -39,6 +39,7 @@ from datastage.namespaces import OXDS, DCTERMS, RDF, FOAF, bind_namespaces
 from datastage.dataset.base import Dataset
 import datastage.util.serializers
 from datastage.util.multipart import MultiPartFormData
+from datastage.dataset.sword2depositor import Sword2, SwordSlugRejected, SwordServiceError, SwordDepositError
 
 logger = logging.getLogger(__name__)
 
@@ -121,6 +122,23 @@ class OXDSDataset(Dataset):
             self._manifest.serialize(f, 'better-pretty-xml', base=self._manifest_filename)
     
     def preflight_submission(self, opener, repository):
+        
+        # if this is a sword2 repository, hand off the management of that to 
+        # the sword2 implementation
+        if repository.type == "sword2":
+            logger.info("Using SWORDv2 depositor")
+            try:
+                s = Sword2()
+                return s.preflight_submission(self, opener, repository)
+            except SwordSlugRejected as e:
+                raise self.DatasetIdentifierRejected
+            except SwordDepositError as e:
+                raise
+            except SwordServiceError as e:
+                raise
+        
+        # otherwise, carry on as before ...
+        
         # Make sure we're authenticated
         opener.open(repository.homepage + 'states')
         
@@ -143,7 +161,10 @@ class OXDSDataset(Dataset):
 
             return response.headers.get('Location', response.url)
     
-    def complete_submission(self, opener, repository, update_status):
+    def complete_submission(self, opener, dataset_submission, update_status):
+        # pull the repository out explicitly
+        repository = dataset_submission.repository
+        
         update_status('started')
         
         logger.debug("Updating manifest in readiness for submitting dataset")
@@ -183,6 +204,15 @@ class OXDSDataset(Dataset):
             
             update_status('transfer')
             logger.debug("Starting transfer to repository")
+            
+            # if this is a sword2 repository, hand off the management of that to 
+            # the sword2 implementation
+            if repository.type == "sword2":
+                logger.info("Using SWORDv2 depositor")
+                s = Sword2()
+                return s.complete_submission(self, opener, dataset_submission, filename)
+    
+            # otherwise, carry on as before ...
             
             stat_info = os.stat(filename)
             with open(filename, 'rb') as data:

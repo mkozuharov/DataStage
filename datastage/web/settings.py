@@ -183,7 +183,8 @@ LOGGING = {
 }
 
 # For django_longliving
-LONGLIVING_CLASSES = set(['datastage.dataset.longliving.submission.SubmissionThread'])
+LONGLIVING_CLASSES = set(['datastage.dataset.longliving.submission.SubmissionThread', 
+                            'datastage.dataset.longliving.sword_statement_check.SwordStatementCheckThread'])
 
 REDIS_PARAMS = {'host': 'localhost',
                 'port': 6379,

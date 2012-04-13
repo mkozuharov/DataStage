@@ -70,6 +70,12 @@ hg clone https://bitbucket.org/maze/django-pam
 
 NOTE: you will be able to log-in with your system username and password (it uses your "login" pam configuration)
 
+- sword2
+
+hg clone https://bitbucket.org/richardjones/python-sword2
+(venv)richard$ cd python-sword2
+(venv)richard$ python setup.py install
+
 3/ Configure DataStage
 
 - in datastage/config/__init__.py set the DATA_DIRECTORY at least, and the other
@@ -218,4 +224,29 @@ comment out the opener.open call, as it is to a non-existant URL
 #
 # Make sure we're authenticated
 #opener.open(repository.homepage + 'states')
+
+10/ Install and start Redis
+
+- First the install
+
+wget http://redis.googlecode.com/files/redis-2.4.6.tar.gz
+tar xzf redis-2.4.6.tar.gz
+cd redis-2.4.6
+make
+
+- now start it
+
+cd src/
+./redis-server
+
+10/ Start the "longliving" django service
+
+in datastage/web:
+
+python manage.py longliving --settings=datastage.web.settings
+
+NOTE: at time of writing, this won't work because the out-of-the box longliving
+code isn't quite right.  I have submitted a patch which when applied will make this
+work.
+
 

@@ -25,6 +25,6 @@
 
 from base import Dataset
 from oxds import OXDSDataset
-from sword2 import Sword2Dataset
+from sword2depositor import Sword2
 
 SUBMISSION_QUEUE = 'datastage:dataset:submission-queue'

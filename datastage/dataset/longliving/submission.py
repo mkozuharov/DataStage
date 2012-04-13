@@ -67,6 +67,6 @@ class SubmissionThread(LonglivingThread):
             dataset_submission.status = status
             dataset_submission.save()
 
-        dataset.complete_submission(opener, dataset_submission.repository, update_status)
+        dataset.complete_submission(opener, dataset_submission, update_status)
 
         logger.info("Submission completed")
