@@ -77,7 +77,6 @@ class LoginFormHandler(urllib2.BaseHandler):
         if response.url.startswith(self._base_url) and 'login?' in response.url:
             return self.perform_authentication(request, response)
         return response
-    http_request = https_request
     
     def perform_authentication(self, request, response):
         if self._tried:
@@ -113,6 +112,7 @@ class PreemptiveBasicAuthHandler(urllib2.HTTPBasicAuthHandler):
         if all(credentials):
             request.add_header(self.auth_header, 'Basic %s' % base64.b64encode(':'.join(credentials)))
         return request
+    http_request = https_request
 
 class AuthenticateRedirectHandler(urllib2.HTTPRedirectHandler):
     """
