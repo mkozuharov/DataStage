@@ -102,7 +102,7 @@ class DatastageServer(object):
     
     def longliving_process_func(self):
         command = LonglivingCommand()
-        command.handle(logfile='/var/log/datastage-longliving.log', loglevel='warning')
+        command.handle(logfile='/var/log/datastage-longliving.log', loglevel='debug')
 
     def server_process_func(self):
         application = django.core.handlers.wsgi.WSGIHandler()
