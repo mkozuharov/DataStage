@@ -164,11 +164,11 @@ class SubmitView(HTMLView, RedisView, ErrorCatchingView):
 	        except Dataset.DatasetIdentifierRejected, e:
 	            form.errors['identifier'] = ErrorList([unicode(e)])
 	            return self.render(request, context, 'dataset/submit')
-            except Exception as e:
-                v_l.info("General failure during submission")
-                form.errors['repository'] = ErrorList(["Failed to connect to repository for initial deposit; please try again later"])
-   	            return self.render(request, context, 'dataset/submit')	 
-   	                       
+	        except Exception as e:
+	            v_l.info("General failure during submission")
+	            form.errors['repository'] = ErrorList(["Failed to connect to repository for initial deposit; please try again later"])
+	            return self.render(request, context, 'dataset/submit')	 
+
           # FIXME: we probably don't want this else here, it's probably what's
           # messing things up
             
@@ -280,8 +280,8 @@ class PreviousSubmissionsView(HTMLView, RedisView, ErrorCatchingView):
         except Exception as e:
             v_l.info("General failure during submission")
             form.errors['repository'] = ErrorList(["Failed to connect to repository for initial deposit; please try again later"])
-   	        return self.render(request, context, 'dataset/submit')	 
-   	                       
+            return self.render(request, context, 'dataset/submit')	 
+
           # FIXME: we probably don't want this else here, it's probably what's
           # messing things up
             
