@@ -83,6 +83,9 @@ class PathView(View):
         except IOError, e:
             if e.errno == errno.EACCES:
                 return False
+        except OSError, e:
+            if e.errno == errno.EACCES:
+                return False
             raise
 
     def can_write(self, path=None):
