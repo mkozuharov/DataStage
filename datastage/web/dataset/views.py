@@ -180,7 +180,7 @@ class SubmitView(HTMLView, RedisView, ErrorCatchingView):
         self.redis.rpush(SUBMISSION_QUEUE, self.pack(form.instance.id))
 
         # only save this once it has completed
-        # form.save()  # FIXME: what are we saving here?
+        form.save()  # FIXME: what are we saving here?
         
         return HttpResponseSeeOther(redirect_url)
 
