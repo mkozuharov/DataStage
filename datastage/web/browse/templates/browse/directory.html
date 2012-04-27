@@ -31,14 +31,21 @@
 
 {% if message %}
 	<div class="message">
-{% else %}
-	<div class="message" style="display:none" >
+	<p id="message" name="message" > {{ message }} </p>
+</div>
 {% endif %}	
 
-<p id="message" name="message" > {{ message }} </p>
-</div>
+
+
 
 <div class="actions">
+
+
+{% if parent_url %}
+<a class="action goUp" href="{{ parent_url }}" >Parent directory</a>
+
+{% endif %}
+
 <a class="action" href="?format=zip" title="Download directory as ZIP archive">Download as ZIP</a>
 {% if path %}
   {% if can_submit %}
@@ -85,21 +92,9 @@
     </tr>
   </thead>
   <tbody>
-{% if parent_url %}
-    <tr class="row-odd">
-      <td>UP</td>
-      <td><a href="{{ parent_url }}">Parent directory</a></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-    </tr>
-{% endif %}
 {% for subpath in subpaths %}
     <tr class="row-{% if parent_url %}{% cycle "even" "odd" %}{% else %}{% cycle "odd" "even" %}{% endif %}">
-      <td>{{ subpath.type|upper }}</td>
+      <td><span class="filetype-{{ subpath.type }}">{% if subpath.type == "file" %}file{% else %}directory{% endif %}</span></td>
       <td>
         {% if subpath.link %}<a href="{{ subpath.url }}"{% else %}<span{% endif %} title="{{ subpath.name }}">{{ subpath.name|truncatechars:30 }}{% if subpath.type == "dir" %}/{% endif %}{% if subpath.link %}</a>{% else %}</span>{% endif %}
       </td>

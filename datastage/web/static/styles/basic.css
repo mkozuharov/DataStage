@@ -558,6 +558,26 @@ a.action:focus
 }
 
 
+.main a.goUp {
+  background:#3e786e url("images/icons/icons.png") no-repeat -3px -3px;
+  padding-left: 27px;
+}
+
+
+span.filetype-dir,
+span.filetype-file {
+  background:transparent url("images/icons/icons.png") no-repeat 0px -25px;
+
+display: block;
+width: 25px;
+height: 25px;
+text-indent: -9000px;
+
+}
+
+span.filetype-file {
+  background:transparent url("images/icons/icons.png") no-repeat 0px -50px;
+}
 
 /* form styling */
 

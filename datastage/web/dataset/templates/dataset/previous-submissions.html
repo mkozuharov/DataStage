@@ -67,8 +67,8 @@
 	          <td>{{ submission.queued_at }}</td>
 	          <td>{{ submission.status }}</td>
 	          <td>
-	            <a href="{{ submission.get_absolute_url }}">View</a> /
-	            <a href="/dataset/submit/?path={{ path }}&num={{ submission.id }}">Update</a>
+	            <a href="{{ submission.get_absolute_url }}" class="action">View</a> 
+	            <a href="/dataset/submit/?path={{ path }}&num={{ submission.id }}" class="action">Update</a>
 	          </td>
 	        </tr>{% endfor %}
 	      </tbody>
