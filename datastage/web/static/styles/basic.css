@@ -554,7 +554,13 @@ div.actions form
 a.action:hover,
 a.action:focus
 {
-	color: #d4faef;
+		background: #3e786e; /* for non-css3 browsers */
+		filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#3e786e', endColorstr='#365b48'); /* for IE */
+		background: -webkit-gradient(linear, left top, left bottom, from(#3e786e), to(#365b48)); /* for webkit browsers */
+		background: -moz-linear-gradient(top,  #3e786e,  #365b48); /* for firefox 3.6+ */  
+  color: #ffd3aa;
+	
+	
 }
 
 
@@ -562,6 +568,15 @@ a.action:focus
   background:#3e786e url("images/icons/icons.png") no-repeat -3px -3px;
   padding-left: 27px;
 }
+
+.main a.goUp:hover,
+.main a.goUp:focus{
+  background:#254c45 url("images/icons/icons.png") no-repeat -3px -3px;
+  background: -webkit-gradient(linear, left top, left bottom, from(#3e786e), to(#365b48)); /* for webkit browsers */
+		background: -moz-linear-gradient(top,  #3e786e,  #365b48); /* for firefox 3.6+ */  
+  padding-left: 27px;
+}
+
 
 
 span.filetype-dir,

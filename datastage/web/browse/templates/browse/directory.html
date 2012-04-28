@@ -82,7 +82,7 @@
 <table class="directory-listing">
   <thead>
     <tr>
-      <th></th>
+      <th>Type</th>
       {% for name, label in column_names %}
       <th><a href="?sort={{ name }}&amp;reverse={% if sort_name == name and not sort_reverse %}true{% else %}false{% endif %}">{{ label }}</a>{% if sort_name == name %} {% if sort_reverse %}↑{% else %}↓{% endif %}{% endif %}</th>
       {% endfor %}
