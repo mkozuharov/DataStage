@@ -45,5 +45,5 @@ class DatasetSubmissionForm(forms.ModelForm):
     
 class SimpleCredentialsForm(forms.Form):
     username = forms.CharField()
-    password = forms.PasswordField()
+    password = forms.CharField(widget=forms.PasswordInput)
     next = forms.CharField(widget=forms.HiddenInput)
