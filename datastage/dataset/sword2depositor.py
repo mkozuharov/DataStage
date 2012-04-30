@@ -1,5 +1,3 @@
-
-from _future_ import absolute_imports
 from base import Dataset
 from sword2 import Connection, HttpLayer, HttpResponse, UrlLib2Layer, Entry
 import urllib2

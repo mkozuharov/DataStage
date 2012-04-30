@@ -1,4 +1,3 @@
-from _future_ import absolute_imports
 import logging
 import time
 import thread
