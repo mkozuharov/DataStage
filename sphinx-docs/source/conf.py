@@ -73,7 +73,7 @@ copyright = u'2011, University of Oxford'
 # built documents.
 #
 # The short X.Y version.
-version = '0.3'
+version = '0.3.1'
 # The full version, including alpha/beta/rc tags.
 release = '0.3rc2'
 
