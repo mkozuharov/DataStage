@@ -42,3 +42,7 @@ override_dh_link:
 
 	mkdir -p debian/dataflow-datastage/etc/default
 	ln -s /usr/share/dataflow-datastage/conf/default debian/dataflow-datastage/etc/default/dataflow-datastage
+
+override_dh_clean:
+	dh_clean
+	rm -rf build
