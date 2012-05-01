@@ -55,7 +55,8 @@ class SubmissionThread(LonglivingThread):
         
         logger.info("Received submission request for %r to %r",
                     dataset_submission.identifier,
-                    dataset_submission.repository.homepage)
+                    dataset_submission.remote_url)
+                    #dataset_submission.repository.homepage)
         
         dataset = dataset_submission.dataset
         

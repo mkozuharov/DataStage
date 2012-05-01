@@ -177,10 +177,11 @@ class SubmitView(HTMLView, RedisView, ErrorCatchingView):
             form.instance.queued_at = datastage.util.datetime.now()
             form.instance.save() # FIXME: what are we saving here?
 
+        # only save this once it has completed
+        form.instance.save()  # We are saving the returned url
         self.redis.rpush(SUBMISSION_QUEUE, self.pack(form.instance.id))
 
-        # only save this once it has completed
-        form.save()  # FIXME: what are we saving here?
+    
         
         return HttpResponseSeeOther(redirect_url)
 
