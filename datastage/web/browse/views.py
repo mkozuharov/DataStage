@@ -253,18 +253,19 @@ class DeleteView(HTMLView, PathView):
         try:
             os.remove(self.path_on_disk+"/"+filename)
             msg =  "The file: ' " + filename + " ' has been successfully deleted!"
-        except Exception, e:
-            msg = "Delete was unsuccessful !"
-        except Exception, e:
+        except (IOError, OSError) as e:
             if e.errno == errno.ENOENT:
                 raise Http404
             elif e.errno == errno.EACCES:
                 msg = "Files in your area can only be deleted!"
             else:
                 msg = "Delete was unsuccessful !"
-            msgcontext={'message': msg }
-            uri = abs_path + "?" +  urllib.urlencode({'message': msg})
-            return HttpResponseSeeOther(uri)
+        except Exception, e:
+            msg = "Delete was unsuccessful !"
+            
+        msgcontext={'message': msg }
+        uri = abs_path + "?" +  urllib.urlencode({'message': msg})
+        return HttpResponseSeeOther(uri)
             
         return HttpResponsePermanentRedirect(abs_path)
         msgcontext={'message': msg }
@@ -368,14 +369,16 @@ class UploadView(HTMLView, PathView):
                     # Get the parent acl and apply it to the child entry
                     child_entry = self.path_on_disk+'/'+src_file.name
                     parent_acl.applyto(child_entry)
-
-            except Exception, e:
+       
+            except (IOError, OSError) as e:
                 if e.errno == errno.ENOENT:
                     raise Http404
                 elif e.errno == errno.EACCES:
                     msg = "Files can only be uploaded in your own area!"
                 else:
                     msg = "Upload was unsuccessful !"
+            except Exception, e:
+                msg = "Upload was unsuccessful !"
             msgcontext={'message': msg }
             uri = abs_path + "?" +  urllib.urlencode({'message': msg})
             return HttpResponseSeeOther(uri)
