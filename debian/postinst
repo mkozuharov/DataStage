@@ -111,4 +111,4 @@ esac
 
 django-admin collectstatic --settings=datastage.web.settings --noinput --link
 
-echo "\033[1m\033[92mRun datastage-config to complete the set-up\033[0m"
+echo "Run datastage-config to complete the set-up"
