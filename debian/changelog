@@ -1,3 +1,7 @@
+dataflow-datastage (0.3.2~alpha) unstable; urgency=low
+
+  * In development for 0.3.2
+
 dataflow-datastage (0.3.1) unstable; urgency=low
 
   * Files can now be uploaded and deleted using the web interface
