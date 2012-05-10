@@ -365,8 +365,13 @@ def add_user():
                    prompt="Pick one> ")
 
 def create_user(username, name, email, role):
+    data_directory = settings.DATA_DIRECTORY
+    data_private_directory = os.path.join(data_directory, 'private')
+    homedir = os.path.join(data_private_directory, username)
     result = subprocess.call(['useradd', username,
                                          '--comment', name,
+                                         '-M',
+                                         '-d', homedir,
                                          '-N',
                                          '-g', str(grp.getgrnam('datastage-%s' % role).gr_gid)])
     if result:
