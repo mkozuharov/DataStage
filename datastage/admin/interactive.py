@@ -36,6 +36,7 @@ import subprocess
 import sys
 import shutil
 import libmount
+import getpass
 
 from django.contrib.auth.models import User
 
@@ -300,10 +301,13 @@ def users_menu():
         print "=============="
         print " Manage users "
         print "=============="
-        print "Select add(a) to add a new datastage user. Select remove(r) to remove a datastage user."
+        print "Select add(a) to add a new datastage user."
+        print "Select remove(r) to remove a datastage user."
+        print "Select change_password(c) to change datastage user password." 
         
         yield menu({'add': add_user,
-                    'remove': remove_user})
+                    'remove': remove_user,
+                    'change_password': change_passwd})
 
 def add_user():
     username, name, email, role = None, None, None, None
@@ -363,11 +367,28 @@ def add_user():
                     'no': None},
                    question="Is this correct?",
                    prompt="Pick one> ")
+                   
+                   
+def change_passwd():
+    print "========================================"
+    print "Change Password (press Ctrl-D to cancel)"
+    print "========================================"
+    print "Provide a Username to change the password"
+    username = raw_input("Username: ")
+    password = getpass.getpass("Password: ")
+    with open(os.devnull, 'w') as devnull:
+        for args in (['passwd'], ['smbpasswd', '-a', '-s']):
+            passwd = subprocess.Popen(args + [username], stdin=subprocess.PIPE, stdout=devnull, stderr=devnull)
+            passwd.stdin.write('%s\n%s\n' % (password, password))
+            passwd.stdin.close()
+            passwd.wait()
+    print "Password changed successfully"
 
 def create_user(username, name, email, role):
     data_directory = settings.DATA_DIRECTORY
     data_private_directory = os.path.join(data_directory, 'private')
     homedir = os.path.join(data_private_directory, username)
+    
     result = subprocess.call(['useradd', username,
                                          '--comment', name,
                                          '-M',
