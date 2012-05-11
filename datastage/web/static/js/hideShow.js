@@ -10,19 +10,22 @@ $(document).ready(function() {
 		if (panel.hasClass("collapsed")) {
 			panel.slideDown('fast');
 			panel.removeClass('collapsed');
+			$(document).click(hideOtherPanels).focus(hideOtherPanels);
 		} else {
 			panel.slideUp('fast', redisplay);
 			panel.addClass('collapsed');
 		}
 		return false;
 	}
-	var hideOtherPanels = function() {
-		var panel = $(this).closest('div.panel-group').find('div.panel');
+	var hideOtherPanels = function(e) {
+		if (e.target == document) return; // document gets focus when file choose dialog closes
+		var panel = $(e.target).closest('div.panel-group').find('div.panel');
 		$('div.panel').not(panel).each(function() {
 			var panel = $(this);
 			if (!panel.hasClass("collapsed"))
 				panel.addClass("collapsed").slideUp("fast", redisplay);
 		});
+		$(document).unbind('click', hideOtherPanels).unbind('focus', hideOtherPanels)
 	};
 
   
@@ -46,10 +49,11 @@ $(document).ready(function() {
 		if (panel.hasClass("collapsed")) {
 			panel.slideDown('fast');
 			panel.removeClass('collapsed');
+			$('*').focus(hideOtherPanels).click(hideOtherPanels);
+
 		}
 	});
 
-	$('*').focus(hideOtherPanels).click(hideOtherPanels);
 
 
 /* 
