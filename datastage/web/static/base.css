@@ -70,3 +70,5 @@ tr.row-even {
 td.directory-empty {
   text-align:center;
 }
+
+div.panel-group { display: inline }

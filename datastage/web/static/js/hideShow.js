@@ -2,28 +2,29 @@
 /* hide/show for upload form */
 
 $(document).ready(function() {
+	var redisplay = function() {
+		$(this).css('display', 'block');
+	}
+	var showHide = function() {
+		var panel = $(this).siblings("div.panel");
+		if (panel.hasClass("collapsed")) {
+			panel.slideDown('fast');
+			panel.removeClass('collapsed');
+		} else {
+			panel.slideUp('fast', redisplay);
+			panel.addClass('collapsed');
+		}
+		return false;
+	}
+	var hideOtherPanels = function() {
+		var panel = $(this).closest('div.panel-group').find('div.panel');
+		$('div.panel').not(panel).each(function() {
+			var panel = $(this);
+			if (!panel.hasClass("collapsed"))
+				panel.addClass("collapsed").slideUp("fast", redisplay);
+		});
+	};
 
-
-
- 
-  var showHide = function() { 
-      
-    
-      if ($(this).hasClass("collapsed")) {
-        $(this).siblings("div.panel").slideDown('fast');
-        $(this).siblings("div.panel").removeClass('collapsed');    
-        $(this).removeClass('collapsed');    
-      }
-      else {
-        $(this).siblings("div.panel").slideUp('fast');
-        $(this).siblings("div.panel").addClass('collapsed'); 
-        $(this).addClass('collapsed');  
-      }
-      
-      
-      
-      return false;
-  }
   
  /*
  
@@ -36,11 +37,19 @@ $(document).ready(function() {
  */
 
 
-  $('div.actions form label').click(showHide);
-  $('div.actions form label').addClass('collapsible');
-  $('div.actions form label').addClass('collapsed');
-  $('div.actions form div.panel').addClass('collapsible');
-  $('div.actions form div.panel').addClass('collapsed');
+	$('div.panel-group form label').click(showHide);
+	$('div.panel-group form div.panel').addClass('collapsible');
+	$('div.panel-group form div.panel').addClass('collapsed');
+
+	$('div.panel-group input').focus(function() {
+		var panel = $(this).parent();
+		if (panel.hasClass("collapsed")) {
+			panel.slideDown('fast');
+			panel.removeClass('collapsed');
+		}
+	});
+
+	$('*').focus(hideOtherPanels).click(hideOtherPanels);
 
 
 /* 
