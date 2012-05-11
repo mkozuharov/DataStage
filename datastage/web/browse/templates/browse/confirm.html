@@ -34,19 +34,24 @@
 
   	<h1>Select 'yes' to confirm / 'no' to cancel</h1>
 
-  <p>Delete <tt>{{ path }}</tt> {{ filename }} ?</p>
+  <p>Delete <tt>{{ path }}</tt>?</p>
 
 
   <section>
     <table>
-        <tr>
-         <form  action="?action=delete&filename={{ filename }}" method="post" enctype="multipart/form-data" > {% csrf_token %}
-             <td colspan="2"><input type="submit" name="yes" value="Yes"/></td>
-         </form>
-         <form  action="" %} method="get" enctype="multipart/form-data" > {% csrf_token %}        
-             <td colspan="2"><input type="submit" name="cancel" value="No"/></td>
-         </form>
-        </tr>
+      <tr>
+        <td>
+          <form  action="" method="post" enctype="multipart/form-data" >{% csrf_token %}
+            <input type="hidden" name="action" value="delete"/>
+            <input type="submit" name="yes" value="Yes"/>
+          </form>
+        </td>
+        <td>
+          <form  action="{{ parent_url }}" method="get" enctype="multipart/form-data" >{% csrf_token %}
+            <input type="submit" value="No"/>
+          </form>
+        </td>
+      </tr>
     </table>
   </section>
 
