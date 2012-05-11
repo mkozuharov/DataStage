@@ -40,7 +40,7 @@
 </div>
 
 <div class="actions " >
-<a class="action" href="?action=zip" title="Download directory as ZIP archive">Download as ZIP</a>
+<a class="action" href="?format=zip" title="Download directory as ZIP archive">Download as ZIP</a>
 <form class="upload"  action="?action=upload" method="post" enctype="multipart/form-data" > {% csrf_token %}
   <label for="fileUpload" class="fileUpload">upload file</label>
   <div class="panel">
@@ -104,8 +104,8 @@
 	      {% if subpath.can_write %}
 	      <td><input class="meta-title" type="text" name="meta-title-{{ subpath.name|urlencode }}" value="{{ subpath.title|default:"" }}"/></td>
 	      <td><textarea class="meta-description" name="meta-description-{{ subpath.name|urlencode }}">{{ subpath.description|default:"" }}</textarea></td>
-	      <td class="delete">  		
-	    		<a class="action" href="?action=confirm&filename={{ subpath.name|urlencode }}" >delete</a>	
+	      <td class="delete">
+	        <a class="action" href="{{ subpath.url }}?action=delete">delete</a>
 	      </td> 
 	      {% else %}
 	      <td>{{ subpath.title|default:"" }}</td>
