@@ -25,13 +25,16 @@
 
 # This will monkey-patch django.contrib.auth.models.User
 __import__("datastage.web.user.models")
-
+from django.contrib.auth.models import User
+from django.contrib.auth.models import Group
 from django.conf.urls.defaults import patterns, include, url
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
 admin.autodiscover()
+admin.site.unregister(User)
+admin.site.unregister(Group)
 
 import django.contrib.auth.views as auth_views
 
