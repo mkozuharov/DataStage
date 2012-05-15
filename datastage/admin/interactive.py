@@ -442,7 +442,10 @@ def delete_user(username):
     
     for name in ('private', 'shared', 'collab'):
         path = os.path.join(data_directory, name , username)
-        os.chown(path, datastage_orphan.pw_uid, datastage_orphan.pw_gid)
+        
+        collaborators = get_members('datastage-collaborator')
+        if username not in collaborators:                
+          os.chown(path, datastage_orphan.pw_uid, datastage_orphan.pw_gid)
     
     res = subprocess.call(['smbpasswd', username, '-x'])    
     result = subprocess.call(['userdel', username])
