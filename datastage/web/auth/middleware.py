@@ -45,7 +45,6 @@ class BasicAuthMiddleware(object):
             try:
                 username, password = self.get_credentials(request.META['HTTP_AUTHORIZATION'])
             except (ValueError, TypeError):
-                raise
                 return self._login_required_view(request)
             
             user = authenticate(username=username, password=password)
