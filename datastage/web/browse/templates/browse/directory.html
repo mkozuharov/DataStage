@@ -40,21 +40,20 @@
 
 <div class="actions">
 <a class="action" href="?format=zip" title="Download directory as ZIP archive">Download as ZIP</a>
-<div class="panel-group">
-<form class="upload"  action="?action=upload" method="post" enctype="multipart/form-data" > {% csrf_token %}
-  <label for="fileUpload" class="fileUpload">upload file</label>
-  <div class="panel">
-    <input type="file" id="uploadFile" class="fileUpload" name="file" />
-    <input type="submit" value="upload" />
-    <p>You can upload Zip files, the contents of the zip file will be unpacked into the current directory.</p>
-  </div> 
-
-<!-- form should submit to the current location - and provide a message on success or otherwise of the upload. e.g. "the file/package {filename} has been successfully upload/unpacked" -->
-</form> 
-</div>
-
 {% if path %}
   {% if can_submit %}
+	<div class="panel-group">
+	<form class="upload"  action="?action=upload" method="post" enctype="multipart/form-data" > {% csrf_token %}
+	  <label for="fileUpload" class="fileUpload">upload file</label>
+	  <div class="panel">
+	    <input type="file" id="uploadFile" class="fileUpload" name="file" />
+	    <input type="submit" value="upload" />
+	    <p>You can upload Zip files, the contents of the zip file will be unpacked into the current directory.</p>
+	  </div> 
+	
+	<!-- form should submit to the current location - and provide a message on success or otherwise of the upload. e.g. "the file/package {filename} has been successfully upload/unpacked" -->
+	</form> 
+	</div>
     <a class="action" href="{% url dataset:submit %}?path=/{{ path|urlencode }}" title="Submit this directory as a dataset">Submit as data package</a>
   {% endif %}
 {% endif %}
