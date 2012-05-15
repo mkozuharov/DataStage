@@ -98,6 +98,7 @@ class DirectoryView(HTMLView, JSONView, BaseBrowseView):
         stat = os.stat(self.path_on_disk)
         context = {
             'path': self.path,
+            'can_submit': self.can_submit(self.path_on_disk),
             'message': request.GET.get('message'),
             'parent_url': parent_url,
             'subpaths': subpaths,

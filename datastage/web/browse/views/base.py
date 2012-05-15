@@ -56,6 +56,26 @@ class BaseBrowseView(ErrorCatchingView):
             if e.errno == errno.EACCES:
                 return False
             raise
+        except OSError, e:
+            if e.errno == errno.EACCES:
+                return False
+            raise
+            
+    def can_submit(self, path=None):
+        path = path or self.path_on_disk
+        try:
+            if os.path.isdir(path):
+                file = os.path.join(self.path_on_disk,"testsubmit")
+                open(file , 'w+')
+                os.remove(file)
+                return True
+        except IOError, e:
+            if e.errno == errno.EACCES:
+                return False
+        except OSError, e:
+            if e.errno == errno.EACCES:
+                return False
+            raise
 
     @staticmethod
     @contextlib.contextmanager
