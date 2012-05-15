@@ -10,11 +10,13 @@ from django.utils.datastructures import MergeDict
 from django.utils.decorators import method_decorator
 from django_conneg.views import ErrorCatchingView, HTMLView
 
+from datastage.config import settings
 from datastage.web.auth.decorators import login_required
 
 from .base import BaseBrowseView
 from .directory import DirectoryView, UploadView
 from .file import FileView, FileDeleteView
+from .dav import DAVView
 
 class BadRequestView(HTMLView):
     _force_fallback_format = 'html'
@@ -36,8 +38,11 @@ class IndexView(BaseBrowseView):
     file_views = {'delete': FileDeleteView.as_view(),
                   None: FileView.as_view()}
 
+    dav_view = staticmethod(DAVView.as_view(data_directory=settings.DATA_DIRECTORY))
+
     @method_decorator(login_required)
     def dispatch(self, request, path):
+
         self.path = path
 
         # Make sure that directories have a trailing slash.
@@ -49,10 +54,13 @@ class IndexView(BaseBrowseView):
 
         views = self.directory_views if os.path.isdir(self.path_on_disk) else self.file_views
 
-        try:
-            view = views[request.REQUEST.get('action')]
-        except KeyError:
-            return self.bad_request_view(request, path)
+        if request.method.lower() in DAVView.http_method_names:
+            view = self.dav_view
+        else:
+            try:
+                view = views[request.REQUEST.get('action')]
+            except KeyError:
+                return self.bad_request_view(request, path)
 
         response = view(request, path)
 
