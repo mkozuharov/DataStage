@@ -30,7 +30,7 @@
 
 class TestConfig:
     
-    hostname         = "dataflow-vm1.oerc.ox.ac.uk"
+    hostname         = "datastage-test.bodleian.ox.ac.uk"
 
      
     cifssharename    = "data"
