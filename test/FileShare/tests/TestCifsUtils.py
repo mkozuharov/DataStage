@@ -40,7 +40,7 @@ from TestConfig import TestConfig
 
 def do_cifsMount(areaName, userName, userPass):
     #print "do_cifsMount: "+areaName+", "+userName+", "+userPass+", "+TestConfig.hostname
-    mountcommand = ( '/sbin/mount.cifs //%(host)s/%(share)s/%(area)s %(mountpt)s -o rw,user=%(user)s,password=%(pass)s,nounix,forcedirectio' %
+    mountcommand = ( 'sudo /sbin/mount.cifs //%(host)s/%(share)s/%(area)s %(mountpt)s -o rw,user=%(user)s,password=%(pass)s,nounix,forcedirectio' %
                      { 'host': TestConfig.hostname
                      , 'share': TestConfig.cifssharename
                      , 'area': areaName
@@ -56,7 +56,7 @@ def do_cifsMount(areaName, userName, userPass):
     return status
 
 def do_cifsUnmount():
-    os.system('/sbin/umount.cifs ' + TestConfig.cifsmountpoint)
+    os.system('sudo /sbin/umount ' + TestConfig.cifsmountpoint)
     return 
 
 def do_cifsCreateFile(fileName, createFileContent):

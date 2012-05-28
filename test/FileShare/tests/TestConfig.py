@@ -33,10 +33,10 @@ class TestConfig:
     hostname         = "datastage-test"
     httpport         = "8000"
      
-    cifssharename    = "data"
+    cifssharename    = "datastage"
     cifsmountpoint   = "mountdatastage"
     webdavmountpoint = "mountdatastagewebdav"
-    webdavbaseurl    = "http://"+hostname+":"+httpport+"/data/"
+    webdavbaseurl    = "http://"+hostname+":"+httpport+"/data"
     readmefile       = "DATASTAGE.README"
     readmetext       = "This directory is the root of the DATASTAGE shared file system.\n"
     userAname        = "TestUser1"
