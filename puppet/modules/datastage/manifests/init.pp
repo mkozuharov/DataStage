@@ -1,4 +1,4 @@
-module datastage {
+class datastage {
 	include supervisor
 
 	Exec { path => "/usr/bin:/usr/sbin/:/bin:/sbin" }
@@ -43,7 +43,7 @@ module datastage {
 
 	exec { "database-password":
 		command => "pwgen --secure 16 1 > ${password_file}",
-		creates => ${password_file},
+		creates => $password_file,
 	}
 
 	exec { "postgres-user":
