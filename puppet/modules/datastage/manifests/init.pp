@@ -47,7 +47,7 @@ module datastage {
 	}
 
 	exec { "postgres-user":
-		command => "sudo -u postgres psql ${database} -c "CREATE ROLE $SERVER_USER PASSWORD '`cat ${password_file}`' NOSUPERUSER NOCREATEDB NOCREATEROLE INHERIT LOGIN",
+		command => "sudo -u postgres psql ${database} -c \"CREATE ROLE $SERVER_USER PASSWORD '`cat ${password_file}`' NOSUPERUSER NOCREATEDB NOCREATEROLE INHERIT LOGIN\"",
 		require => Exec["database-password"],
 	}
 
@@ -107,7 +107,7 @@ module datastage {
 		
 		"uwsgi":
 			ensure => present,
-			command => "uwsgi --xml ${uwsgi_config_file},
+			command => "uwsgi --xml ${uwsgi_config_file}",
 			user => root,
 			group => root;
 
