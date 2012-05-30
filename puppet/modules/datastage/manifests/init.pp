@@ -77,8 +77,18 @@ module datastage {
 			group => $group_member;
 	}
 
-	package { ["uwsgi", "python-celery", "python-django-celery", "supervisor"] :
+	package { ["uwsgi", "python-celery", "python-django-celery", "supervisor",
+	           "openssh-server", "samba"] :
 		ensure => "installed"
+	}
+
+	service {
+		"sshd":
+			ensure => running,
+			require => Package["openssh-server"];
+		"samba":
+			ensure => running,
+			require => Package["samba"]
 	}
 
 	file { $uwsgi_config_file:
