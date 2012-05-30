@@ -1,1 +1,2 @@
 debian-conf/* /usr/share/dataflow-datastage/conf/
+puppet/* /usr/share/puppet/modules/datastage/
