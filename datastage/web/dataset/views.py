@@ -30,6 +30,7 @@ import httplib
 
 from django.contrib.formtools.wizard import FormWizard
 from django.http import Http404
+from django.utils.datastructures import SortedDict
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.utils.decorators import method_decorator
@@ -40,13 +41,14 @@ from django.utils.datastructures import MergeDict
 from django_conneg.views import HTMLView, JSONView, ErrorCatchingView
 from django_conneg.http import HttpResponseSeeOther
 import posix1e
-
+from datastage.dataset.sword2depositor import Sword2, SwordSlugRejected, SwordServiceError, SwordDepositError
 import datastage.util.datetime
 from datastage.config import settings
 from datastage.util.path import get_permissions
 from datastage.util.views import RedisView
 from datastage.web.dataset.models import DatasetSubmission, Repository, RepositoryUser
 from datastage.web.dataset import openers, forms
+
 from datastage.dataset import Dataset, SUBMISSION_QUEUE
 
 
@@ -116,10 +118,13 @@ class SubmitView(HTMLView, RedisView, ErrorCatchingView):
 
     def get(self, request):
         context = self.common(request)
+        form = context['form']
         #if context['dataset_submission'].status not in ('new', 'submitted', 'error'):
         #    return self.render(request, context, 'dataset/submitted')
         #if context['dataset_submission'].status in ('new', 'submitted', 'error'):
         #     return self.render(request, context, 'dataset/submitted')
+        #opener = openers.get_opener(form.instance.repository, request.user)
+        #form.instance.repository = dataset.obtain_silos(opener, repository)
         return self.render(request, context, 'dataset/submit')
     
     def post(self, request):
@@ -325,7 +330,107 @@ class SimpleCredentialsView(HTMLView):
         
         return HttpResponseSeeOther(cleaned_data['next'])
             
+            
+class SilosView(HTMLView):
 
+    def common(self, request):
+        path = request.REQUEST.get('path')
+        #num = request.REQUEST.get('num')
+        if not path:
+            raise Http404
+        path_parts = path.rstrip('/').split('/')
+        path_on_disk = os.path.normpath(os.path.join(settings.DATA_DIRECTORY, *path_parts))
+        try:
+            permissions = get_permissions(path_on_disk, request.user.username, check_prefixes=True)
+        except IOError, e:
+            if e.errno == errno.ENOENT:
+                raise Http404
+            elif e.errno == errno.EACCES:
+                raise PermissionDenied
+            raise
+        if posix1e.ACL_WRITE not in permissions:
+            raise  PermissionDenied
+
+        if 'id' in request.REQUEST:
+            dataset_submission = get_object_or_404(DatasetSubmission,
+                                                   id=request.REQUEST['id'],
+                                                   status='new',
+                                                   submitting_user=request.user)
+        else:
+            dataset_submission = DatasetSubmission(path_on_disk=path_on_disk,
+                                                   submitting_user=request.user)
+                                                           
+        if 'num' in request.REQUEST:           
+           dataset_submission = get_object_or_404(DatasetSubmission, id=num)       
+        
+        form = forms.DatasetSubmissionForm(request.POST or None, instance=dataset_submission)
+        
+        if 'num' in request.REQUEST:
+           return {'path': path,
+                   'tempform': form,
+                   'path': path,
+                   'path_on_disk': path_on_disk,
+                   'dataset_submission': dataset_submission,
+                   'num': num}
+        else:
+            return {'path': path,
+                        'tempform': form,
+                        'path': path,
+                        'path_on_disk': path_on_disk,
+                        'dataset_submission': dataset_submission
+                }
+                
+                
+    def post(self, request):
+         context = self.common(request)
+         form = context['tempform']
+         path = context['path']
+         path_on_disk = context['path_on_disk']
+         dataset_submission = context['dataset_submission']
+         try:
+             repo = get_object_or_404(Repository, id="2")
+             opener = openers.get_opener(repo, request.user)
+             #form.instance.silo = forms.ChoiceField(queryset=dataset.obtain_silos(opener, repository))
+             
+             
+             # if this is a sword2 repository, hand off the management of that to 
+             # the sword2 implementation
+             if repo.type == "sword2":
+               v_l.info("Using SWORDv2 depositor")
+               s = Sword2()
+               silos = s.get_silos(opener, repo)
+               SILO_CHOICES =  {}
+               for silo in silos:
+                    SILO_CHOICES.setdefault(silo.title,silo.title)
+               #return HttpResponseSeeOther( repr(SILO_CHOICES))
+               from django import forms
+               #form.instance.silo = forms.MultipleChoiceField(choices=SILO_CHOICES, widget=forms.Select)
+               form.instance.silo = SILO_CHOICES
+               form.instance.save()  # We have to save the form or the redirect will fail, FIXME: what are we saving here?
+               #return HttpResponseSeeOther( repr( s.get_silos(opener, repo)))
+               context = {'path': path,
+                        'form': form,
+                        'path': path,
+                        'path_on_disk': path_on_disk,
+                        'dataset_submission': dataset_submission
+                }
+               return self.render(request,context, 'dataset/submit')
+         except SwordServiceError as e:
+             raise
+         except openers.SimpleCredentialsRequired:
+            # FIXME: If we get this error we HAVE to save the form, so we must
+            # make sure that we undo any save operation if there is an error
+            # later on...
+            #url = '%s?%s' % (
+            #        reverse('dataset:simple-credentials'),
+            #        urllib.urlencode({'next': '%s?%s' % (request.path),
+            #                           'repository': 2}))
+            #return HttpResponseSeeOther(url)
+            #return self.render(request, context, 'dataset/simple-credentials')
+            #return HttpResponseSeeOther('http://192.168.2.204/dataset/silos/2')
+            return self.render(request,context, 'dataset/submit')
+           
+            
 class DatasetSubmissionView(HTMLView):
     def get(self, request, id):
         path = request.REQUEST.get('path')

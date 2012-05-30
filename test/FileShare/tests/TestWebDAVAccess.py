@@ -40,7 +40,9 @@ import base64
 import unittest
 from urlparse import urlparse
 
-sys.path.append("../..")
+sys.path.append("../../..")
+
+from MiscLib import TestUtils
 
 readmetext="This directory is the root of the DATASTAGE shared file system.\n"
 mountpoint="mountdatastagewebdav"
@@ -234,7 +236,7 @@ class TestWebDAVAccess(unittest.TestCase):
 
 # Assemble test suite
 
-from MiscLib import TestUtils
+
 
 def getTestSuite(select="unit"):
     """

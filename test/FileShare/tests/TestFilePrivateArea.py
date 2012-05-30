@@ -37,6 +37,10 @@ import subprocess
 
 sys.path.append("../..")
 
+# Assemble test suite
+
+from MiscLib import TestUtils
+
 from TestConfig import TestConfig
 
 import TestCifsUtils
@@ -609,9 +613,6 @@ class TestFilePrivateArea(unittest.TestCase):
     def testPending(self):
         assert (False), "No pending test"
 
-# Assemble test suite
-
-from MiscLib import TestUtils
 
 def getTestSuite(select="unit"):
     """

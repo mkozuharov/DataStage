@@ -88,6 +88,7 @@ class RepositoryUser(models.Model):
 class DatasetSubmission(models.Model):
     title = models.TextField()
     description = models.TextField()
+    silo = models.TextField()
     identifier = models.TextField()
     path_on_disk = models.TextField()
     submitting_user = models.ForeignKey(User)

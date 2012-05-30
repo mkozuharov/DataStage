@@ -41,23 +41,32 @@
     {% else %}
         <h2>New submission</h2>
     {% endif %}
-    <form method="post" action="">{% csrf_token %}
 
-
-    <table>
-        <tr>
-          <td colspan="2"><a href="http://{{ hostname }}/admin/dataset/repository/add/">Add a new repository</a></td>
-        </tr>
-    </table>
-    <table>
-      {{ form }}
-
-      <tfoot>
-        <tr>
-          <td colspan="2"><input type="submit" name="submit" value="Submit"/></td>
-        </tr>
-      </tfoot>
-    </table>
+    {% if num %}
+       <form  method="post" action="/dataset/silos/?path={{ path }}&num={{ num }}"  enctype="multipart/form-data" > {% csrf_token %}
+	{% else %}
+	   <form  method="post" action="/dataset/silos/?path={{ path }}"  enctype="multipart/form-data" > {% csrf_token %}	
+	{% endif %}
+	    <table>
+	        <tr>
+	          <td colspan="2"><a href="http://{{ hostname }}/admin/dataset/repository/add/">Add a new repository</a></td>
+	        </tr>
+	        <tr>
+	          <td colspan="2"><input type="submit" name="submit" value="Populate silos"/></td>
+	        </tr>
+	    </table>
+	</form>
+	    
+	<form method="post" action="">{% csrf_token %}
+	    <table>
+	      {{ form }}
+	      <tfoot>
+	        <tr>
+	          <td colspan="2"><input type="submit" name="submit" value="Submit"/></td>
+	        </tr>
+	      </tfoot>
+	    </table>
+	</form>
   </section>
 
 

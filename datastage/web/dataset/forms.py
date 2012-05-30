@@ -24,7 +24,6 @@
 # ---------------------------------------------------------------------
 
 from django import forms
-
 from datastage.web.dataset.models import Repository, DatasetSubmission
 
 DATABANK_CHOICES = (
@@ -38,10 +37,14 @@ class StageOneForm(forms.Form):
 class DatasetSubmissionForm(forms.ModelForm):
     identifier = forms.CharField()
     title = forms.CharField()
-
+    silo =  forms.ModelChoiceField(queryset=Repository.objects.all())
+    #silo = forms.ChoiceField(choices=[(x, x) for x in range(1,5)]
+    #opener = openers.get_opener(repository, request.user)
+    #silo = forms.ChoiceField(queryset=dataset.obtain_silos(opener, repository))
+    
     class Meta:
         model = DatasetSubmission
-        fields = ('repository', 'identifier', 'title', 'description')
+        fields = ('repository','silo','identifier', 'title', 'description')
     
 class SimpleCredentialsForm(forms.Form):
     username = forms.CharField()

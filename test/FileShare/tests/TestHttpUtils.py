@@ -84,6 +84,9 @@ def do_httpReadFile(areaName, userName, userPass, fileName):
     authhandler = do_httpAuthenticationHandler(userName, userPass)
     opener = urllib2.build_opener(authhandler)
     urllib2.install_opener(opener)       
+    logger.debug("user %s pass %s"%(userName, userPass))
+    logger.debug("urlopen %s"%(TestConfig.webdavbaseurl+'/'+ areaName +'/' + fileName))
+    phan=urllib2.urlopen(TestConfig.webloginurl)
     phan=urllib2.urlopen(TestConfig.webdavbaseurl+'/'+ areaName +'/' + fileName)
     readFileContent = phan.read()
     return readFileContent

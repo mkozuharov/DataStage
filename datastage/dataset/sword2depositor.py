@@ -17,6 +17,44 @@ class SwordServiceError(Exception):
         self.msg = msg
 
 class Sword2(object):
+
+    def get_silos(self, opener, repository):
+        logger.info("Carrying out get_silos for a repository selected")
+        
+        # verify that we can get a service document, and that there
+        # is at least one silo and that we can authenticate
+        
+        if repository.sword2_sd_url is None:
+            raise SwordServiceError("No sword2 service-document URL for repository configuration")
+            
+        # get the service document (for which we must be authenticated)
+        conn = Connection(repository.sword2_sd_url, error_response_raises_exceptions=False, http_impl=UrlLib2Layer(opener))
+        conn.get_service_document()
+        
+        # we require there to be at least one workspace
+        if conn.sd is None:
+            raise SwordServiceError("did not successfully retrieve a service document")
+        
+        if conn.sd.workspaces is None:
+            raise SwordServiceError("no workspaces defined in service document")
+        
+        if len(conn.sd.workspaces) == 0:
+            raise SwordServiceError("no workspaces defined in service document")
+        
+        workspace = conn.sd.workspaces[0][1]
+        
+        # we require there to be at least one collection
+        if len(workspace) == 0:
+            raise SwordServiceError("no collections defined in workspace")
+            
+        # FIXME: we don't currently have a mechanism to make decisions about
+        # which collection to put stuff in, so we just put stuff in the first
+        # one for the time being
+        #col = workspace[0]
+        
+        return workspace
+        
+        
     def preflight_submission(self, dataset, opener, repository):
         logger.info("Carrying out pre-flight submission")
         
