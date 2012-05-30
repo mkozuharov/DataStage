@@ -7,3 +7,6 @@
 [submodule "jquery-treeview"]
 	path = jquery-treeview
 	url = git://github.com/jzaefferer/jquery-treeview.git
+[submodule "puppet/modules/supervisor"]
+	path = puppet/modules/supervisor
+	url = git://github.com/martinfilliau/puppet-module-supervisor.git

@@ -1,4 +1,6 @@
 module datastage {
+	include supervisor
+
 	Exec { path => "/usr/bin:/usr/sbin/:/bin:/sbin" }
 
 	$user = "datastage"
@@ -6,9 +8,9 @@ module datastage {
 	$password_file = "/var/lib/dataflow-datastage/database-password"
 	$data_directory = "/srv/datastage"
 	$django_settings_module = "datastage.web.settings"
-	
+
 	$uwsgi_config_file = "/usr/share/dataflow-datastage/conf/uwsgi-config.xml"
-	
+
 	$group_leader = "datastage-leader"
 	$group_collab = "datastage-collaborator"
 	$group_member = "datastage-member"
@@ -20,7 +22,7 @@ module datastage {
 		home => $home,
 		managehome => true
 	}
-	
+
 	group { [$group_leader, $group_collab, $group_member, $group_orphan] :
 		ensure => present
 	}
@@ -38,24 +40,24 @@ module datastage {
 		command => "django-admin syncdb --settings=datastage.web.settings",
 		require => Exec["createdb"],
 	}
-	
+
 	exec { "database-password":
 		command => "pwgen --secure 16 1 > ${password_file}",
 		creates => ${password_file},
 	}
-	
+
 	exec { "postgres-user":
 		command => "sudo -u postgres psql ${database} -c "CREATE ROLE $SERVER_USER PASSWORD '`cat ${password_file}`' NOSUPERUSER NOCREATEDB NOCREATEROLE INHERIT LOGIN",
 		require => Exec["database-password"],
 	}
-	
+
 	# Allows us to create a tree without having to list all the parent
 	# directories
 	exec { "data-directory":
 		command => "mkdir -p ${data_directory}",
 		creates => $data_directory,
 	}
-	
+
 	file {
 		$data_directory:
 			ensure => directory,
@@ -74,7 +76,11 @@ module datastage {
 			user => $user,
 			group => $group_member;
 	}
-	
+
+	package { ["uwsgi", "python-celery", "python-django-celery", "supervisor"] :
+		ensure => "installed"
+	}
+
 	file { $uwsgi_config_file:
 		ensure => file,
 		content => template("datastage/uwsgi-config.xml"),
@@ -91,7 +97,9 @@ module datastage {
 		
 		"uwsgi":
 			ensure => present,
-			command => "uwsgi --http :80 --
+			command => "uwsgi --xml ${uwsgi_config_file},
+			user => root,
+			group => root;
 
 # We're not using celerybeat (yet)
 #		"celerybeat":
