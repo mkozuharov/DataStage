@@ -3,8 +3,7 @@ Section: python
 Priority: extra
 Maintainer: DataFlow <jisc.dataflow@gmail.com>
 Build-Depends: debhelper (>= 7.0.50~),
-               python-all,
-               python-setuptools
+               python-all
 Standards-Version: 3.9.2
 Vcs-Git: git://github.com/dataflow/DataStage.git
 Homepage: https://github.com/dataflow/DataStage
