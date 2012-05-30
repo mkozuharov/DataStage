@@ -77,7 +77,7 @@ class datastage {
 			group => $group_member;
 	}
 
-	package { ["uwsgi", "python-celery", "python-django-celery", "supervisor",
+	package { ["uwsgi", "python-celery", "python-django-celery",
 	           "openssh-server", "samba"] :
 		ensure => "installed"
 	}

@@ -2,7 +2,7 @@
   <http>0.0.0.0:80</socket>
   <master/>
   <processes>4</processes>
-  <env>DJANGO_SETTINGS_MODULE=<%= django_settings_modue %></env>
+  <env>DJANGO_SETTINGS_MODULE=<%= django_settings_module %></env>
   <module>django.core.handlers.wsgi:WSGIHandler()</module>
   <static-map>/static=/usr/share/dataflow-datastage/static/</static-map>
 </uwsgi>
