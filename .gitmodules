@@ -10,3 +10,9 @@
 [submodule "puppet/modules/supervisor"]
 	path = puppet/modules/supervisor
 	url = git://github.com/martinfilliau/puppet-module-supervisor.git
+[submodule "puppet/modules/postgresql"]
+	path = puppet/modules/postgresql
+	url = git://github.com/camptocamp/puppet-postgresql
+[submodule "puppet/modules/apache2"]
+	path = puppet/modules/apache2
+	url = git://github.com/wesabe/puppet-apache2.git

@@ -146,7 +146,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_conneg',
-    'django_longliving',
+    'djcelery',
     'datastage.web.auth',
     'datastage.web.core',
     'datastage.web.browse',
@@ -194,3 +194,12 @@ AUTHENTICATION_BACKENDS = (
     'dpam.backends.PAMBackend',
 )
 
+BROKER_URL = "redis://localhost:6379/1"
+CELERY_RESULT_BACKEND = "redis"
+CELERY_REDIS_HOST = "localhost"
+CELERY_REDIS_PORT = 6379
+CELERY_REDIS_DB = 1
+CELERY_IMPORTS = ()
+
+# We don't use celerybeat yet.
+#CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
