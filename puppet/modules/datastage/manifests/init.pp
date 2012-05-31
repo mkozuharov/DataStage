@@ -1,5 +1,6 @@
 class datastage {
 	include supervisor
+	include postgresql
 
 	Exec { path => "/usr/bin:/usr/sbin/:/bin:/sbin" }
 
@@ -8,6 +9,7 @@ class datastage {
 	$password_file = "/var/lib/dataflow-datastage/database-password"
 	$data_directory = "/srv/datastage"
 	$django_settings_module = "datastage.web.settings"
+	$database = "datastage"
 
 	$uwsgi_config_file = "/usr/share/dataflow-datastage/conf/uwsgi-config.xml"
 
@@ -31,14 +33,9 @@ class datastage {
 		command => "django-admin collectstatic --settings=${django_settings_module} --noinput --link",
 	}
 
-	exec { "createdb":
-		command => "sudo -u postgres createdb ${database} -O ${user}",
-		require => [User[$user], Exec["postgres-user"]],
-	}
-
 	exec { "syncdb":
-		command => "django-admin syncdb --settings=datastage.web.settings",
-		require => Exec["createdb"],
+		command => "sudo -u ${user} django-admin syncdb --settings=datastage.web.settings",
+		require => [Postgresql::Database[$database], Exec["postgres-user-password"]],
 	}
 
 	exec { "database-password":
@@ -46,9 +43,19 @@ class datastage {
 		creates => $password_file,
 	}
 
-	exec { "postgres-user":
-		command => "sudo -u postgres psql ${database} -c \"CREATE ROLE $SERVER_USER PASSWORD '`cat ${password_file}`' NOSUPERUSER NOCREATEDB NOCREATEROLE INHERIT LOGIN\"",
+	postgresql::user { $user:
+		ensure => present,
+	}
+
+	postgresql::database { $database:
+		ensure => present,
+		owner => $user,
+	}
+
+	exec { "postgres-user-password":
+		command => "sudo -u postgres psql -c \"ALTER ROLE ${user} PASSWORD '`cat ${password_file}`'\"",
 		require => Exec["database-password"],
+		subscribe => Postgresql::User[$user],
 	}
 
 	# Allows us to create a tree without having to list all the parent
@@ -65,36 +72,39 @@ class datastage {
 			group => $user;
 		"${data_directory}/private":
 			ensure => directory,
-			user => $user,
+			owner => $user,
 			group => $group_leader;
 		"${data_directory}/collab":
 			ensure => directory,
-			user => $user,
+			owner => $user,
 			group => $group_collab;
 		"${data_directory}/shared":
 			ensure => directory,
-			user => $user,
+			owner => $user,
 			group => $group_member;
 	}
 
 	package { ["uwsgi", "python-celery", "python-django-celery",
-	           "openssh-server", "samba"] :
+	           "openssh-server", "samba", "redis-server"] :
 		ensure => "installed"
 	}
 
 	service {
-		"sshd":
+		"ssh":
 			ensure => running,
 			require => Package["openssh-server"];
-		"samba":
+		"smbd":
 			ensure => running,
-			require => Package["samba"]
+			require => Package["samba"];
+		"redis-server":
+			ensure => running,
+			require => Package["redis-server"];
 	}
 
 	file { $uwsgi_config_file:
 		ensure => file,
 		content => template("datastage/uwsgi-config.xml"),
-		user => $user,
+		owner => $user,
 		group => $group;
 	}
 
