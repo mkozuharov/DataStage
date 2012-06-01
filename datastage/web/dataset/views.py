@@ -170,7 +170,7 @@ class SubmitView(HTMLView, RedisView, ErrorCatchingView):
 	            form.errors['identifier'] = ErrorList([unicode(e)])
 	            return self.render(request, context, 'dataset/submit')
 	        except Exception as e:
-	            v_l.info("General failure during submission")
+	            v_l.debug("General failure during submission")
 	            form.errors['repository'] = ErrorList(["Failed to connect to repository for initial deposit; please try again later"])
 	            return self.render(request, context, 'dataset/submit')	 
 
@@ -284,7 +284,7 @@ class PreviousSubmissionsView(HTMLView, RedisView, ErrorCatchingView):
             form.errors['identifier'] = ErrorList([unicode(e)])
             return self.render(request, context, 'dataset/submit')
         except Exception as e:
-            v_l.info("General failure during submission")
+            v_l.debug("General failure during submission")
             form.errors['repository'] = ErrorList(["Failed to connect to repository for initial deposit; please try again later"])
             return self.render(request, context, 'dataset/submit')	 
 
@@ -332,10 +332,16 @@ class SimpleCredentialsView(HTMLView):
             
             
 class SilosView(HTMLView):
+    #,ErrorCatchingView):
+    #error_template_names = MergeDict({httplib.FORBIDDEN: 'dataset/403'}, ErrorCatchingView.error_template_names)
+    @method_decorator(login_required)
+    def dispatch(self, request):
+        return super(SilosView, self).dispatch(request)
 
     def common(self, request):
-        path = request.REQUEST.get('path')
-        #num = request.REQUEST.get('num')
+        if 'path' in request.REQUEST:
+            path = request.REQUEST.get('path')
+        ##?path={{ path }}&num={{ num }}
         if not path:
             raise Http404
         path_parts = path.rstrip('/').split('/')
@@ -344,6 +350,7 @@ class SilosView(HTMLView):
             permissions = get_permissions(path_on_disk, request.user.username, check_prefixes=True)
         except IOError, e:
             if e.errno == errno.ENOENT:
+                v_l.info("2222")
                 raise Http404
             elif e.errno == errno.EACCES:
                 raise PermissionDenied
@@ -360,18 +367,20 @@ class SilosView(HTMLView):
             dataset_submission = DatasetSubmission(path_on_disk=path_on_disk,
                                                    submitting_user=request.user)
                                                            
-        if 'num' in request.REQUEST:           
-           dataset_submission = get_object_or_404(DatasetSubmission, id=num)       
-        
+        if 'num' in request.REQUEST:       
+           number = request.REQUEST.get('num')    
+           dataset_submission = get_object_or_404(DatasetSubmission, id=number)       
+           
         form = forms.DatasetSubmissionForm(request.POST or None, instance=dataset_submission)
         
         if 'num' in request.REQUEST:
+           number = request.REQUEST.get('num')   
            return {'path': path,
                    'tempform': form,
                    'path': path,
                    'path_on_disk': path_on_disk,
                    'dataset_submission': dataset_submission,
-                   'num': num}
+                   'num': number}
         else:
             return {'path': path,
                         'tempform': form,
@@ -381,22 +390,25 @@ class SilosView(HTMLView):
                 }
                 
                 
-    def post(self, request):
+    def get(self, request):
          context = self.common(request)
          form = context['tempform']
          path = context['path']
          path_on_disk = context['path_on_disk']
          dataset_submission = context['dataset_submission']
          try:
-             repo = get_object_or_404(Repository, id="2")
+             cleaned_data = form.cleaned_data
+             repository = cleaned_data['repository']
+             repo = get_object_or_404(Repository, id=repository)
+
              opener = openers.get_opener(repo, request.user)
-             #form.instance.silo = forms.ChoiceField(queryset=dataset.obtain_silos(opener, repository))
+             form.instance.silo = forms.ChoiceField(queryset=dataset.obtain_silos(opener, repository))
              
              
              # if this is a sword2 repository, hand off the management of that to 
              # the sword2 implementation
              if repo.type == "sword2":
-               v_l.info("Using SWORDv2 depositor")
+               v_l.debug("Using SWORDv2 depositor")
                s = Sword2()
                silos = s.get_silos(opener, repo)
                SILO_CHOICES =  {}
