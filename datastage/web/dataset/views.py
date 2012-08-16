@@ -358,6 +358,7 @@ class SilosView(HTMLView):
         if posix1e.ACL_WRITE not in permissions:
             raise  PermissionDenied
 
+        dataset_submission = None
         if 'id' in request.REQUEST:
             dataset_submission = get_object_or_404(DatasetSubmission,
                                                    id=request.REQUEST['id'],
@@ -390,19 +391,35 @@ class SilosView(HTMLView):
                 }
                 
                 
-    def get(self, request):
+    def post(self, request):
          context = self.common(request)
          form = context['tempform']
          path = context['path']
          path_on_disk = context['path_on_disk']
-         dataset_submission = context['dataset_submission']
+         submission = context['dataset_submission']
+         repo = form['repository']
+         #repo = get_object_or_404(Repository, name=submission.repository.name) 
+         #repo = form.repository
+         #return HttpResponseSeeOther( repr(repo))
          try:
-             cleaned_data = form.cleaned_data
-             repository = cleaned_data['repository']
-             repo = get_object_or_404(Repository, id=repository)
-
+             f = open('/tmp/debug.log', 'a')
+             f.write('Before repo')
+             #f.write("%s, %s"%('in num, path_on_disk))
+             #f.write("%s, %s"%(path_parts, path_on_disk))
+             #f.write("%s, %s"%('username',  request.user.username))
+             f.write("%s, %s"%('form',  repr(form)))
+             f.close()
+             #bha
+             #cleaned_data = form.cleaned_data
+             #repo = form.instance.repository
+             #form = context['form']
+             repo = get_object_or_404(Repository, id="1")
+             #repo = submission.repository
+             f = open('/tmp/debug.log', 'a')
+             f.write('After repo')
+             f.close()
              opener = openers.get_opener(repo, request.user)
-             form.instance.silo = forms.ChoiceField(queryset=dataset.obtain_silos(opener, repository))
+             #form.instance.silo = forms.ChoiceField(queryset=dataset.obtain_silos(opener, repository))
              
              
              # if this is a sword2 repository, hand off the management of that to 
@@ -411,21 +428,44 @@ class SilosView(HTMLView):
                v_l.debug("Using SWORDv2 depositor")
                s = Sword2()
                silos = s.get_silos(opener, repo)
-               SILO_CHOICES =  {}
+               f = open('/tmp/silos.log', 'a')
+               f.write(repr(silos))
+               f.close()
+               print silos
+               #SILO_CHOICES =  [('sandbox','sandbox'), ('datastage','datastage'), ('softwarestore','softwarestore')]
+               #SILO_CHOICES = {'sandbox', 'datastage', 'softwarestore'}
+               SILO_CHOICES = []
                for silo in silos:
-                    SILO_CHOICES.setdefault(silo.title,silo.title)
+                    SILO_CHOICES.append(silo.title)
+               SILO_CHOICES.sort()
                #return HttpResponseSeeOther( repr(SILO_CHOICES))
-               from django import forms
-               #form.instance.silo = forms.MultipleChoiceField(choices=SILO_CHOICES, widget=forms.Select)
-               form.instance.silo = SILO_CHOICES
+               #return HttpResponseSeeOther( repr(silos))
+               #from django import forms
+               #form.instance.silo = forms.MultipleChoiceField(choices=SILO_CHOICES)
+               form.instance.repository = repo 
+               #form.instance.silo = SILO_CHOICES
+               #form.instance.silo = forms.ModelChoiceField(queryset=SILO_CHOICES)
+               #form.silo = forms.ModelChoiceField(queryset=SILO_CHOICES)
                form.instance.save()  # We have to save the form or the redirect will fail, FIXME: what are we saving here?
+               #return HttpResponseSeeOther( repr(SILO_CHOICES))
                #return HttpResponseSeeOther( repr( s.get_silos(opener, repo)))
-               context = {'path': path,
-                        'form': form,
-                        'path': path,
-                        'path_on_disk': path_on_disk,
-                        'dataset_submission': dataset_submission
-                }
+               if 'num' in request.REQUEST:
+                  number = request.REQUEST.get('num')   
+                  context ={ 'path': path,
+                           'form': form,
+                           'silos': SILO_CHOICES,
+                           'path_on_disk': path_on_disk,
+                           'dataset_submission': submission,
+                           'num': number}
+               else:
+                  context ={'path': path,
+                            'form': form,
+                            'silos': SILO_CHOICES,
+                            'path': path,
+                            'path_on_disk': path_on_disk,
+                            'dataset_submission': submission}
+                        
+               #return HttpResponseSeeOther( repr( form.instance.silo))
                return self.render(request,context, 'dataset/submit')
          except SwordServiceError as e:
              raise

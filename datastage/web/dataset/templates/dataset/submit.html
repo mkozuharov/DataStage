@@ -41,27 +41,64 @@
     {% else %}
         <h2>New submission</h2>
     {% endif %}
+<script language="Javascript">
 
+function OnButton1()
+{
+    document.Form1.action = "/dataset/silos/?path={{ path }}&num={{ num }}"
+    document.Form1.submit();             // Submit the page
+    return true;
+}
+
+function OnButton2()
+{
+    document.Form1.action = "/dataset/silos/?path={{ path }}"
+    document.Form1.submit();             // Submit the page
+    return true;
+}
+function OnButton3()
+{
+    document.Form1.action = ""
+    document.Form1.submit();             // Submit the page
+    return true;
+}
+
+</script>
+<noscript>You need Javascript enabled for this to work</noscript>
+	<form method="post" name="Form1" action="">{% csrf_token %}
 	    <table>
 	        <tr>
 	          <td colspan="2"><a href="http://{{ hostname }}/admin/dataset/repository/add/">Add a new repository</a></td>
 	        </tr>
 	        <tr>
 	           {% if num %}
-	                 <a href="/dataset/silos/?path={{ path }}&num={{ num }}" >Populate silos </a>
+				     <!-- <a href="/dataset/silos/?path={{ path }}&num={{ num }}" >Populate silos </a> -->
+				     !-- <input type="submit" name="submit" value="Submit"/> -->
+		          <input type="button" value="Populate silos" name="populatesilos" onclick="return OnButton1();">
                {% else %}
-	                 <a href="/dataset/silos/?path={{ path }}" >Populate silos </a>
+	                 <!--<a href="/dataset/silos/?path={{ path }}" >Populate silos </a>-->
+	                 <input type="button" value="Populate silos" name="populatesilos" onclick="return OnButton2();">
+	           {% endif %}
+	           {% if silos %}
+		          <select>
+		              {% for silo in silos %}
+					    <option value={{silo}}>{{silo}}</option>
+				      {% endfor %}
+				  </select> 
 	           {% endif %}
 	        </tr>
 	    </table>
-	</form>
+
 	    
-	<form method="post" action="">{% csrf_token %}
+
 	    <table>
 	      {{ form }}
 	      <tfoot>
 	        <tr>
-	          <td colspan="2"><input type="submit" name="submit" value="Submit"/></td>
+	          <td colspan="2">
+		          <!-- <input type="submit" name="submit" value="Submit"/> -->
+		          <input type="button" value="Submit" name="submitdata" onclick="return OnButton3();">
+	          </td>
 	        </tr>
 	      </tfoot>
 	    </table>
