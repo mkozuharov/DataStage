@@ -33,6 +33,7 @@ import unittest
 import subprocess
 import re,zipfile
 import time
+import uuid
 
 from sword2 import Connection, HttpLayer, HttpResponse, UrlLib2Layer, Entry
 import urllib2
@@ -55,9 +56,9 @@ class TestDatasetSubmission(unittest.TestCase):
     def setUp(self):
         self.opener = None
         self.username="admin" 
-        self.password="test"
-        self.repository_URL = "http://192.168.2.212/"
-        self.sword2_sd_url = "http://192.168.2.212/swordv2/service-document/"      
+        self.password="1779admin"
+        self.repository_URL = "http://databank-test/"
+        self.sword2_sd_url = "http://databank-test/swordv2/service-document/"      
         self.dataset_identifier="TestDatasetSubmission"  
         self.retry_limit=3
         self.retry_delay=2
@@ -112,16 +113,18 @@ class TestDatasetSubmission(unittest.TestCase):
         workspace = conn.sd.workspaces[0][1]
         
         # we require there to be at least one collection
-        self.assertNotEqual(len(workspace))
+        self.assertNotEqual(len(workspace),0)
         col = workspace[0]
         
-       
-        e = Entry(id=dataset.identifier, title=dataset.title, dcterms_abstract=dataset.description)
-        receipt = conn.create(col_iri=col.href, metadata_entry=e, suggested_identifier=dataset_identifier)
+
+        testid = "testid_"+str(uuid.uuid4())
+
+        e = Entry(id=testid, title="test title", dcterms_abstract="test description")
+        receipt = conn.create(col_iri=col.href, metadata_entry=e, suggested_identifier=testid)
         
         self.assertIsNotNone(receipt)
-        self.assertEquals(receipt.code,200)
-        return
+        self.assertEquals(receipt.code,201)
+        return receipt.location
         
     def complete_submission(self,edit_uri):
         opener = self.get_opener()
@@ -172,7 +175,7 @@ class TestDatasetSubmission(unittest.TestCase):
                             packaging='http://dataflow.ox.ac.uk/package/DataBankBagIt')
         
         self.assertIsNotNone(new_receipt)
-        self.assertEquals(new_receipt.code,200)            
+        self.assertEquals(new_receipt.code,204)            
         return
     
     def testDatasetSubmission(self):
