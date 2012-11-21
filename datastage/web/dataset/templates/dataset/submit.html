@@ -57,42 +57,78 @@ function OnButton2()
     return true;
 }
 function OnButton3()
-{
-    document.Form1.action = ""
+{   {% if num %}
+    	document.Form1.action = "/dataset/submit/?path={{ path }}&num={{ num }}"
+    {% else %}
+    	document.Form1.action = "/dataset/submit/?path={{ path }}"
+    {% endif %}
+    document.Form1.submit();             // Submit the page
+    return true;
+}
+function OnButton4()
+{   {% if num %}
+    	document.Form1.action = "/dataset/submit/?path={{ path }}&num={{ num }}&changerepo=True"
+    {% else %}
+    	document.Form1.action = "/dataset/submit/?path={{ path }}&changerepo=True"
+    {% endif %}
     document.Form1.submit();             // Submit the page
     return true;
 }
 
 </script>
 <noscript>You need Javascript enabled for this to work</noscript>
-	<form method="post" name="Form1" action="">{% csrf_token %}
-	    <table>
+	<form method="post" name="Form1" action="">{% csrf_token %}   
+       <h3> Submission to repository:   {{ defaultrepository.name }} </h3>
+       <table>
 	        <tr>
 	          <td colspan="2"><a href="http://{{ hostname }}/admin/dataset/repository/add/">Add a new repository</a></td>
+
+	          <td colspan="2"><a href="http://{{ hostname }}/admin/dataset/defaultrepository/">Add a default repository</a></td>
 	        </tr>
-	        <tr>
-	           {% if num %}
-				     <!-- <a href="/dataset/silos/?path={{ path }}&num={{ num }}" >Populate silos </a> -->
-				     !-- <input type="submit" name="submit" value="Submit"/> -->
-		          <input type="button" value="Populate silos" name="populatesilos" onclick="return OnButton1();">
+	   </table>
+	        
+	    <table>
+	    <!-- 
+	      <tr>
+	         {% if num %}
+		          <input type="button" value="Populate silos" name="populatesilos" onclick="return OnButton1();"/>
                {% else %}
-	                 <!--<a href="/dataset/silos/?path={{ path }}" >Populate silos </a>-->
-	                 <input type="button" value="Populate silos" name="populatesilos" onclick="return OnButton2();">
-	           {% endif %}
-	           {% if silos %}
-		          <select>
+	                 <input type="button" value="Populate silos" name="populatesilos" onclick="return OnButton2();"/>
+	         {% endif %} 
+	      </tr> 
+	     -->
+	         <tr>
+	          <th> SILO </th>
+	          <td> {% if silos %}
+		          <select id="reposilo" name="reposilo">
 		              {% for silo in silos %}
 					    <option value={{silo}}>{{silo}}</option>
 				      {% endfor %}
 				  </select> 
-	           {% endif %}
+				  {% endif %}
+	          </td> 
 	        </tr>
-	    </table>
-
 	    
-
-	    <table>
-	      {{ form }}
+	       <tr>
+            <th> IDENTIFIER </th>
+	          <td> 
+	             {{form.identifier}}
+	          </td> 
+	        </tr>
+	    
+	       <tr>
+            <th> TITLE </th>
+	          <td> 
+	             {{form.title}}
+	          </td> 
+	        </tr>
+	        
+	        <tr>
+            <th> DESCRIPTION </th>
+	          <td> 
+	             {{form.description}}
+	          </td> 
+	        </tr>
 	      <tfoot>
 	        <tr>
 	          <td colspan="2">
@@ -102,9 +138,29 @@ function OnButton3()
 	        </tr>
 	      </tfoot>
 	    </table>
-	</form>
+	<!-- </form>
   </section>
 
+<section> -->
+<form method="post" name="Form2" action="">{% csrf_token %}   
+       <h3>Change Repository</h3>
+       <table>
+	        <tr>
+            <th> REPOSITORY </th>
+	          <td> 
+	             {{form.repository}}
+	          </td> 
+	        </tr>
+	        <tr>
+	          <td colspan="2">
+		          <!-- <input type="submit" name="Change Repository" value="Submit"/> -->
+		          <input type="button" value="Submit" name="changerepo" onclick="return OnButton4();">
+	          </td>
+	        </tr>
+	   </table>
+</form>	   
+</form>
+</section>
 
 </article>
 

@@ -19,44 +19,53 @@ class SwordServiceError(Exception):
 class Sword2(object):
 
     def get_silos(self, opener, repository):
-        logger.info("Carrying out get_silos for a repository selected")
+        logger.debug("Carrying out get_silos for a repository selected")
         
         # verify that we can get a service document, and that there
         # is at least one silo and that we can authenticate
         
         if repository.sword2_sd_url is None:
+            logger.debug("No sword2 service-document URL for repository configuration : ")
+            logger.debug(repr(repository.sword2_sd_url))
             raise SwordServiceError("No sword2 service-document URL for repository configuration")
-            
+        
+        logger.debug("formulating a connection object for sword repo with url : " + repository.sword2_sd_url )   
         # get the service document (for which we must be authenticated)
         conn = Connection(repository.sword2_sd_url, error_response_raises_exceptions=False, http_impl=UrlLib2Layer(opener))
+        logger.debug("before getting service document : ")   
         conn.get_service_document()
-        
+        logger.debug("Got the service document")
         # we require there to be at least one workspace
         if conn.sd is None:
+            logger.debug("did not successfully retrieve a service document")
             raise SwordServiceError("did not successfully retrieve a service document")
         
+        
         if conn.sd.workspaces is None:
+            logger.debug("no workspaces defined in service document")
             raise SwordServiceError("no workspaces defined in service document")
         
         if len(conn.sd.workspaces) == 0:
+            logger.debug("no workspaces defined in service document")
             raise SwordServiceError("no workspaces defined in service document")
         
         workspace = conn.sd.workspaces[0][1]
         
         # we require there to be at least one collection
         if len(workspace) == 0:
+            logger.debug("no collections defined in workspace")
             raise SwordServiceError("no collections defined in workspace")
             
         # FIXME: we don't currently have a mechanism to make decisions about
         # which collection to put stuff in, so we just put stuff in the first
         # one for the time being
         #col = workspace[0]
-        
+        logger.debug("Finished with get_silos for a repository selected")
         return workspace
         
         
-    def preflight_submission(self, dataset, opener, repository):
-        logger.info("Carrying out pre-flight submission")
+    def preflight_submission(self, dataset, opener, repository, silo ):
+        logger.debug("Carrying out pre-flight submission")
         
         # verify that we can get a service document, and that there
         # is at least one silo and that we can authenticate
@@ -88,15 +97,18 @@ class Sword2(object):
         # which collection to put stuff in, so we just put stuff in the first
         # one for the time being
         col = workspace[0]
-        
+        silohref = repository.homepage + "swordv2/silo/" + silo
+
         # assemble the entry ready for deposit, using the basic metadata
         # FIXME: is there anything further we need to do about the metadata here?
         e = Entry(id=dataset.identifier, title=dataset.title, dcterms_abstract=dataset.description)
         
         # create the item using the metadata-only approach (suppress errors along the way,
         # we'll check for them below)
-        receipt = conn.create(col_iri=col.href, metadata_entry=e, suggested_identifier=dataset.identifier)
-        
+        #receipt = conn.create(col_iri=col.href, metadata_entry=e, suggested_identifier=dataset.identifier)
+        logger.debug( "Deposit is being created" )
+        receipt = conn.create(col_iri=silohref, metadata_entry=e, suggested_identifier=dataset.identifier)
+        logger.debug( "Deposit created" )
         # check for errors
         if receipt.code >= 400:
             # this is an error
@@ -105,16 +117,31 @@ class Sword2(object):
                 raise SwordSlugRejected()
             raise SwordDepositError(receipt)
         
-        logger.info("Deposit carried out to: " + receipt.location)
+        logger.debug("Deposit carried out to: " + receipt.location)
         
         return receipt.location
         
+    def update_status(self, dataset_submission,status):
+        dataset_submission.status = status
+        dataset_submission.save()
+
+    # called from longliving
     def complete_submission(self, dataset, opener, dataset_submission, filename, retry_limit=3, retry_delay=2):
-        logger.info("Carrying out complete submission")
-        
+        logger.debug("Carrying out complete submission")
         # create a connection
         repository = dataset_submission.repository
         conn = Connection(repository.sword2_sd_url, error_response_raises_exceptions=False, http_impl=UrlLib2Layer(opener))
+        conn.get_service_document()
+        
+        # we require there to be at least one workspace
+        if conn.sd is None:
+            raise SwordServiceError("did not successfully retrieve a service document")
+        
+        if conn.sd.workspaces is None:
+            raise SwordServiceError("no workspaces defined in service document")
+        
+        if len(conn.sd.workspaces) == 0:
+            raise SwordServiceError("no workspaces defined in service document")
         
         # get hold of a copy of the deposit reciept
         edit_uri = dataset_submission.remote_url
@@ -140,7 +167,7 @@ class Sword2(object):
                 err = "<unable to reach server>"
             else:
                 err = str(receipt.code)
-            logger.info("Attempt to retrieve Entry Document failed with error " + str(err) + " ... trying again in " + str(retry_delay) + " seconds")
+            logger.debug("Attempt to retrieve Entry Document failed with error " + str(err) + " ... trying again in " + str(retry_delay) + " seconds")
             i += 1
             time.sleep(retry_delay)
             try:
@@ -151,13 +178,12 @@ class Sword2(object):
                 
                 # just try again up to the retry_limit
                 continue
-            
         # if we get to here, and the receipt code is still an error, we give
         # up and re-set the item status
         if receipt is None or receipt.code >= 400:
             return self._set_error(dataset_submission, "error", "Attempt to retrieve Entry Document failed " + str(retry_limit + 1) + " times ... giving up")
         
-        logger.info("Entry Document retrieved ... continuing to full package deposit")
+        logger.debug("Entry Document retrieved ... continuing to full package deposit")
         
         # if we get to here we can go ahead with the deposit for real
         try:
@@ -167,7 +193,6 @@ class Sword2(object):
                                 mimetype="application/zip",
                                 filename=dataset.identifier + ".zip", 
                                 packaging='http://dataflow.ox.ac.uk/package/DataBankBagIt')
-            
             if new_receipt.code >= 400:
                 return self._set_error(dataset_submission, "error", "Attempt to deposit content failed")
             
@@ -177,7 +202,8 @@ class Sword2(object):
             return self._set_error(dataset_submission, "error", "Attempt to deposit content failed")
     
     def _set_error(self, dataset_submission, error, log_message):
-        logger.info(log_message)
+        logger.debug(log_message)
         dataset_submission.status = error # FIXME: this is not very descriptive, but we are limited to 10 characters and from the allowed list of values
         dataset_submission.save()
         return
+    

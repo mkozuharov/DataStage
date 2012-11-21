@@ -156,7 +156,8 @@ def get_opener(repository, user):
         opener = urllib2.build_opener(oauth_handler,
                                       basic_auth_handler,
                                       AuthenticateRedirectHandler())
-        
+
+       
     def wrap_open(old_open):
         def open(self, url, data=None, *args, **kwargs):
             headers, method = kwargs.pop('headers', {}), kwargs.pop('method', None)

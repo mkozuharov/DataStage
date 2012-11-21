@@ -38,6 +38,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from django.forms.util import ErrorList
 from django.utils.datastructures import MergeDict
+from django.template import Context
 from django_conneg.views import HTMLView, JSONView, ErrorCatchingView
 from django_conneg.http import HttpResponseSeeOther
 import posix1e
@@ -46,7 +47,7 @@ import datastage.util.datetime
 from datastage.config import settings
 from datastage.util.path import get_permissions
 from datastage.util.views import RedisView
-from datastage.web.dataset.models import DatasetSubmission, Repository, RepositoryUser
+from datastage.web.dataset.models import DatasetSubmission, Repository, RepositoryUser, DefaultRepository
 from datastage.web.dataset import openers, forms
 
 from datastage.dataset import Dataset, SUBMISSION_QUEUE
@@ -74,8 +75,12 @@ class SubmitView(HTMLView, RedisView, ErrorCatchingView):
         return super(SubmitView, self).dispatch(request)
 
     def common(self, request):
-        path = request.REQUEST.get('path')
-        num = request.REQUEST.get('num')
+        if 'path' in request.REQUEST:
+            path = request.REQUEST.get('path')
+        if 'num' in request.REQUEST:
+        	num = request.REQUEST.get('num')      	       
+        if 'reposilo' in request.REQUEST:
+        	silo = request.REQUEST.get('reposilo')
         if not path:
             raise Http404
         path_parts = path.rstrip('/').split('/')
@@ -92,103 +97,209 @@ class SubmitView(HTMLView, RedisView, ErrorCatchingView):
             raise  PermissionDenied
 
         previous_submissions = DatasetSubmission.objects.filter(path_on_disk=path_on_disk)
+        defaultrepository = get_object_or_404(Repository, id=DefaultRepository.objects.all()[0].repository_id)
         
         if 'id' in request.REQUEST:
             dataset_submission = get_object_or_404(DatasetSubmission,
                                                    id=request.REQUEST['id'],
                                                    status='new',
                                                    submitting_user=request.user)
+        
+        elif 'num' in request.REQUEST:           
+           dataset_submission = get_object_or_404(DatasetSubmission, id=num) 
+        elif 'changerepo' in request.REQUEST:           
+           dataset_submission = DatasetSubmission(path_on_disk=path_on_disk,
+                                                   submitting_user=request.user)       
         else:
-            dataset_submission = DatasetSubmission(path_on_disk=path_on_disk,
+           dataset_submission = DatasetSubmission(path_on_disk=path_on_disk,
                                                    submitting_user=request.user)
-                                                           
-        if 'num' in request.REQUEST:           
-           dataset_submission = get_object_or_404(DatasetSubmission, id=num)       
+           #dataset_submission.repository_id = defaultrepository.id                                     
+           dataset_submission.repository = defaultrepository       
+                                                 
            
         form = forms.DatasetSubmissionForm(request.POST or None, instance=dataset_submission)
+        #defaultrepoform = forms.DefaultRepositoryForm()
+        #repofield = defaultrepoform.defaultrepository
         
-        return {'path': path,
-                'num':num,
-                'form': form,
-                'path_on_disk': path_on_disk,
-                'previous_submissions': previous_submissions,
-                'dataset_submission': dataset_submission,
-                'queued': request.GET.get('queued') == 'true'}
+        c = Context({'path': path,
+	                'form': form,
+	                'defaultrepository':defaultrepository,
+	                'path_on_disk': path_on_disk,
+	                'previous_submissions': previous_submissions,
+	                'dataset_submission': dataset_submission,
+	                'queued': request.GET.get('queued') == 'true'})
+	                
+        if 'num' in request.REQUEST :    
+           c['num'] = num
+           c.push()
+           c['defaultrepository']=form.instance.repository 
+           c.push()
+        if 'reposilo' in request.REQUEST :    
+           c['silo'] = silo
+           c.push()
+        if 'changerepo' in request.REQUEST :    
+           c['changerepo'] = True
+           c['defaultrepository']=form.instance.repository 
+           c.push()
+        return c
 
 
-    def get(self, request):
-        context = self.common(request)
-        form = context['form']
+   # def get(self, request):
+   #     context = self.common(request)
+   #     form = context['form']
         #if context['dataset_submission'].status not in ('new', 'submitted', 'error'):
         #    return self.render(request, context, 'dataset/submitted')
         #if context['dataset_submission'].status in ('new', 'submitted', 'error'):
         #     return self.render(request, context, 'dataset/submitted')
         #opener = openers.get_opener(form.instance.repository, request.user)
         #form.instance.repository = dataset.obtain_silos(opener, repository)
-        return self.render(request, context, 'dataset/submit')
+        #return self.redirect('SilosView',request,context)
+    #    return self.render(request, context, 'dataset/submit')
     
+         
+    def rendersubmissionform(self, request,context):
+         form = context['form']
+         path = context['path']
+         
+         defaultrepository = context['defaultrepository']
+         path_on_disk = context['path_on_disk']
+         submission = context['dataset_submission']
+         repo = get_object_or_404(Repository, id = submission.repository_id)
+         
+         #return HttpResponseSeeOther(str(submission.respository.id))
+         #repo = submission.respository
+         #repo = get_object_or_404(Repository, id="4") 
+         #return HttpResponseSeeOther(repr(repo.name))
+ 
+         try:
+             opener = openers.get_opener(repo, request.user)
+             # if this is a sword2 repository, hand off the management of that to 
+             # the sword2 implementation
+             if repo.type == "sword2":
+               v_l.debug("Using SWORDv2 depositor")
+               s = Sword2()
+               silos = s.get_silos(opener, repo)              
+               print silos
+               SILO_CHOICES = []
+               for silo in silos:
+                    SILO_CHOICES.append(silo.title)
+               SILO_CHOICES.sort()
+               form.instance.repository = repo
+               form.instance.save()  # We have to save the form or the redirect will fail, FIXME: what are we saving here?
+
+               if 'num' in request.REQUEST:
+                  number = request.REQUEST.get('num')   
+                  context ={ 'path': path,
+                           'form': form,
+                           'silos': SILO_CHOICES,
+                           'defaultrepository':repo,
+                           'path_on_disk': path_on_disk,
+                           'dataset_submission': submission,
+                           'num': number}
+               else:
+                  context ={'path': path,
+                            'form': form,
+                            'silos': SILO_CHOICES,
+                            'path': path,
+                            'path_on_disk': path_on_disk,
+                            'defaultrepository':defaultrepository,
+                            'dataset_submission': submission}
+                        
+               return self.render(request,context, 'dataset/submit')
+         except SwordServiceError as e:
+             raise
+         except openers.SimpleCredentialsRequired:
+            # FIXME: If we get this error we HAVE to save the form, so we must
+            # make sure that we undo any save operation if there is an error
+            # later on...
+            #url = '%s?%s' % (
+            #        reverse('dataset:simple-credentials'),
+            #        urllib.urlencode({'next': '%s?%s' % (request.path),
+            #                           'repository': 2}))
+            #return HttpResponseSeeOther(url)
+            return self.render(request, context, 'dataset/simple-credentials')
+            #return HttpResponseSeeOther('http://192.168.2.204/dataset/silos/2')
+           
+    def update_status(self, dataset_submission,status):
+        dataset_submission.status = status
+        dataset_submission.save()
+        
+    def get(self, request):
+        context = self.common(request)
+        return self.rendersubmissionform(request,context)
+          
     def post(self, request):
         context = self.common(request)
-        form = context['form']
-
-        if form.instance.status not in ('new', 'submitted', 'error'):
-            return self.render(request, context, 'dataset/submitted')
-
-        if not form.is_valid():
-            return self.render(request, context, 'dataset/submit')
-        
-        form.save()
-        dataset = form.instance.dataset
-
-        cleaned_data = form.cleaned_data
-
-        repository = cleaned_data['repository']
-        
-        redirect_url = '/dataset/submission/%s?%s' % (form.instance.id, urllib.urlencode({'path': context['path']}))
-
-        # First thing is to try the preflight_submission
-
-        if not context['num']:
-	        try:
-	            opener = openers.get_opener(repository, request.user)
-	            form.instance.remote_url = dataset.preflight_submission(opener, repository)
-	        except openers.SimpleCredentialsRequired:
-	            # FIXME: If we get this error we HAVE to save the form, so we must
- 	            # make sure that we undo any save operation if there is an error
-                # later on...
-                
-	            form.instance.status = 'new'
-	            form.instance.save()  # We have to save the form or the redirect will fail, FIXME: what are we saving here?
-	            url = '%s?%s' % (
-	                reverse('dataset:simple-credentials'),
-	                urllib.urlencode({'next': '%s?%s' % (request.path, urllib.urlencode({'path': context['path'],
-	                                                                                     'id': form.instance.id})),
-	                                  'repository': repository.id}),
-	            )
-	            return HttpResponseSeeOther(url)
-	        except Dataset.DatasetIdentifierRejected, e:
-	            form.errors['identifier'] = ErrorList([unicode(e)])
-	            return self.render(request, context, 'dataset/submit')
-	        except Exception as e:
-	            v_l.debug("General failure during submission")
-	            form.errors['repository'] = ErrorList(["Failed to connect to repository for initial deposit; please try again later"])
-	            return self.render(request, context, 'dataset/submit')	 
-
-          # FIXME: we probably don't want this else here, it's probably what's
-          # messing things up
-            
+        if 'changerepo' in request.REQUEST :
+         	return self.rendersubmissionform(request,context)
         else:
-            form.instance.status = 'queued'
-            form.instance.queued_at = datastage.util.datetime.now()
-            form.instance.save() # FIXME: what are we saving here?
-
-        # only save this once it has completed
-        form.instance.save()  # We are saving the returned url
-        self.redis.rpush(SUBMISSION_QUEUE, self.pack(form.instance.id))
-
-    
-        
-        return HttpResponseSeeOther(redirect_url)
+	        form = context['form']
+	        submission = context['dataset_submission']
+	        if 'num' in request.REQUEST : 
+	        	num = context['num']
+	
+	        #if form.instance.status not in ('new', 'submitted', 'error'):
+	        #    return self.render(request, context, 'dataset/submitted')
+	
+	        if not form.is_valid():
+	            return self.render(request, context, 'dataset/submit')
+	        
+	        form.save()
+	        dataset = form.instance.dataset
+	
+	        cleaned_data = form.cleaned_data
+	        
+	        defaultrepository = get_object_or_404(Repository, id=DefaultRepository.objects.all()[0].repository_id)
+	        #repository = cleaned_data['repository']
+	        silo  =   context['silo']
+	        repository =  defaultrepository
+	        
+	        redirect_url = '/dataset/submission/%s?%s' % (form.instance.id, urllib.urlencode({'path': context['path']}))
+	
+	        # First thing is to try the preflight_submission
+	
+	        if 'num'  in request.REQUEST : 
+	            form.instance.status = 'queued'
+	            form.instance.remote_url = submission.remote_url
+	            form.instance.queued_at = datastage.util.datetime.now()
+	            form.instance.save() # FIXME: what are we saving here?
+	        else:    
+		        try:
+		            opener = openers.get_opener(repository, request.user)
+		            form.instance.remote_url = dataset.preflight_submission(opener, repository, silo)
+		            form.instance.silo = silo
+		        except openers.SimpleCredentialsRequired:
+		            # FIXME: If we get this error we HAVE to save the form, so we must
+	 	            # make sure that we undo any save operation if there is an error
+	                # later on...
+	                
+		            form.instance.status = 'new'
+		            form.instance.save()  # We have to save the form or the redirect will fail, FIXME: what are we saving here?
+		            url = '%s?%s' % (
+		                reverse('dataset:simple-credentials'),
+		                urllib.urlencode({'next': '%s?%s' % (request.path, urllib.urlencode({'path': context['path'],
+		                                                                                     'id': form.instance.id})),
+		                                  'repository': repository.id}),
+		            )
+		            return HttpResponseSeeOther(url)
+		        except Dataset.DatasetIdentifierRejected, e:
+		            form.errors['identifier'] = ErrorList([unicode(e)])
+		            return self.render(request, context, 'dataset/submit')
+		        except Exception as e:
+		            v_l.debug("General failure during submission")
+		            form.errors['repository'] = ErrorList(["Failed to connect to repository for initial deposit; please try again later"])
+		            return self.render(request, context, 'dataset/submit')	 
+	
+	          # FIXME: we probably don't want this else here, it's probably what's
+	          # messing things up
+	            
+	
+	        # only save this once it has completed
+	        form.instance.save()  # We are saving the returned url
+	        self.redis.rpush(SUBMISSION_QUEUE, self.pack(form.instance.id))
+	
+	        return HttpResponseSeeOther(redirect_url)
+   
 
 class PreviousSubmissionsView(HTMLView, RedisView, ErrorCatchingView):
     error_template_names = MergeDict({httplib.FORBIDDEN: 'dataset/403'}, ErrorCatchingView.error_template_names)
@@ -224,9 +335,8 @@ class PreviousSubmissionsView(HTMLView, RedisView, ErrorCatchingView):
             dataset_submission = DatasetSubmission(path_on_disk=path_on_disk,
                                                    submitting_user=request.user)
                          
-
         form = forms.DatasetSubmissionForm(request.POST or None, instance=dataset_submission)
-        
+         
         return {'path': path,
                 'form': form,
                 'path_on_disk': path_on_disk,
@@ -234,7 +344,7 @@ class PreviousSubmissionsView(HTMLView, RedisView, ErrorCatchingView):
                 'dataset_submission': dataset_submission,
                 'queued': request.GET.get('queued') == 'true'}
 
-
+ 
     def get(self, request):
         context = self.common(request)
         if context['dataset_submission'].status not in ('new', 'submitted', 'error'):
@@ -244,7 +354,7 @@ class PreviousSubmissionsView(HTMLView, RedisView, ErrorCatchingView):
     def post(self, request):
         context = self.common(request)
         form = context['form']
-
+        dataset_submission = context['dataset_submission']
         if form.instance.status not in ('new', 'submitted', 'error'):
             return self.render(request, context, 'dataset/submitted')
 
@@ -287,7 +397,6 @@ class PreviousSubmissionsView(HTMLView, RedisView, ErrorCatchingView):
             v_l.debug("General failure during submission")
             form.errors['repository'] = ErrorList(["Failed to connect to repository for initial deposit; please try again later"])
             return self.render(request, context, 'dataset/submit')	 
-
           # FIXME: we probably don't want this else here, it's probably what's
           # messing things up
             
@@ -367,7 +476,10 @@ class SilosView(HTMLView):
         else:
             dataset_submission = DatasetSubmission(path_on_disk=path_on_disk,
                                                    submitting_user=request.user)
-                                                           
+            defaultrepository = get_object_or_404(Repository, id=DefaultRepository.objects.all()[0].repository_id)
+            #dataset_submission.repository_id = defaultrepository.id
+            dataset_submission.repository = defaultrepository     
+                                                               
         if 'num' in request.REQUEST:       
            number = request.REQUEST.get('num')    
            dataset_submission = get_object_or_404(DatasetSubmission, id=number)       
@@ -387,6 +499,7 @@ class SilosView(HTMLView):
                         'tempform': form,
                         'path': path,
                         'path_on_disk': path_on_disk,
+                        'defaultrepository':defaultrepository,
                         'dataset_submission': dataset_submission
                 }
                 
@@ -395,60 +508,32 @@ class SilosView(HTMLView):
          context = self.common(request)
          form = context['tempform']
          path = context['path']
+         defaultrepository = context['defaultrepository']
          path_on_disk = context['path_on_disk']
          submission = context['dataset_submission']
-         repo = form['repository']
-         #repo = get_object_or_404(Repository, name=submission.repository.name) 
-         #repo = form.repository
-         #return HttpResponseSeeOther( repr(repo))
+         repo = get_object_or_404(Repository, id = submission.repository_id)
+         
+         #return HttpResponseSeeOther(str(submission.respository.id))
+         #repo = submission.respository
+         #repo = get_object_or_404(Repository, id="4") 
+         #return HttpResponseSeeOther( repr(repo.name))
+ 
          try:
-             f = open('/tmp/debug.log', 'a')
-             f.write('Before repo')
-             #f.write("%s, %s"%('in num, path_on_disk))
-             #f.write("%s, %s"%(path_parts, path_on_disk))
-             #f.write("%s, %s"%('username',  request.user.username))
-             f.write("%s, %s"%('form',  repr(form)))
-             f.close()
-             #bha
-             #cleaned_data = form.cleaned_data
-             #repo = form.instance.repository
-             #form = context['form']
-             repo = get_object_or_404(Repository, id="1")
-             #repo = submission.repository
-             f = open('/tmp/debug.log', 'a')
-             f.write('After repo')
-             f.close()
              opener = openers.get_opener(repo, request.user)
-             #form.instance.silo = forms.ChoiceField(queryset=dataset.obtain_silos(opener, repository))
-             
-             
              # if this is a sword2 repository, hand off the management of that to 
              # the sword2 implementation
              if repo.type == "sword2":
                v_l.debug("Using SWORDv2 depositor")
                s = Sword2()
-               silos = s.get_silos(opener, repo)
-               f = open('/tmp/silos.log', 'a')
-               f.write(repr(silos))
-               f.close()
+               silos = s.get_silos(opener, repo)              
                print silos
-               #SILO_CHOICES =  [('sandbox','sandbox'), ('datastage','datastage'), ('softwarestore','softwarestore')]
-               #SILO_CHOICES = {'sandbox', 'datastage', 'softwarestore'}
                SILO_CHOICES = []
                for silo in silos:
                     SILO_CHOICES.append(silo.title)
                SILO_CHOICES.sort()
-               #return HttpResponseSeeOther( repr(SILO_CHOICES))
-               #return HttpResponseSeeOther( repr(silos))
-               #from django import forms
-               #form.instance.silo = forms.MultipleChoiceField(choices=SILO_CHOICES)
-               form.instance.repository = repo 
-               #form.instance.silo = SILO_CHOICES
-               #form.instance.silo = forms.ModelChoiceField(queryset=SILO_CHOICES)
-               #form.silo = forms.ModelChoiceField(queryset=SILO_CHOICES)
+               form.instance.repository = repo
                form.instance.save()  # We have to save the form or the redirect will fail, FIXME: what are we saving here?
-               #return HttpResponseSeeOther( repr(SILO_CHOICES))
-               #return HttpResponseSeeOther( repr( s.get_silos(opener, repo)))
+
                if 'num' in request.REQUEST:
                   number = request.REQUEST.get('num')   
                   context ={ 'path': path,
@@ -463,9 +548,9 @@ class SilosView(HTMLView):
                             'silos': SILO_CHOICES,
                             'path': path,
                             'path_on_disk': path_on_disk,
+                            'defaultrepository':defaultrepository,
                             'dataset_submission': submission}
                         
-               #return HttpResponseSeeOther( repr( form.instance.silo))
                return self.render(request,context, 'dataset/submit')
          except SwordServiceError as e:
              raise

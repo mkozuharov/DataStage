@@ -121,7 +121,7 @@ class OXDSDataset(Dataset):
         with open(self._manifest_filename, 'w') as f:
             self._manifest.serialize(f, 'better-pretty-xml', base=self._manifest_filename)
     
-    def preflight_submission(self, opener, repository):
+    def preflight_submission(self, opener, repository, silo):
         
         # if this is a sword2 repository, hand off the management of that to 
         # the sword2 implementation
@@ -129,7 +129,7 @@ class OXDSDataset(Dataset):
             logger.info("Using SWORDv2 depositor")
             try:
                 s = Sword2()
-                return s.preflight_submission(self, opener, repository)
+                return s.preflight_submission(self, opener, repository, silo)
             except SwordSlugRejected as e:
                 raise self.DatasetIdentifierRejected
             except SwordDepositError as e:
@@ -204,16 +204,15 @@ class OXDSDataset(Dataset):
             
             update_status('transfer')
             logger.debug("Starting transfer to repository")
-            
+       
             # if this is a sword2 repository, hand off the management of that to 
             # the sword2 implementation
             if repository.type == "sword2":
                 logger.info("Using SWORDv2 depositor")
                 s = Sword2()
-                return s.complete_submission(self, opener, dataset_submission, filename)
-    
+                s.complete_submission(self, opener, dataset_submission, filename)
+                return update_status('submitted')
             # otherwise, carry on as before ...
-            
             stat_info = os.stat(filename)
             with open(filename, 'rb') as data:
                 data = MultiPartFormData(files=[{'name': 'file',
@@ -221,6 +220,7 @@ class OXDSDataset(Dataset):
                                                  'stream': data,
                                                  'mimetype': 'application/zip',
                                                  'size': stat_info.st_size}])
+                
                 opener.open(repository.homepage + 'datasets/' + self.identifier,
                             data=data,
                             method='POST',
@@ -235,11 +235,11 @@ class OXDSDataset(Dataset):
                         method='POST',
                         headers={'Content-type': data.content_type,
                                  'Content-length': data.content_length})
+
             
         finally:
             os.unlink(filename)
         
         
-        update_status('submitted')
             
 

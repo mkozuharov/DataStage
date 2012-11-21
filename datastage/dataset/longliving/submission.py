@@ -69,5 +69,4 @@ class SubmissionThread(LonglivingThread):
             dataset_submission.save()
 
         dataset.complete_submission(opener, dataset_submission, update_status)
-
         logger.info("Submission completed")

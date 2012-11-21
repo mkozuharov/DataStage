@@ -24,8 +24,9 @@
 # ---------------------------------------------------------------------
 
 from django import forms
-from datastage.web.dataset.models import Repository, DatasetSubmission
-
+from django.forms import ModelForm, Textarea
+from datastage.web.dataset.models import Repository, DatasetSubmission, DefaultRepository
+from django.shortcuts import get_object_or_404
 DATABANK_CHOICES = (
     ('https://databank.ora.ox.ac.uk/', 'Oxford Research Archive'),
     ('https://test.databank.ox.ac.uk/', 'Test Databank'),
@@ -34,10 +35,20 @@ DATABANK_CHOICES = (
 class StageOneForm(forms.Form):
     known_databank = forms.MultipleChoiceField(choices=DATABANK_CHOICES, widget=forms.Select)
 
+#class DefaultRepositoryForm(forms.Form):
+#    defaultrepository = get_object_or_404(Repository, id=DefaultRepository.objects.all()[0].repository_id)
+    #defaultrepositoryfield = forms.CharField(initial=defaultrepository ,widget=forms.HiddenInput)
+
+
 class DatasetSubmissionForm(forms.ModelForm):
     identifier = forms.CharField()
     title = forms.CharField()
-    #silo =  forms.ModelChoiceField(queryset=Repository.objects.all())
+    defaultrepository = get_object_or_404(Repository, id=DefaultRepository.objects.all()[0].repository_id)
+    repository =  forms.ModelChoiceField(queryset=Repository.objects.all())
+    #repository = forms.CharField(initial=defaultrepository,widget=forms.HiddenInput())
+#    repository =  forms.ModelChoiceField(queryset=Repository.objects.all(),widget=forms.HiddenInput())
+    #repo = get_object_or_404(Repository, id=DefaultRepository.objects.all()[0].repository_id)
+    #defaultrepository = forms.CharField(label='Default Repository',initial='aaaa')
     #silo = forms.ChoiceField(choices=[(x, x) for x in range(1,5)])
     #SILO_CHOICES =  [('sandbox','sandbox'), ('datastage','datastage'), ('softwarestore','softwarestore')]
     #silo = forms.ChoiceField(choices=SILO_CHOICES)
@@ -47,7 +58,8 @@ class DatasetSubmissionForm(forms.ModelForm):
     class Meta:
         model = DatasetSubmission
         fields = ('repository','identifier', 'title', 'description')
-    
+        #widgets = { 'repository' :  Textarea(attrs={'label':'Default Repository','initial':'aaaa'}), }  
+        
 class SimpleCredentialsForm(forms.Form):
     username = forms.CharField()
     password = forms.CharField(widget=forms.PasswordInput)

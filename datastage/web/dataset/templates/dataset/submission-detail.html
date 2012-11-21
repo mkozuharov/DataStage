@@ -25,7 +25,7 @@
 
 {% block content %}
 <article>
-  <h1>Dataset submission: {{ dataset_submission.title }}</h1>
+  <h1>Dataset submission: {{ dataset_submission.identifier }}</h1>
   <form method="post" action="">{% csrf_token %}
   <table>
     <tbody>

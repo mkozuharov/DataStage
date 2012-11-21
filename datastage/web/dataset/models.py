@@ -73,6 +73,9 @@ class Repository(models.Model):
     
     def __unicode__(self):
         return self.name
+    
+class DefaultRepository(models.Model):
+    repository = models.ForeignKey(Repository)
 
 class RepositoryUser(models.Model):
     repository = models.ForeignKey(Repository)
