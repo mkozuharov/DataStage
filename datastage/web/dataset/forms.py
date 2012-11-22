@@ -38,15 +38,14 @@ class StageOneForm(forms.Form):
 #class DefaultRepositoryForm(forms.Form):
 #    defaultrepository = get_object_or_404(Repository, id=DefaultRepository.objects.all()[0].repository_id)
     #defaultrepositoryfield = forms.CharField(initial=defaultrepository ,widget=forms.HiddenInput)
-
-
+    
 class DatasetSubmissionForm(forms.ModelForm):
     identifier = forms.CharField()
     title = forms.CharField()
     defaultrepository = get_object_or_404(Repository, id=DefaultRepository.objects.all()[0].repository_id)
-    repository =  forms.ModelChoiceField(queryset=Repository.objects.all())
     #repository = forms.CharField(initial=defaultrepository,widget=forms.HiddenInput())
-#    repository =  forms.ModelChoiceField(queryset=Repository.objects.all(),widget=forms.HiddenInput())
+    repository =  forms.ModelChoiceField(queryset=Repository.objects.all(),widget=forms.HiddenInput())
+ 
     #repo = get_object_or_404(Repository, id=DefaultRepository.objects.all()[0].repository_id)
     #defaultrepository = forms.CharField(label='Default Repository',initial='aaaa')
     #silo = forms.ChoiceField(choices=[(x, x) for x in range(1,5)])

@@ -1,3 +1,4 @@
+
 # ---------------------------------------------------------------------
 #
 # Copyright (c) 2012 University of Oxford
@@ -32,7 +33,8 @@ from django.core.exceptions import ImproperlyConfigured
 
 from datastage.config import settings
 
-
+import logging
+import logging.config
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -164,23 +166,73 @@ LOGIN_REDIRECT_URL = '/'
 # the site admins on every HTTP 500 error.
 # See http://docs.djangoproject.com/en/dev/topics/logging for
 # more details on how to customize your logging configuration.
+#logging.config.fileConfig('datastage_logging.conf')
+
+logging.basicConfig(
+    level = logging.DEBUG,
+    format = '%(asctime)s %(levelname)s %(message)s',
+    filename = '/tmp/datastage.log',
+    filemode = 'w'
+)
+
+'''
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+        },
+        'simple': {
+            'format': '%(levelname)s %(message)s'
+        },
+     },
     'handlers': {
         'mail_admins': {
             'level': 'ERROR',
             'class': 'django.utils.log.AdminEmailHandler'
-        }
+        },
+     'console':{
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
+        },                 
+    'file_handler1': {                # define and name a handler
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler', # set the logging class to log to a file
+            'formatter': 'verbose',         # define the formatter to associate
+            'filename': os.path.join("/", 'var','log', 'datastage1.log') # log file
+        },     
+    'file_handler2': {                # define and name a handler
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler', # set the logging class to log to a file
+            'formatter': 'verbose',         # define the formatter to associate
+            'filename': os.path.join("/", 'var','log', 'datastage2.log') # log file
+        },                  
+                 
     },
+           
     'loggers': {
+#        'django': {
+#            'handlers': ['file_handler1'],
+#            'propagate': True,
+#            'level': 'DEBUG',
+#        },
         'django.request': {
-            'handlers': ['mail_admins'],
-            'level': 'ERROR',
+            'handlers': ['file_handler2'],
+            #'handlers': ['console'],
+            'level': 'DEBUG',
             'propagate': True,
         },
+        'datastage.debug': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+                
     }
 }
+'''
 
 # For django_longliving
 LONGLIVING_CLASSES = set(['datastage.dataset.longliving.submission.SubmissionThread', 

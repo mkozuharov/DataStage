@@ -65,15 +65,6 @@ function OnButton3()
     document.Form1.submit();             // Submit the page
     return true;
 }
-function OnButton4()
-{   {% if num %}
-    	document.Form1.action = "/dataset/submit/?path={{ path }}&num={{ num }}&changerepo=True"
-    {% else %}
-    	document.Form1.action = "/dataset/submit/?path={{ path }}&changerepo=True"
-    {% endif %}
-    document.Form1.submit();             // Submit the page
-    return true;
-}
 
 </script>
 <noscript>You need Javascript enabled for this to work</noscript>
@@ -82,8 +73,6 @@ function OnButton4()
        <table>
 	        <tr>
 	          <td colspan="2"><a href="http://{{ hostname }}/admin/dataset/repository/add/">Add a new repository</a></td>
-
-	          <td colspan="2"><a href="http://{{ hostname }}/admin/dataset/defaultrepository/">Add a default repository</a></td>
 	        </tr>
 	   </table>
 	        
@@ -109,26 +98,8 @@ function OnButton4()
 	          </td> 
 	        </tr>
 	    
-	       <tr>
-            <th> IDENTIFIER </th>
-	          <td> 
-	             {{form.identifier}}
-	          </td> 
-	        </tr>
+	     {{form}}
 	    
-	       <tr>
-            <th> TITLE </th>
-	          <td> 
-	             {{form.title}}
-	          </td> 
-	        </tr>
-	        
-	        <tr>
-            <th> DESCRIPTION </th>
-	          <td> 
-	             {{form.description}}
-	          </td> 
-	        </tr>
 	      <tfoot>
 	        <tr>
 	          <td colspan="2">
@@ -138,29 +109,9 @@ function OnButton4()
 	        </tr>
 	      </tfoot>
 	    </table>
-	<!-- </form>
+	</form>
   </section>
 
-<section> -->
-<form method="post" name="Form2" action="">{% csrf_token %}   
-       <h3>Change Repository</h3>
-       <table>
-	        <tr>
-            <th> REPOSITORY </th>
-	          <td> 
-	             {{form.repository}}
-	          </td> 
-	        </tr>
-	        <tr>
-	          <td colspan="2">
-		          <!-- <input type="submit" name="Change Repository" value="Submit"/> -->
-		          <input type="button" value="Submit" name="changerepo" onclick="return OnButton4();">
-	          </td>
-	        </tr>
-	   </table>
-</form>	   
-</form>
-</section>
 
 </article>
 
