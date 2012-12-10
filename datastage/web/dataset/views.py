@@ -148,8 +148,7 @@ class SubmitView(HTMLView, RedisView, ErrorCatchingView):
         #return self.redirect('SilosView',request,context)
     #    return self.render(request, context, 'dataset/submit')
     
-    def get(self, request):
-         context = self.common(request)
+    def rendersubmissionform(self, request, context):
          form = context['form']
          path = context['path']
          
@@ -211,17 +210,17 @@ class SubmitView(HTMLView, RedisView, ErrorCatchingView):
             #return HttpResponseSeeOther(url)
             #return self.render(request, context, 'dataset/simple-credentials')
             #return HttpResponseSeeOther('http://192.168.2.204/dataset/silos/2')
-            return self.render(request,context, 'dataset/submit')
+            return self.render(request,context, 'dataset/submit')      
+    
+    def get(self, request):
+         context = self.common(request)
+         return self.rendersubmissionform(request,context)
            
     def update_status(self, dataset_submission,status):
         dataset_submission.status = status
         dataset_submission.save()
           
     def post(self, request):
-        v_l.debug("I am in post testing...")
-        f=open("/tmp/datastage.log","w")
-        f.write("I am in post testing...")
-        f.close()
         context = self.common(request)
         form = context['form']
         submission = context['dataset_submission']
@@ -274,11 +273,14 @@ class SubmitView(HTMLView, RedisView, ErrorCatchingView):
 	            return HttpResponseSeeOther(url)
 	        except Dataset.DatasetIdentifierRejected, e:
 	            form.errors['identifier'] = ErrorList([unicode(e)])
-	            return self.render(request, context, 'dataset/submit')
-	        except Exception:
+	            #return self.render(request, context, 'dataset/submit')
+	            return self.rendersubmissionform(request,context)
+	        except Exception, e:
 	            v_l.info("General failure during submission")
+	            #form.errors['identifier'] = ErrorList([unicode(e)])
 	            form.errors['identifier'] = ErrorList(["Failed to connect to repository for initial deposit; please try again later"])
-	            return self.render(request, context, 'dataset/submit')	 
+	            #return self.render(request, context, 'dataset/submit')	 
+	            return self.rendersubmissionform(request,context)
 
           # FIXME: we probably don't want this else here, it's probably what's
           # messing things up

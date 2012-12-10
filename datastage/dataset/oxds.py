@@ -211,7 +211,10 @@ class OXDSDataset(Dataset):
                 logger.info("Using SWORDv2 depositor")
                 s = Sword2()
                 s.complete_submission(self, opener, dataset_submission, filename)
-                return update_status('submitted')
+                if dataset_submission.status!="error" :
+                    return update_status('submitted')
+                else:
+                    return update_status('error')
             # otherwise, carry on as before ...
             stat_info = os.stat(filename)
             with open(filename, 'rb') as data:

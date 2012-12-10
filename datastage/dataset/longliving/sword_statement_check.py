@@ -67,7 +67,7 @@ class SwordStatementCheckThread(LonglivingThread):
             self._check_dataset(dataset_submission)
 
     def _checkable(self, dataset_submission):
-        last_checked = dataset_submission.last_checked
+        last_checked = dataset_submission.last_updated
         if last_checked is None:
             return True
         now = datetime.datetime.now()
@@ -93,7 +93,7 @@ class SwordStatementCheckThread(LonglivingThread):
                         dataset_submission.status = 'error'
                         logger.info("URI: " + state_uri + " is an error state ... setting 'error' state on submission record")
                         break
-                dataset_submission.last_checked = datetime.datetime.now()
+                dataset_submission.last_updated = datetime.datetime.now()
                 dataset_submission.save()
                 time.sleep(SwordStatementCheckThread.throttle)
         
