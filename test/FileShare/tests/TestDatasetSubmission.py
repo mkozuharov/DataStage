@@ -34,6 +34,8 @@ import subprocess
 import re,zipfile
 import time
 import uuid
+import logging
+logger = logging.getLogger(__name__)
 
 from sword2 import Connection, HttpLayer, HttpResponse, UrlLib2Layer, Entry
 import urllib2
@@ -56,15 +58,15 @@ class TestDatasetSubmission(unittest.TestCase):
     def setUp(self):
         self.opener = None
         self.username="admin" 
-        self.password="1779admin"
-        self.repository_URL = "http://databank-test/"
-        self.sword2_sd_url = "http://databank-test/swordv2/service-document/"      
-        self.dataset_identifier="TestDatasetSubmission"  
+        self.password="test"
+        self.repository_URL = "http://192.168.2.237/"
+        self.sword2_sd_url = "http://192.168.2.237/swordv2/service-document/"      
+        self.dataset_identifier="TestDatasetSubmission5"  
         self.retry_limit=3
         self.retry_delay=2
-        self.testpath = "TestDatasetSubmission"
+        self.testpath = "TestDatasetSubmissionDir"
         self.testpatt = re.compile("^.*$(?<!\.zip)")
-        self.zipFileName = 'TestDatasetSubmission.zip'
+        self.zipFileName = 'TestDatasetSubmissionDir.zip'
         return
 
     def tearDown(self):
@@ -102,8 +104,10 @@ class TestDatasetSubmission(unittest.TestCase):
         opener = self.get_opener()
         
         conn = Connection(self.sword2_sd_url, error_response_raises_exceptions=False, http_impl=UrlLib2Layer(opener))
-
+        logger.debug("Retrieving the service document")
         conn.get_service_document()
+        
+        logger.debug("Retrieved the service document")
         
         self.assertIsNotNone(conn.sd)
         self.assertIsNotNone(conn.sd.workspaces)
@@ -118,10 +122,12 @@ class TestDatasetSubmission(unittest.TestCase):
         
 
         testid = "testid_"+str(uuid.uuid4())
-
-        e = Entry(id=testid, title="test title", dcterms_abstract="test description")
-        receipt = conn.create(col_iri=col.href, metadata_entry=e, suggested_identifier=testid)
+        logger.debug("col iri = " + str(col.href))
         
+        e = Entry(id=testid, title="test title", dcterms_abstract="test description")
+        print str(e)
+        receipt = conn.create(col_iri=col.href, metadata_entry=e, suggested_identifier=testid)
+        #col.href=http://192.168.2.237/swordv2/silo/test-silo
         self.assertIsNotNone(receipt)
         self.assertEquals(receipt.code,201)
         return receipt.location
@@ -150,7 +156,7 @@ class TestDatasetSubmission(unittest.TestCase):
                 err = "<unable to reach server>"
             else:
                 err = str(receipt.code)
-            logger.info("Attempt to retrieve Entry Document failed with error " + str(err) + " ... trying again in " + str(retry_delay) + " seconds")
+            logger.debug("Attempt to retrieve Entry Document failed with error " + str(err) + " ... trying again in " + str(self.retry_delay) + " seconds")
             i += 1
             time.sleep(self.retry_delay)
             try:
@@ -181,6 +187,7 @@ class TestDatasetSubmission(unittest.TestCase):
     def testDatasetSubmission(self):
         self.create_zip()
         remote_URL = self.preflight_submission()
+        logger.debug(remote_URL)
         self.complete_submission(remote_URL)
         return
 
