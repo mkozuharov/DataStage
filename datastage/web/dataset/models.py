@@ -99,6 +99,7 @@ class DatasetSubmission(models.Model):
     status = models.CharField(max_length=10, choices=DATASET_STATUS_CHOICES, default='new')
     queued_at = models.DateTimeField(auto_now_add=True)
     last_updated = models.DateTimeField(auto_now=True)
+    last_accessed = models.DateTimeField(auto_now=True)
     remote_url = models.URLField(blank=True, null=True)
     
     def __unicode__(self):
