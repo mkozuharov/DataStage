@@ -190,6 +190,7 @@ class Sword2(object):
             with open(filename, "rb") as data:
                 new_receipt = conn.update(dr = receipt,
                                 payload=data,
+                                metadata_relevant = True,
                                 mimetype="application/zip",
                                 filename=dataset.identifier + ".zip", 
                                 packaging='http://dataflow.ox.ac.uk/package/DataBankBagIt')
