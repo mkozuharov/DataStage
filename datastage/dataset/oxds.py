@@ -121,6 +121,7 @@ class OXDSDataset(Dataset):
         with open(self._manifest_filename, 'w') as f:
             self._manifest.serialize(f, 'better-pretty-xml', base=self._manifest_filename)
     
+    
     def preflight_submission(self, opener, repository, silo):
         
         # if this is a sword2 repository, hand off the management of that to 
@@ -137,19 +138,22 @@ class OXDSDataset(Dataset):
             except SwordServiceError as e:
                 raise
         
+        logger.info("Using databank depositor")
         # otherwise, carry on as before ...
         
+
         # Make sure we're authenticated
-        opener.open(repository.homepage + 'states')
-        
-        dataset_list = opener.json(repository.homepage)
+        opener.open(repository.homepage + silo + '/states')
+        logger.debug("Opened the repository homepage: "+ repository.homepage + silo + '/states' +" with the credentials provided.")
+        dataset_list = opener.json(repository.homepage + silo)
         
         if self.identifier in dataset_list:
             raise self.DatasetIdentifierAlreadyExists
         else:
             try:
+               
                 # Attempt to create new dataset
-                response = opener.open(repository.homepage + 'datasets/' + self.identifier,
+                response = opener.open(repository.homepage + silo +'/datasets/' + self.identifier,
                                        urllib.urlencode({'title': self.title}))
             except urllib2.HTTPError, e:
                 if e.code == 400 and e.msg == 'Bad request. Dataset name not valid':
@@ -164,10 +168,10 @@ class OXDSDataset(Dataset):
     def complete_submission(self, opener, dataset_submission, update_status):
         # pull the repository out explicitly
         repository = dataset_submission.repository
-        
+        logger.info("Complete submission started")
         update_status('started')
         
-        logger.debug("Updating manifest in readiness for submitting dataset")
+        logger.info("Updating manifest in readiness for submitting dataset")
         self.save()
         
         fd, filename = tempfile.mkstemp('.zip')
@@ -208,14 +212,16 @@ class OXDSDataset(Dataset):
             # if this is a sword2 repository, hand off the management of that to 
             # the sword2 implementation
             if repository.type == "sword2":
-                logger.info("Using SWORDv2 depositor")
+                logger.info("Complete submision: Using SWORDv2 depositor")
                 s = Sword2()
                 s.complete_submission(self, opener, dataset_submission, filename)
                 if dataset_submission.status!="error" :
                     return update_status('submitted')
                 else:
                     return update_status('error')
+                
             # otherwise, carry on as before ...
+            logger.info("Complete submision: Using databank depositor")
             stat_info = os.stat(filename)
             with open(filename, 'rb') as data:
                 data = MultiPartFormData(files=[{'name': 'file',
@@ -223,17 +229,21 @@ class OXDSDataset(Dataset):
                                                  'stream': data,
                                                  'mimetype': 'application/zip',
                                                  'size': stat_info.st_size}])
-                
-                opener.open(repository.homepage + 'datasets/' + self.identifier,
+                logger.debug("Complete submision remote url :" + dataset_submission.remote_url)
+                opener.open(dataset_submission.remote_url,
+                            #dataset_submission.remote_url + '/datasets/' + self.identifier,
                             data=data,
                             method='POST',
                             headers={'Content-type': data.content_type,
                                      'Content-length': data.content_length})
-            
+                logger.debug("Opened the file: " + filename )
+            logger.debug("Complete submision: Tryinto to submit a file to the dataset :" + dataset_submission.remote_url)
             data = MultiPartFormData(fields=[('filename', self.identifier + '.zip'),
                                              ('id', self.identifier)])
-            
-            opener.open(repository.homepage + 'items/' + self.identifier,
+            str = dataset_submission.remote_url
+            str = str.replace("datasets", "items")
+            opener.open(str,
+                        #dataset_submission.remote_url + '/items/' + self.identifier,
                         data=data,
                         method='POST',
                         headers={'Content-type': data.content_type,

@@ -74,8 +74,16 @@ class Repository(models.Model):
     def __unicode__(self):
         return self.name
     
+    class Meta:
+        verbose_name = "Repository"
+        verbose_name_plural = 'Repositories'
+    
 class DefaultRepository(models.Model):
     repository = models.ForeignKey(Repository)
+
+    class Meta:
+        verbose_name = "DefaultRepository"
+        verbose_name_plural = 'DefaultRepository'
 
 class RepositoryUser(models.Model):
     repository = models.ForeignKey(Repository)
@@ -87,7 +95,7 @@ class RepositoryUser(models.Model):
     username = models.TextField(blank=True)
     password = models.TextField(blank=True)
 
-
+    
 class DatasetSubmission(models.Model):
     title = models.TextField()
     description = models.TextField()

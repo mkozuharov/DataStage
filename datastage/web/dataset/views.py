@@ -27,7 +27,7 @@ import errno
 import os
 import urllib
 import httplib
-
+import json
 from django.contrib.formtools.wizard import FormWizard
 from django.http import Http404
 from django.utils.datastructures import SortedDict
@@ -115,8 +115,7 @@ class SubmitView(HTMLView, RedisView, ErrorCatchingView):
            dataset_submission = get_object_or_404(DatasetSubmission, id=num)       
            
         form = forms.DatasetSubmissionForm(request.POST or None, instance=dataset_submission)
-        #defaultrepoform = forms.DefaultRepositoryForm()
-        #repofield = defaultrepoform.defaultrepository
+
         
         c = {'path': path,
 	                'form': form,
@@ -128,11 +127,10 @@ class SubmitView(HTMLView, RedisView, ErrorCatchingView):
 	                
         if 'num' in request.REQUEST :    
            c['num'] = num
-           #c.push()
            c['defaultrepository']=defaultrepository
         if 'reposilo' in request.REQUEST :    
            c['silo'] = silo
-           #c.push()
+
         return c
 
 
@@ -156,61 +154,62 @@ class SubmitView(HTMLView, RedisView, ErrorCatchingView):
          path_on_disk = context['path_on_disk']
          submission = context['dataset_submission']
          repo = get_object_or_404(Repository, id = submission.repository_id)
-         
-         #return HttpResponseSeeOther(str(submission.respository.id))
-         #repo = submission.respository
-         #repo = get_object_or_404(Repository, id="4") 
-         #return HttpResponseSeeOther(repr(repo.name))
- 
+         SILO_CHOICES = []
          try:
              opener = openers.get_opener(repo, request.user)
              # if this is a sword2 repository, hand off the management of that to 
              # the sword2 implementation
+             silos = None 
              if repo.type == "sword2":
-               v_l.debug("Using SWORDv2 depositor")
-               s = Sword2()
-               silos = s.get_silos(opener, repo)              
-               print silos
-               SILO_CHOICES = []
-               for silo in silos:
-                    SILO_CHOICES.append(silo.title)
-               SILO_CHOICES.sort()
-               form.instance.repository = repo
-               form.instance.save()  # We have to save the form or the redirect will fail, FIXME: what are we saving here?
+                v_l.debug("Using SWORDv2 depositor")
+                s = Sword2()
+                silos = s.get_silos(opener, repo)    
+                for silo in silos:
+                  SILO_CHOICES.append(silo.title)              
+             else:
+                # Retrieve all the accessible silos in the respository
+                silos_file = opener.open(repo.homepage + 'silos', method='GET', headers={'Accept': "application/JSON"}) 
+                silos= silos_file.read()
+                silos_file.close()
+                SILO_CHOICES = json.loads(silos)
+             v_l.debug( "SILOS RECEIVED = " + repr(silos))            
+             SILO_CHOICES.sort()
+             form.instance.repository = repo
+             form.instance.save()  # We have to save the form or the redirect will fail, FIXME: what are we saving here?
 
-               if 'num' in request.REQUEST:
-                  number = request.REQUEST.get('num')   
-                  context ={ 'path': path,
-                           'form': form,
-                           'silos': SILO_CHOICES,
-                           'defaultrepository':repo,
-                           'path_on_disk': path_on_disk,
-                           'dataset_submission': submission,
-                           'num': number}
-               else:
-                  context ={'path': path,
-                            'form': form,
-                            'silos': SILO_CHOICES,
-                            'path': path,
-                            'path_on_disk': path_on_disk,
-                            'defaultrepository':defaultrepository,
-                            'dataset_submission': submission}
-                        
-               return self.render(request,context, 'dataset/submit')
+             if 'num' in request.REQUEST:
+                number = request.REQUEST.get('num')   
+                context ={ 'path': path,
+                         'form': form,
+                         'silos': SILO_CHOICES,
+                         'defaultrepository':repo,
+                         'path_on_disk': path_on_disk,
+                         'dataset_submission': submission,
+                         'num': number}
+             else:
+                context ={'path': path,
+                          'form': form,
+                          'silos': SILO_CHOICES,
+                          'path': path,
+                          'path_on_disk': path_on_disk,
+                          'defaultrepository':defaultrepository,
+                          'dataset_submission': submission}
+                      
+             return self.render(request,context, 'dataset/submit')
          except SwordServiceError as e:
              raise
          except openers.SimpleCredentialsRequired:
-            # FIXME: If we get this error we HAVE to save the form, so we must
-            # make sure that we undo any save operation if there is an error
-            # later on...
-            #url = '%s?%s' % (
-            #        reverse('dataset:simple-credentials'),
-            #        urllib.urlencode({'next': '%s?%s' % (request.path),
-            #                           'repository': 2}))
-            #return HttpResponseSeeOther(url)
-            #return self.render(request, context, 'dataset/simple-credentials')
-            #return HttpResponseSeeOther('http://192.168.2.204/dataset/silos/2')
-            return self.render(request,context, 'dataset/submit')      
+                v_l.debug("Simple credentials required")
+                form.instance.status = 'new'
+                form.instance.save()  # We have to save the form or the redirect will fail, FIXME: what are we saving here?
+                url = '%s?%s' % (
+                            reverse('dataset:simple-credentials'),
+                           urllib.urlencode({'next': '%s?%s' % (request.path, urllib.urlencode({'path': context['path'],
+                                                                             'id': form.instance.id})),
+                                   'repository': submission.repository_id}),
+                )
+                return HttpResponseSeeOther(url)  
+      
     
     def get(self, request):
          context = self.common(request)
@@ -255,6 +254,7 @@ class SubmitView(HTMLView, RedisView, ErrorCatchingView):
         else:    
 	        try:
 	            opener = openers.get_opener(repository, request.user)
+	            v_l.debug("Got the urllib opener " )
 	            form.instance.remote_url = dataset.preflight_submission(opener, repository, silo)
 	            form.instance.silo = silo
 	        except openers.SimpleCredentialsRequired:
@@ -276,11 +276,11 @@ class SubmitView(HTMLView, RedisView, ErrorCatchingView):
 	            #return self.render(request, context, 'dataset/submit')
 	            return self.rendersubmissionform(request,context)
 	        except Exception, e:
-	            v_l.info("General failure during submission")
-	            #form.errors['identifier'] = ErrorList([unicode(e)])
-	            form.errors['identifier'] = ErrorList(["Failed to connect to repository for initial deposit; please try again later"])
-	            #return self.render(request, context, 'dataset/submit')	 
+	            v_l.info("General failure during submission " )
+	            form.errors['identifier'] = ErrorList([unicode(e)])
+	            #form.errors['identifier'] = ErrorList(["Failed to connect to repository for initial deposit; please try again later"])
 	            return self.rendersubmissionform(request,context)
+	            
 
           # FIXME: we probably don't want this else here, it's probably what's
           # messing things up
@@ -288,6 +288,7 @@ class SubmitView(HTMLView, RedisView, ErrorCatchingView):
 
         # only save this once it has completed
         form.instance.save()  # We are saving the returned url
+        v_l.debug("Before pushing it into the redis queue" )
         self.redis.rpush(SUBMISSION_QUEUE, self.pack(form.instance.id))
 
         return HttpResponseSeeOther(redirect_url)
@@ -496,6 +497,7 @@ class SilosView(HTMLView):
                 
                 
     def post(self, request):
+
          context = self.common(request)
          form = context['tempform']
          path = context['path']
@@ -503,18 +505,14 @@ class SilosView(HTMLView):
          path_on_disk = context['path_on_disk']
          submission = context['dataset_submission']
          repo = get_object_or_404(Repository, id = submission.repository_id)
-         
-         #return HttpResponseSeeOther(str(submission.respository.id))
-         #repo = submission.respository
-         #repo = get_object_or_404(Repository, id="4") 
-         #return HttpResponseSeeOther( repr(repo.name))
  
          try:
              opener = openers.get_opener(repo, request.user)
              # if this is a sword2 repository, hand off the management of that to 
              # the sword2 implementation
+
              if repo.type == "sword2":
-               v_l.debug("Using SWORDv2 depositor")
+               v_l.info("Using SWORDv2 depositor in post silos")
                s = Sword2()
                silos = s.get_silos(opener, repo)              
                print silos
@@ -540,25 +538,25 @@ class SilosView(HTMLView):
                             'path': path,
                             'path_on_disk': path_on_disk,
                             'defaultrepository':defaultrepository,
-                            'dataset_submission': submission}
-                        
+                            'dataset_submission': submission}    
                return self.render(request,context, 'dataset/submit')
          except SwordServiceError as e:
              raise
          except openers.SimpleCredentialsRequired:
-            # FIXME: If we get this error we HAVE to save the form, so we must
-            # make sure that we undo any save operation if there is an error
-            # later on...
-            #url = '%s?%s' % (
-            #        reverse('dataset:simple-credentials'),
-            #        urllib.urlencode({'next': '%s?%s' % (request.path),
-            #                           'repository': 2}))
-            #return HttpResponseSeeOther(url)
-            #return self.render(request, context, 'dataset/simple-credentials')
-            #return HttpResponseSeeOther('http://192.168.2.204/dataset/silos/2')
-            return self.render(request,context, 'dataset/submit')
-           
-            
+                v_l.debug("Simple credentials required")
+                print " Simple credentials required "
+                form.instance.status = 'new'
+                form.instance.save()  # We have to save the form or the redirect will fail, FIXME: what are we saving here?
+                url = '%s?%s' % (
+                            reverse('dataset:simple-credentials'),
+                           urllib.urlencode({'next': '%s?%s' % (request.path, urllib.urlencode({'path': context['path'],
+                                                                             'id': form.instance.id})),
+                                   'repository': submission.repository_id}),
+                )
+                #return HttpResponseSeeOther(url)
+                self.render(request,context, 'dataset/403')
+                
+
 class DatasetSubmissionView(HTMLView):
     def get(self, request, id):
         path = request.REQUEST.get('path')

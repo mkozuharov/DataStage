@@ -171,7 +171,7 @@ LOGIN_REDIRECT_URL = '/'
 logging.basicConfig(
     level = logging.DEBUG,
     format = '%(asctime)s %(levelname)s %(message)s',
-    filename = '/var/log/apache2/datastage.log',
+    filename = '/var/log/datastage/datastage.log',
     filemode = 'w'
 )
 

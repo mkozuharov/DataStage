@@ -53,7 +53,7 @@ class SubmissionThread(LonglivingThread):
     def process_item(self, client, pk):
         dataset_submission = DatasetSubmission.objects.get(pk=pk)
         
-        logger.info("Received submission request for %r to %r",
+        logger.debug("Received submission request for %r to %r",
                     dataset_submission.identifier,
                     dataset_submission.remote_url)
                     #dataset_submission.repository.homepage)
