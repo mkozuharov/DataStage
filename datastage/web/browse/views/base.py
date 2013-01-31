@@ -8,6 +8,9 @@ from django_conneg.views import ErrorCatchingView
 
 from datastage.config import settings
 
+import logging
+logger = logging.getLogger(__name__)
+
 class BaseBrowseView(ErrorCatchingView):
     @property
     def path_on_disk(self):
@@ -46,20 +49,27 @@ class BaseBrowseView(ErrorCatchingView):
 
     def can_write(self, path=None):
         path = path or self.path_on_disk
+        logger.debug("Path : " + str(path))
         try:
             if os.path.isdir(path):
-                return False
+                logger.debug(" is a directory and is not writable")
+                return False        
             else:
                 with open(path, 'r+'):
+                    #os.close(path)
+                    logger.debug(" is writable")
                     return True
         except IOError, e:
             if e.errno == errno.EACCES:
+                logger.debug(" is not writable")
                 return False
             raise
         except OSError, e:
             if e.errno == errno.EACCES:
+                logger.debug(" is not writable")
                 return False
             raise
+        
             
     def can_submit(self, path=None):
         path = path or self.path_on_disk

@@ -23,6 +23,9 @@ from datastage.web.dataset.models import DatasetSubmission
 
 from .base import BaseBrowseView
 
+import logging
+logger = logging.getLogger(__name__)
+
 class DirectoryView(HTMLView, JSONView, BaseBrowseView):
     _json_indent = 2
 
@@ -53,6 +56,9 @@ class DirectoryView(HTMLView, JSONView, BaseBrowseView):
                     continue
                 raise
             subpath['path'] = '%s%s' % (self.path, subpath['name']) if self.path else subpath['name']
+            logger.debug( 'This directory/file path: ' +  str(subpath_on_disk) + ' has the following access rights') 
+            logger.debug( 'Directroy.py - can_read : ' + str(self.can_read(subpath_on_disk)))
+            logger.debug( 'Directroy.py - can_write : ' + str(self.can_write(subpath_on_disk)))
             subpath.update({
                 'type': 'dir' if os.path.isdir(subpath_on_disk) else 'file',
                 'stat': statinfo_to_dict(subpath_stat),
@@ -174,10 +180,12 @@ class DirectoryView(HTMLView, JSONView, BaseBrowseView):
 class UploadView(HTMLView, BaseBrowseView):
     def post(self, request, path):
         src_file = None
+        requestpath = path
+        path = os.path.join(self.path_on_disk)
         if 'file' in request.FILES:
             src_file = request.FILES['file']
-
-        if not self.can_write(path):
+        
+        if not self.can_submit(path):
             raise PermissionDenied
 
         temp_file = tempfile.NamedTemporaryFile(delete=False)
@@ -187,7 +195,7 @@ class UploadView(HTMLView, BaseBrowseView):
         temp_path = os.path.join(temp_dir, temp_file.name)
         parent_acl = posix1e.ACL(file=self.path_on_disk.encode('utf-8'))
         msg = None
-        abs_path = request.build_absolute_uri(reverse('browse:index',kwargs={'path': path}))
+        abs_path = request.build_absolute_uri(reverse('browse:index',kwargs={'path': requestpath}))
         if src_file:
             try:
                 if src_file.multiple_chunks() == True:
