@@ -1,7 +1,15 @@
+dataflow-datastage (0.3.6) unstable; urgency=low
+
+  * In development for 0.3.6
+  
+ -- Bhavana Ananda <bhavana.ananda@zoo.ox.ac.uk>  Tue, 05 Feb 2012 17:30:44 +0100
+ 
 dataflow-datastage (0.3.5) unstable; urgency=low
 
   * In development for 0.3.5
   
+ -- Bhavana Ananda <bhavana.ananda@zoo.ox.ac.uk>  Fri, 02 Jan 2012 17:30:44 +0100
+   
 dataflow-datastage (0.3.4~alpha) unstable; urgency=low
 
   * In development for 0.3.4
