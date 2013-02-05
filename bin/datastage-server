@@ -5,6 +5,8 @@ import multiprocessing
 import os
 import signal
 import sys
+import logging
+import logging.config
 
 import django.core.handlers.wsgi
 from django.core.management import call_command
@@ -57,7 +59,19 @@ class DatastageServer(object):
 
         signal.signal(signal.SIGTERM, self.sigterm)
         signal.signal(signal.SIGINT, self.sigterm)
-
+        
+        # Create datastage.log for general logging
+                
+        genlogfile = open("/var/log/datastage/datastage.log",'w')
+        genlogfile.close()
+                
+        logging.basicConfig(
+            level = logging.DEBUG,
+            format = '%(asctime)s %(levelname)s %(message)s',
+            filename = '/var/log/datastage/datastage.log',
+            filemode = 'w'
+        )
+        
         self.longliving_process = multiprocessing.Process(target=self.longliving_process_func)
         self.server_process = multiprocessing.Process(target=self.server_process_func)
         

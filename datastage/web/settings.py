@@ -168,12 +168,17 @@ LOGIN_REDIRECT_URL = '/'
 # more details on how to customize your logging configuration.
 #logging.config.fileConfig('datastage_logging.conf')
 
-logging.basicConfig(
-    level = logging.DEBUG,
-    format = '%(asctime)s %(levelname)s %(message)s',
-    filename = '/var/log/datastage/datastage.log',
-    filemode = 'w'
-)
+# Create datastage.log for general logging
+        
+#genlogfile = open("/var/log/datastage/datastage.log",'w')
+#genlogfile.close()
+        
+#logging.basicConfig(
+#    level = logging.DEBUG,
+#    format = '%(asctime)s %(levelname)s %(message)s',
+#    filemode = 'w'
+#    filename = '/var/log/datastage/datastage.log',
+#)
 
 '''
 LOGGING = {
