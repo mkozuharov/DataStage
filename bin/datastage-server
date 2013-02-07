@@ -61,7 +61,9 @@ class DatastageServer(object):
         signal.signal(signal.SIGINT, self.sigterm)
         
         # Create datastage.log for general logging
-                
+        directory = "/var/log/datastage"
+        if not os.path.exists(directory):
+           os.makedirs(directory)   
         genlogfile = open("/var/log/datastage/datastage.log",'w')
         genlogfile.close()
                 
