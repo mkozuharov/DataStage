@@ -82,8 +82,8 @@ class DefaultRepository(models.Model):
     repository = models.ForeignKey(Repository)
 
     class Meta:
-        verbose_name = "DefaultRepository"
-        verbose_name_plural = 'DefaultRepository'
+        verbose_name = "Choose Default Repository"
+        verbose_name_plural = 'Choose Default Repository'
 
 class RepositoryUser(models.Model):
     repository = models.ForeignKey(Repository)

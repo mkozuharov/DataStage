@@ -23,10 +23,31 @@
 # 
 # ---------------------------------------------------------------------
 
-from django_conneg.views import HTMLView
+from django_conneg.views import HTMLView, ErrorCatchingView
+from django.utils.datastructures import MergeDict
+import httplib
 
 class SimpleView(HTMLView):
     template_name = None
-
+    #error_template_names = MergeDict({httplib.NOT_FOUND: 'core/404'}, ErrorCatchingView.error_template_names)
+    #error_template_names = MergeDict({httplib.INTERNAL_SERVER_ERROR: 'core/500'}, ErrorCatchingView.error_template_names)
+ 
     def get(self, request):
         return self.render(request, {}, self.template_name)
+    
+class Simple404View(HTMLView):
+    template_name = 'core/404'
+    #error_template_names = MergeDict({httplib.NOT_FOUND: 'core/404'}, ErrorCatchingView.error_template_names)
+    #error_template_names = MergeDict({httplib.INTERNAL_SERVER_ERROR: 'core/404'}, ErrorCatchingView.error_template_names)
+ 
+    def get(self, request):
+        return self.render(request, {}, self.template_name)
+  
+class Simple500View(HTMLView):
+    template_name = 'core/500'
+    #error_template_names = MergeDict({httplib.NOT_FOUND: 'core/404'}, ErrorCatchingView.error_template_names)
+    #error_template_names = MergeDict({httplib.INTERNAL_SERVER_ERROR: 'core/500'}, ErrorCatchingView.error_template_names)
+ 
+    def get(self, request):
+        return self.render(request, {}, self.template_name)
+  

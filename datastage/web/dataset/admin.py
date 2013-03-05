@@ -27,6 +27,7 @@ from django.contrib.admin import site
 from django.contrib import admin
 from .models import Repository, DatasetSubmission, DefaultRepository
 #admin.ModelAdmin.save_as = True
-site.register(Repository)
-site.register(DefaultRepository)
+
 site.register(DatasetSubmission)
+site.register(DefaultRepository)
+site.register(Repository)

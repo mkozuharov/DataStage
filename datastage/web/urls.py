@@ -31,12 +31,14 @@ from django.contrib.auth.models import User
 from django.contrib.auth.models import Group
 from django.conf.urls.defaults import patterns, include, url
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
-
+from django.conf.urls.defaults import handler404, handler500 
 # Uncomment the next two lines to enable the admin:
+from datastage.web.core import views
+
 from django.contrib import admin
 admin.autodiscover()
-admin.site.unregister(User)
-admin.site.unregister(Group)
+#admin.site.unregister(User)
+#admin.site.unregister(Group)
 
 import django.contrib.auth.views as auth_views
 
@@ -52,3 +54,6 @@ urlpatterns = patterns('',
 
 urlpatterns += staticfiles_urlpatterns()
 
+
+handler404 = views.Simple404View.as_view()
+handler500 = views.Simple500View.as_view()
