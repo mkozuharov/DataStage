@@ -55,7 +55,7 @@ class OXDSDataset(Dataset):
         except IOError, e:
             pass
 
-        for name in ('title', 'description', 'identifier'):
+        for name in ('title', 'description', 'identifier','license'):
             setattr(self, name,
                     kwargs.get(name)
                     or unicode(self._manifest.value(rdflib.URIRef(path), DCTERMS[name]) or u''))
@@ -102,17 +102,20 @@ class OXDSDataset(Dataset):
                 
                 
                 xattr_data = dict(xattr.xattr(filename))
+                self._update_field(uri, DCTERMS['identifier'], xattr_data.get('user.dublincore.identifier'))
                 self._update_field(uri, DCTERMS['title'], xattr_data.get('user.dublincore.title'))
-                self._update_field(uri, DCTERMS.description, xattr_data.get('user.dublincore.description'))
+                self._update_field(uri, DCTERMS['description'], xattr_data.get('user.dublincore.description'))
+                self._update_field(uri, DCTERMS['license'], xattr_data.get('user.dublincore.license'))
         for uri in self._manifest.subjects(RDF.type, FOAF.Document):
             if uri not in seen_uris:
                 self._remove_cbd(uri)      
         
         print "Updating"
         self._update_field(package, DCTERMS['title'], self.title)
-        self._update_field(package, DCTERMS.description, self.description)
-        self._update_field(package, DCTERMS.identifier, self.identifier)
-
+        self._update_field(package, DCTERMS['description'], self.description)
+        self._update_field(package, DCTERMS['identifier'], self.identifier)
+        self._update_field(package, DCTERMS['license'], self.license)
+        
     def save(self, update_manifest=True, enforce_metadata=True):
         if enforce_metadata and not (self.title and self.description):
             raise Dataset.IncompleteMetadataException

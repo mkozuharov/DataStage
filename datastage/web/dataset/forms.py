@@ -56,7 +56,7 @@ class DatasetSubmissionForm(forms.ModelForm):
     
     class Meta:
         model = DatasetSubmission
-        fields = ('repository','identifier', 'title', 'description')
+        fields = ('repository','identifier', 'title', 'description','license')
         #widgets = { 'repository' :  Textarea(attrs={'label':'Default Repository','initial':'aaaa'}), }  
         
 class SimpleCredentialsForm(forms.Form):

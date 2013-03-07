@@ -101,6 +101,7 @@ class DatasetSubmission(models.Model):
     description = models.TextField()
     silo = models.TextField()
     identifier = models.TextField()
+    license =  models.TextField()
     path_on_disk = models.TextField()
     submitting_user = models.ForeignKey(User)
     repository = models.ForeignKey(Repository)
@@ -129,4 +130,5 @@ class DatasetSubmission(models.Model):
         return dataset_cls(self.path_on_disk,
                            title=self.title,
                            description=self.description,
-                           identifier=self.identifier)
+                           identifier=self.identifier,
+                           license = self.license)
