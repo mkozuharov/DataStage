@@ -36,6 +36,7 @@ from datastage.config import settings
 import logging
 import logging.config
 
+ROOT_PATH = os.path.dirname(__file__)
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
@@ -135,7 +136,9 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 ROOT_URLCONF = 'datastage.web.urls'
 
 TEMPLATE_DIRS = (
-                 
+    #os.path.join(ROOT_PATH,'web/admin/templates/'),
+    #'datastage.web.admin',
+#    '/root/DataStageMaster/datastage/web/admin/templates/admin/',
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
@@ -144,6 +147,7 @@ TEMPLATE_DIRS = (
 
 INSTALLED_APPS = (
     'django.contrib.auth',
+    'datastage.web.admin',
     'django.contrib.admin',
     'django.contrib.contenttypes',
     'django.contrib.sessions',

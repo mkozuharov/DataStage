@@ -42,9 +42,20 @@
  </table>
 
 {% if path %}
-
-<p> <input type="submit" name="submit" value="Return to {{ path }}"/> </p>
+	<p><input type="submit" name="submit" value="Return to {{ path }}"/><p>
+{% endif %}
+</form>
+{% if path %}
+<p>Repository submissions may take a long time, particularly for large files.
+Click 'refresh' to see the current status of your submission.
+You will also receive a confirmation email when the process is complete (check with your administrator if you are unsure DataStage has your correct email address).
+</p>
+	<form method="get" action="">
+		<input type="submit" name="refresh" value="Refresh"/>
+		<input type="hidden" name="path" value="{{ path }}"/> 
+	</form>
+{% endif %}
 
 </article>
-{% endif %}
+
 {% endblock %}

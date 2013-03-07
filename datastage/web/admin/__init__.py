@@ -1,5 +1,3 @@
-
-
 # ---------------------------------------------------------------------
 #
 # Copyright (c) 2012 University of Oxford
@@ -25,35 +23,3 @@
 # 
 # ---------------------------------------------------------------------
 
-# This will monkey-patch django.contrib.auth.models.User
-__import__("datastage.web.user.models")
-from django.contrib.auth.models import User
-from django.contrib.auth.models import Group
-from django.conf.urls.defaults import patterns, include, url
-from django.contrib.staticfiles.urls import staticfiles_urlpatterns
-from django.conf.urls.defaults import handler404, handler500 
-# Uncomment the next two lines to enable the admin:
-from datastage.web.core import views
-
-from django.contrib import admin
-admin.autodiscover()
-admin.site.unregister(User)
-admin.site.unregister(Group)
-
-import django.contrib.auth.views as auth_views
-
-urlpatterns = patterns('',
-    url(r'^data/', include('datastage.web.browse.urls', 'browse')),
-    url(r'^docs/', include('datastage.web.documentation.urls', 'documentation')),
-    url(r'^dataset/', include('datastage.web.dataset.urls', 'dataset')),
-    url(r'^', include('datastage.web.core.urls', 'core')),
-    url(r'^login/$', auth_views.login, {}, 'login'),
-    url(r'^logout/$', auth_views.logout, {}, 'logout'),
-    url(r'^admin/', include(admin.site.urls)),
-)  
-
-urlpatterns += staticfiles_urlpatterns()
-
-
-handler404 = views.Simple404View.as_view()
-handler500 = views.Simple500View.as_view()
