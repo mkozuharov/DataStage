@@ -28,6 +28,7 @@
 
 import ConfigParser
 import os
+import socket
 
 from django.core.exceptions import ImproperlyConfigured
 
@@ -43,6 +44,13 @@ TEMPLATE_DEBUG = DEBUG
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
 )
+
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.ox.ac.uk"
+EMAIL_PORT = 25
+EMAIL_HOST_PASSWORD = ""
+EMAIL_HOST_USER = "datastageadmin@"+ socket.gethostbyname(socket.gethostname())
+
 
 MANAGERS = ADMINS
 

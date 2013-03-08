@@ -31,7 +31,7 @@ import tempfile
 import urllib
 import urllib2
 import zipfile
-
+import socket
 import rdflib
 import xattr
 
@@ -40,6 +40,8 @@ from datastage.dataset.base import Dataset
 import datastage.util.serializers
 from datastage.util.multipart import MultiPartFormData
 from datastage.dataset.sword2depositor import Sword2, SwordSlugRejected, SwordServiceError, SwordDepositError
+from django.core.mail import send_mail
+from django.contrib.auth.models import User
 
 logger = logging.getLogger(__name__)
 
@@ -218,11 +220,22 @@ class OXDSDataset(Dataset):
                 logger.info("Complete submision: Using SWORDv2 depositor")
                 s = Sword2()
                 s.complete_submission(self, opener, dataset_submission, filename)
-                if dataset_submission.status!="error" :
-                    return update_status('submitted')
-                else:
-                    return update_status('error')
                 
+                if dataset_submission.status!="error" :                    
+                     update_status('submitted')
+                else:           
+                     update_status('error')
+                                            
+                from_email  = "datastageadmin@"+ socket.gethostname()
+                #current_user = User.objects.filter( id = dataset_submission.submitting_user)
+                to_email = dataset_submission.submitting_user.email
+                redirect_url = "http://" + socket.gethostbyname(socket.gethostname()) +'/dataset/submission/' + repr(dataset_submission.id) + '/'
+                subject = "DataPackage " + self.identifier + " - " + dataset_submission.status
+                body = "DataPackage " + self.identifier + " - " + dataset_submission.status + '\n'
+                body = body +  redirect_url      
+                send_mail(subject, body ,from_email,  [to_email], fail_silently=False)              
+               
+                return
             # otherwise, carry on as before ...
             logger.info("Complete submision: Using databank depositor")
             stat_info = os.stat(filename)
