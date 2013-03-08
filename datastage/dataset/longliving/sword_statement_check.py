@@ -80,7 +80,7 @@ class SwordStatementCheckThread(LonglivingThread):
         exception = None
         while retry_counter < SwordStatementCheckThread.retry_count:
             try:
-                logger.info("Checking state of dataset at " + dataset_submission.remote_url)
+               # logger.info("Checking state of dataset at " + dataset_submission.remote_url)
                 
                 opener = openers.get_opener(dataset_submission.repository,
                                         dataset_submission.submitting_user)
