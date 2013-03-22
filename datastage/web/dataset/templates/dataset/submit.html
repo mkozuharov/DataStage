@@ -70,11 +70,6 @@ function OnButton3()
 <noscript>You need Javascript enabled for this to work</noscript>
 	<form method="post" name="Form1" action="">{% csrf_token %}   
        <h3> Submission to repository:   {{ defaultrepository.name }} </h3>
-       <table>
-	        <tr>
-	          <td colspan="2"><a href="http://{{ hostname }}/admin/dataset/repository/add/">Add a new repository</a></td>
-	        </tr>
-	   </table>
 	        
 	    <table>
 	    <!-- 
@@ -86,8 +81,11 @@ function OnButton3()
 	         {% endif %} 
 	      </tr> 
 	     -->
+	     	{{form.repository}}
+	     	
 	         <tr>
 	          <th> SILO </th>
+	          
 	          <td> {% if silos %}
 		          <select id="reposilo" name="reposilo">
 		              {% for silo in silos %}
@@ -97,9 +95,36 @@ function OnButton3()
 				  {% endif %}
 	          </td> 
 	        </tr>
+	          
+	       <tr>
+	          <th> IDENTIFIER </th>
+	          <td> 
+	              {% if num %} 
+	                   {{form.identifier.value}} 
+	                   {{form.identifier.as_hidden}} 
+	              {% else %} 
+	                   {{form.identifier}} 
+	              {% endif %}
+	         </td> 
+	        </tr>
 	    
-	     {{form}}
+	    	<tr>
+	          <th> TITLE </th>
+	          <td> {{form.title}}</td> 
+	        </tr>
+	        
+	        <tr>
+	          <th> DESCRIPTION </th>
+	          <td> {{form.description}}</td> 
+	        </tr>
 	    
+	    	<tr>
+	          <th> LICENSE </th>
+	          <td> {{form.license}}</td> 
+	        </tr>
+
+	        
+	        
 	      <tfoot>
 	        <tr>
 	          <td colspan="2">

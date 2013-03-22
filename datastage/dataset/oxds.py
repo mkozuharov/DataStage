@@ -83,9 +83,9 @@ class OXDSDataset(Dataset):
             if isinstance(o, rdflib.URIRef):
                 self._remove_cbd(o)
     
-    def update_manifest(self):        
+    def update_manifest(self):  
+        self._manifest = bind_namespaces(rdflib.ConjunctiveGraph())      
         package = rdflib.URIRef(self._path)
-        
         self._manifest += ((package, RDF.type, OXDS.Grouping),)
         
         seen_uris = set()
@@ -101,8 +101,7 @@ class OXDSDataset(Dataset):
                 
                 if os.path.isdir(filename):
                     self._manifest.add((uri, RDF.type, FOAF.Document))
-                
-                
+                                
                 xattr_data = dict(xattr.xattr(filename))
                 self._update_field(uri, DCTERMS['identifier'], xattr_data.get('user.dublincore.identifier'))
                 self._update_field(uri, DCTERMS['title'], xattr_data.get('user.dublincore.title'))
