@@ -104,23 +104,24 @@ function OnButton3()
 	                   {{form.identifier.as_hidden}} 
 	              {% else %} 
 	                   {{form.identifier}} 
+	                   {{form.identifier.errors}}
 	              {% endif %}
 	         </td> 
 	        </tr>
 	    
 	    	<tr>
 	          <th> TITLE </th>
-	          <td> {{form.title}}</td> 
+	          <td> {{form.title}}{{form.title.errors}}</td>
 	        </tr>
 	        
 	        <tr>
 	          <th> DESCRIPTION </th>
-	          <td> {{form.description}}</td> 
+	          <td> {{form.description}} {{form.description.errors}}</td>
 	        </tr>
 	    
 	    	<tr>
 	          <th> LICENSE </th>
-	          <td> {{form.license}}</td> 
+	          <td> {{form.license}} {{form.license.errors}}</td>
 	        </tr>
 
 	        
