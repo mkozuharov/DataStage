@@ -56,13 +56,22 @@ class OXDSDataset(Dataset):
                 self._manifest.parse(f, base=self._manifest_filename)
         except IOError, e:
             pass
-
+#        file = open("/var/log/datastage/other.log",'w')
+#        if kwargs.get('license')==None or kwargs.get('license')=="":
+#            for name in ('title', 'description', 'identifier'):                
+#                file.write(name + "=" +  kwargs.get(name))
+#                setattr(self, name,
+#                        kwargs.get(name)
+#                        or unicode(self._manifest.value(rdflib.URIRef(path), DCTERMS[name]) or u''))
+#        
+#        else:       
         for name in ('title', 'description', 'identifier','license'):
-            setattr(self, name,
-                    kwargs.get(name)
-                    or unicode(self._manifest.value(rdflib.URIRef(path), DCTERMS[name]) or u''))
-        
-        
+#                file = open("/var/log/datastage/other.log",'w')
+#                file.write(name + "=" +  kwargs.get(name))
+           setattr(self, name,
+                        kwargs.get(name)
+                        or unicode(self._manifest.value(rdflib.URIRef(path), DCTERMS[name]) or u''))
+    
     def package(self):
         pass
     
@@ -72,6 +81,19 @@ class OXDSDataset(Dataset):
         for o2 in self._manifest.objects(s, p):
             print "REMOVING", s, p, o2
             self._manifest.remove((s, p, o2))
+        if o is not None:
+            if not isinstance(o, rdflib.Literal):
+                o = rdflib.Literal(o)
+            self._manifest.add((s, p, o))
+    
+    def _remove_field(self, s, p, o):
+        print list(self._manifest.subject_objects(p))
+        print "s", (s, p, o, len(self._manifest))
+        for o2 in self._manifest.objects(s, p):
+            print "REMOVING", s, p, o2
+            self._manifest.remove((s, p, o2))
+
+    def _add_field(self, s, p, o):        
         if o is not None:
             if not isinstance(o, rdflib.Literal):
                 o = rdflib.Literal(o)
@@ -106,6 +128,7 @@ class OXDSDataset(Dataset):
                 self._update_field(uri, DCTERMS['identifier'], xattr_data.get('user.dublincore.identifier'))
                 self._update_field(uri, DCTERMS['title'], xattr_data.get('user.dublincore.title'))
                 self._update_field(uri, DCTERMS['description'], xattr_data.get('user.dublincore.description'))
+#                if 'user.dublincore.license' in xattr_data:
                 self._update_field(uri, DCTERMS['license'], xattr_data.get('user.dublincore.license'))
         for uri in self._manifest.subjects(RDF.type, FOAF.Document):
             if uri not in seen_uris:
@@ -114,8 +137,12 @@ class OXDSDataset(Dataset):
         print "Updating"
         self._update_field(package, DCTERMS['title'], self.title)
         self._update_field(package, DCTERMS['description'], self.description)
-        self._update_field(package, DCTERMS['identifier'], self.identifier)
-        self._update_field(package, DCTERMS['license'], self.license)
+        #file.write('license' + "=" +  self.license)    
+        #file.close()
+        if self.license==None or self.license=="":
+            self._remove_field(package, DCTERMS['license'], self.license)
+        else:
+            self._add_field(package, DCTERMS['license'], self.license)
         
     def save(self, update_manifest=True, enforce_metadata=True):
         if enforce_metadata and not (self.title and self.description):

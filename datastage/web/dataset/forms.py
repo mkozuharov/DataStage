@@ -39,13 +39,32 @@ class StageOneForm(forms.Form):
 #    defaultrepository = get_object_or_404(Repository, id=DefaultRepository.objects.all()[0].repository_id)
     #defaultrepositoryfield = forms.CharField(initial=defaultrepository ,widget=forms.HiddenInput)
     
+
+#from django.utils.html import format_html 
+#from django.utils.encoding import force_text 
+#from django.forms.util import flatatt
+#
+#class DefaultTextarea(forms.Textarea):
+##    def set_default(self, default=""):
+##        self.DEFAULT = default
+##        
+#    def render(self, name, value, attrs=None):
+#        if value is None: value = 'JKGKJG'
+#        final_attrs = self.build_attrs(attrs, name=name)
+#        return format_html('<textarea{0}>\r\n{1}</textarea>',
+#                           flatatt(final_attrs),
+#                           force_text(value))
+
 class DatasetSubmissionForm(forms.ModelForm):
     identifier = forms.CharField()
     title = forms.CharField()
     defaultrepository = get_object_or_404(Repository, id=DefaultRepository.objects.all()[0].repository_id)
     #repository = forms.CharField(initial=defaultrepository,widget=forms.HiddenInput())
     repository =  forms.ModelChoiceField(queryset=Repository.objects.all(),widget=forms.HiddenInput())
- 
+    license = forms.CharField(widget=forms.Textarea, required= False)
+    #license = DefaultTextarea()
+    #license.set_default("this is def val")
+# )
     #repo = get_object_or_404(Repository, id=DefaultRepository.objects.all()[0].repository_id)
     #defaultrepository = forms.CharField(label='Default Repository',initial='aaaa')
     #silo = forms.ChoiceField(choices=[(x, x) for x in range(1,5)])
@@ -57,7 +76,10 @@ class DatasetSubmissionForm(forms.ModelForm):
     class Meta:
         model = DatasetSubmission
         fields = ('repository','identifier', 'title', 'description','license')
-        #widgets = { 'repository' :  Textarea(attrs={'label':'Default Repository','initial':'aaaa'}), }  
+#        key = 'license'
+#        for key in fields:
+#            fields[key].required = False
+        #widgets = { 'license' :  Textarea(attrs={'label':'License','initial':'aaaa'}), }  
         
 class SimpleCredentialsForm(forms.Form):
     username = forms.CharField()

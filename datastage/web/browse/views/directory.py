@@ -78,6 +78,8 @@ class DirectoryView(HTMLView, JSONView, BaseBrowseView):
                 subpath['owner'] = None
             if subpath['type'] == 'dir':
                 subpath['url'] += '/'
+                #url_sub =  subpath['url']
+                #subpath['url'] = url_sub.encode(sys.getfilesystemencoding())#unicode(subpath['url'])
             if subpath['link']:
                 subpath['xattr'] = dict(xattr.xattr(subpath_on_disk))
                 # Only expose user-space extended attributes

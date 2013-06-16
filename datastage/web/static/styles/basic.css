@@ -406,11 +406,27 @@ table td.delete
 text-align: center;
 }
 
+#submitform td
+{
+ font-size:1.2em;
+}
 
+#submitform th
+{
+  text-align: right;
+  vertical-align: top;
+  padding: 5px 5px 0 0 ; 
+}
 
+#defaultrepo
+{
+  font-weight:bold;
+}
 
-
-
+#note
+{
+	font-size:0.9em;
+}
 /* breadcrumb */
 
 .breadcrumb

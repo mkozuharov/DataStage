@@ -252,12 +252,15 @@ class SubmitView(HTMLView, RedisView, ErrorCatchingView):
             form.instance.queued_at = datastage.util.datetime.now()
             form.instance.save() # FIXME: what are we saving here?
         else:    
-	        try:
-	            opener = openers.get_opener(repository, request.user)
-	            v_l.debug("Got the urllib opener " )
-	            form.instance.remote_url = dataset.preflight_submission(opener, repository, silo)
-	            form.instance.silo = silo
-	        except openers.SimpleCredentialsRequired:
+            try:
+                opener = openers.get_opener(repository, request.user)
+                v_l.debug("Got the urllib opener " )
+                if repository.type == "sword2":
+	                  (form.instance.alternate_url,form.instance.remote_url) = dataset.preflight_submission(opener, repository, silo)
+                else:
+                    form.instance.remote_url = dataset.preflight_submission(opener, repository, silo)
+                form.instance.silo = silo
+            except openers.SimpleCredentialsRequired:
 	            # FIXME: If we get this error we HAVE to save the form, so we must
  	            # make sure that we undo any save operation if there is an error
                 # later on...
@@ -271,11 +274,11 @@ class SubmitView(HTMLView, RedisView, ErrorCatchingView):
 	                                  'repository': repository.id}),
 	            )
 	            return HttpResponseSeeOther(url)
-	        except Dataset.DatasetIdentifierRejected, e:
+            except Dataset.DatasetIdentifierRejected, e:
 	            form.errors['identifier'] = ErrorList([unicode(e)])
 	            #return self.render(request, context, 'dataset/submit')
 	            return self.rendersubmissionform(request,context)
-	        except Exception, e:
+            except Exception, e:
 	            v_l.info("General failure during submission " )
 	            form.errors['identifier'] = ErrorList([unicode(e)])
 	            #form.errors['identifier'] = ErrorList(["Failed to connect to repository for initial deposit; please try again later"])
@@ -495,7 +498,7 @@ class SilosView(HTMLView):
                         'dataset_submission': dataset_submission
                 }
                 
-                
+           
     def post(self, request):
 
          context = self.common(request)

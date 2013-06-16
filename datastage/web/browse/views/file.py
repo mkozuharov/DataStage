@@ -15,6 +15,14 @@ from .base import BaseBrowseView
 
 class FileView(BaseBrowseView):
     def get(self, request, path):
+            #logger.info('writing path')
+            #logger.info(path) 
+        #path = urllib.unquote(path)
+        #f = open("/var/log/datastage/other.log", 'w')
+        #f.write(path)
+        #f.write(path1)
+        #f.close()
+        
         with self.access_error_handler():
             stat = os.stat(self.path_on_disk)
             mimetype, encoding = mimetypes.guess_type(self.path_on_disk)

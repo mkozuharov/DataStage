@@ -1,7 +1,7 @@
 import contextlib
 import errno
 import os
-
+import urllib
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django_conneg.views import ErrorCatchingView
@@ -26,7 +26,7 @@ class BaseBrowseView(ErrorCatchingView):
             return self._path_on_disk
 
     def dispatch(self, request, path, *args, **kwargs):
-        self.path = path
+        self.path = urllib.unquote(path)
         self.path_on_disk
         return super(BaseBrowseView, self).dispatch(request, path, *args, **kwargs)
 

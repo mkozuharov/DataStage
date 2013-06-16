@@ -37,7 +37,11 @@
       <tr><th>Queued by:</th><td>{{ dataset_submission.submitting_user }}</td></tr>
       <tr><th>Queued at:</th><td>{{ dataset_submission.queued_at }}</td></tr>
       <tr><th>Last updated:</th><td>{{ dataset_submission.last_updated }}</td></tr>
-      <tr><th>Remote URL:</th><td><a href="{{ dataset_submission.remote_url }}">{{ dataset_submission.remote_url }}</a></td></tr>
+    {% if dataset_submission.alternate_url %}
+      <tr><th>Remote URL:</th><td><a href="{{ dataset_submission.alternate_url }}">{{ dataset_submission.alternate_url }}</a></td></tr>
+    {% else %}
+      <tr><th>Remote URL :</th><td><a href="{{ dataset_submission.remote_url }}">{{ dataset_submission.remote_url }}</a></td></tr>
+    {% endif %}
     </tbody>
  </table>
 

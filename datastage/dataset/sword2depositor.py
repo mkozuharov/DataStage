@@ -118,8 +118,8 @@ class Sword2(object):
             raise SwordDepositError(receipt)
         
         logger.debug("Deposit carried out to: " + receipt.location)
-        
-        return receipt.location
+        # return receipt.location
+        return (receipt.alternate,receipt.location)
         
     def update_status(self, dataset_submission,status):
         dataset_submission.status = status

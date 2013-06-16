@@ -101,7 +101,7 @@ class DatasetSubmission(models.Model):
     description = models.TextField()
     silo = models.TextField()
     identifier = models.TextField()
-    license =  models.TextField()
+    license =  models.TextField(blank=True, null=True)
     path_on_disk = models.TextField()
     submitting_user = models.ForeignKey(User)
     repository = models.ForeignKey(Repository)
@@ -110,6 +110,7 @@ class DatasetSubmission(models.Model):
     last_updated = models.DateTimeField(auto_now=True)
     last_accessed = models.DateTimeField(auto_now=True)
     remote_url = models.URLField(blank=True, null=True)
+    alternate_url = models.URLField(blank=True, null=True)
     
     def __unicode__(self):
         return self.title
