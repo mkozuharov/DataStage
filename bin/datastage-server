@@ -1,4 +1,4 @@
 #!/bin/bash
 
 #Start the script with the proper python bynary from the venv
-/usr/share/dataflow-datastage/bin/python /usr/share/dataflow-datastage/datastage-server.py
+/usr/share/dataflow-datastage/bin/python /usr/share/dataflow-datastage/datastage-server.py ${1}
