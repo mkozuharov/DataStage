@@ -53,6 +53,14 @@ case "$1" in
   
   # Add an user to manage orphaned data
   useradd datastage_orphan --comment Orphaned-data -N -g datastage-orphan
+  
+  #Setup the python virtual environment
+  echo "Setting python environment"
+  virtualenv --no-site-packages /usr/share/dataflow-datastage/
+  cd /usr/share/dataflow-datastage/
+  . bin/activate
+  
+  python setup.py install
   ;;
 esac
 
