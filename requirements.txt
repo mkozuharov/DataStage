@@ -14,4 +14,4 @@ lxml
 pytz
 xattr
 pam
--e hg+https://bitbucket.org/maze/django-pam#egg=dpam
+-e hg+https://bitbucket.org/wnielson/django-pam#egg=dpam
