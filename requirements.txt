@@ -17,3 +17,4 @@ xattr
 pam
 -e hg+https://bitbucket.org/wnielson/django-pam#egg=dpam
 -e hg+https://bitbucket.org/richardjones/python-sword2#egg=sword2
+-e git+https://github.com/ox-it/python-libmount#egg=libmount
