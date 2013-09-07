@@ -60,6 +60,9 @@ case "$1" in
   cd /usr/share/dataflow-datastage/
   . bin/activate
   
+  easy_install -U distribute
+  pip install -r requirements.txt
+  
   python setup.py install
   ;;
 esac
