@@ -280,9 +280,9 @@ setup(
     data_files=data_files,
     install_requires=install_requires,
     dependency_links=dependency_links,
-    scripts=['bin/datastage-config',
-             'bin/datastage-server',
-             'bin/datastage-sync-permissions'],
+    scripts=['datastage-config.py',
+             'datastage-server.py',
+             'datastage-sync-permissions.py'],
     #cmdclass={'sdist': sdist,
     #          'clean': clean},
 )
