@@ -13,25 +13,13 @@ XS-Python-Version: >= 2.6
 
 Package: dataflow-datastage
 Architecture: all
-Depends: ${python:Depends},
-         python-django-conneg,
-         python-django-longliving,
-         python-django-pam,
-         python-rdflib,
-         python-lxml,
-         python-redis,
-         python-oauth2,
-         python-flup,
-         python-tz,
-         python-libmount,
-         python-sword-client(>= 0.2),
+Depends: python,
+         python-dev,
+         python-setuptools,
+         python-virtualenv,
          redis-server,
          postgresql,
          postgresql-client,
-         python-psycopg2,
-         python-django (>= 1.3),
-         python-xattr,
-         python-webdav,
          apache2,
          sysvinit-utils,
          chkconfig,
@@ -39,7 +27,7 @@ Depends: ${python:Depends},
          pwgen,
          openssh-server,
          samba,
-         python-pylibacl
+		 mercurial
 Description: DataStage allows research groups to manage research data locally,
              which can then be pushed to an institutional data repository.
 

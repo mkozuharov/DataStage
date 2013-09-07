@@ -1,3 +1,7 @@
+psycopg2
+redis
+flup
+libmount
 oauth2
 rdflib
 pylibacl
@@ -11,4 +15,3 @@ pytz
 xattr
 pam
 -e hg+https://bitbucket.org/maze/django-pam#egg=dpam
-
