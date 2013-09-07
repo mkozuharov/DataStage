@@ -6,3 +6,9 @@ MANIFEST.in.in /usr/share/dataflow-datastage/
 README.rst /usr/share/dataflow-datastage/
 LICENCE.txt /usr/share/dataflow-datastage/
 Makefile /usr/share/dataflow-datastage/
+bin/datastage-config.py /usr/share/dataflow-datastage/
+bin/datastage-server.py /usr/share/dataflow-datastage/
+bin/datastage-sync-permissions.py /usr/share/dataflow-datastage/
+bin/datastage-config /usr/bin/
+bin/datastage-server /usr/bin/
+bin/datastage-sync-permissions /usr/bin/
