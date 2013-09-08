@@ -13,7 +13,7 @@ XS-Python-Version: >= 2.6
 
 Package: dataflow-datastage
 Architecture: all
-Depends: python,
+Depends: ${python:Depends},
          python-dev,
          python-setuptools,
          python-virtualenv,
