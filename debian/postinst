@@ -7,6 +7,8 @@ pg_database_exists() { echo `sudo -u postgres psql postgres -c "select count(*) 
 
 # Cribbed from http://www.debian.org/doc/manuals/securing-debian-howto/ch9.en.html#s-bpp-lower-privs
 
+export DH_VERBOSE=1
+
 case "$1" in
   configure)
 
@@ -122,6 +124,6 @@ case "$1" in
     ;;
 esac
 
-django-admin collectstatic --settings=datastage.web.settings --noinput --link
+/usr/share/dataflow-datastage/bin/django-admin.py collectstatic --settings=datastage.web.settings --noinput --link
 
 echo "Run datastage-config to complete the set-up"
