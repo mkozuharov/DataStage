@@ -7,7 +7,8 @@ pg_database_exists() { echo `sudo -u postgres psql postgres -c "select count(*) 
 
 # Cribbed from http://www.debian.org/doc/manuals/securing-debian-howto/ch9.en.html#s-bpp-lower-privs
 
-export DH_VERBOSE=1
+#export DH_VERBOSE=1
+set -x
 
 case "$1" in
   configure)
