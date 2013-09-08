@@ -33,7 +33,6 @@ Depends: python,
          openssh-server,
          samba,
 		 mercurial,
-		 #which of these are really required?
 		 uuid-dev,
 		 liblzo2-dev,
 		 libxml2,
