@@ -32,7 +32,13 @@ Depends: python,
          pwgen,
          openssh-server,
          samba,
-		 mercurial
+		 mercurial,
+		 #which of these are really required?
+		 uuid-dev,
+		 liblzo2-dev,
+		 libxml2,
+		 libxml2-dev,
+		 libxslt-dev
 Description: DataStage allows research groups to manage research data locally,
              which can then be pushed to an institutional data repository.
 
