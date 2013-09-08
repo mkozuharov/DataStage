@@ -89,6 +89,8 @@ case "$1" in
   fi
 
   sudo -u datastage /usr/share/dataflow-datastage/bin/django-admin.py syncdb --settings=datastage.web.settings --noinput
+  
+  ln -s /usr/share/dataflow-datastage/datastage/web/static/ /usr/share/dataflow-datastage/static
   ;;
 esac
 
