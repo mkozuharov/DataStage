@@ -59,7 +59,7 @@ case "$1" in
   
   #Setup the python virtual environment
   echo "Setting python environment"
-  virtualenv --no-site-packages /usr/share/dataflow-datastage/
+  virtualenv /usr/share/dataflow-datastage/
   cd /usr/share/dataflow-datastage/
   . bin/activate
   
