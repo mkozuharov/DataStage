@@ -67,6 +67,8 @@ case "$1" in
   pip install -r requirements.txt
   
   python setup.py install
+  
+  chown -R datastage:adm /usr/share/dataflow-datastage
   ;;
 esac
 
@@ -76,7 +78,7 @@ esac
 # Configure the database and database user
 case "$1" in
   configure)
-
+  cd /var/lib/postgresql
   if pg_database_exists $DATABASE_NAME | grep 0; then
     sudo -u postgres createdb $DATABASE_NAME
   fi
@@ -91,6 +93,7 @@ case "$1" in
     sudo -u postgres psql $DATABASE_NAME -c "GRANT ALL ON DATABASE $DATABASE_NAME TO $SERVER_USER"
   fi
 
+  cd /usr/share/dataflow-datastage
   sudo -u datastage /usr/share/dataflow-datastage/bin/django-admin.py syncdb --settings=datastage.web.settings --noinput
   
   ln -s /usr/share/dataflow-datastage/datastage/web/static/ /usr/share/dataflow-datastage/static
