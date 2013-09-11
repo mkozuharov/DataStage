@@ -7,6 +7,9 @@ pg_database_exists() { echo `sudo -u postgres psql postgres -c "select count(*) 
 
 # Cribbed from http://www.debian.org/doc/manuals/securing-debian-howto/ch9.en.html#s-bpp-lower-privs
 
+#export DH_VERBOSE=1
+set -x
+
 case "$1" in
   configure)
 
@@ -53,6 +56,19 @@ case "$1" in
   
   # Add an user to manage orphaned data
   useradd datastage_orphan --comment Orphaned-data -N -g datastage-orphan
+  
+  #Setup the python virtual environment
+  echo "Setting python environment"
+  virtualenv /usr/share/dataflow-datastage/
+  cd /usr/share/dataflow-datastage/
+  . bin/activate
+  
+  easy_install -U distribute
+  pip install -r requirements.txt
+  
+  python setup.py install
+  
+  chown -R datastage:adm /usr/share/dataflow-datastage
   ;;
 esac
 
@@ -62,7 +78,7 @@ esac
 # Configure the database and database user
 case "$1" in
   configure)
-
+  cd /var/lib/postgresql
   if pg_database_exists $DATABASE_NAME | grep 0; then
     sudo -u postgres createdb $DATABASE_NAME
   fi
@@ -77,7 +93,10 @@ case "$1" in
     sudo -u postgres psql $DATABASE_NAME -c "GRANT ALL ON DATABASE $DATABASE_NAME TO $SERVER_USER"
   fi
 
-  sudo -u datastage django-admin syncdb --settings=datastage.web.settings --noinput
+  cd /usr/share/dataflow-datastage
+  sudo -u datastage /usr/share/dataflow-datastage/bin/django-admin.py syncdb --settings=datastage.web.settings --noinput
+  
+  ln -s /usr/share/dataflow-datastage/datastage/web/static/ /usr/share/dataflow-datastage/static
   ;;
 esac
 
@@ -109,6 +128,6 @@ case "$1" in
     ;;
 esac
 
-django-admin collectstatic --settings=datastage.web.settings --noinput --link
+/usr/share/dataflow-datastage/bin/django-admin.py collectstatic --settings=datastage.web.settings --noinput --link
 
 echo "Run datastage-config to complete the set-up"

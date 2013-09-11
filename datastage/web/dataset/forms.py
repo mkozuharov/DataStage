@@ -58,7 +58,12 @@ class StageOneForm(forms.Form):
 class DatasetSubmissionForm(forms.ModelForm):
     identifier = forms.CharField()
     title = forms.CharField()
-    defaultrepository = get_object_or_404(Repository, id=DefaultRepository.objects.all()[0].repository_id)
+    #defaultrepository = get_object_or_404(Repository, id=DefaultRepository.objects.all()[0].repository_id)
+    defrepos = DefaultRepository.objects.all()
+    if defrepos:
+      defaultrepository = get_object_or_404(Repository, id=defrepos[0].repository_id)
+    else:
+      defaultrepository = None
     #repository = forms.CharField(initial=defaultrepository,widget=forms.HiddenInput())
     repository =  forms.ModelChoiceField(queryset=Repository.objects.all(),widget=forms.HiddenInput())
     license = forms.CharField(widget=forms.Textarea, required= False)

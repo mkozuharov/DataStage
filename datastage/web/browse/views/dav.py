@@ -9,10 +9,19 @@ except ImportError: # 0.9.4.1 and earlier
     from DAV import WebDAVServer, errors
     from DAVServer import fshandler
 
-from django.core.servers.basehttp import is_hop_by_hop
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.views.generic import View
+
+_hop_headers = {
+    'connection':1, 'keep-alive':1, 'proxy-authenticate':1,
+    'proxy-authorization':1, 'te':1, 'trailers':1, 'transfer-encoding':1,
+    'upgrade':1
+}
+
+def is_hop_by_hop(header_name):
+    """Return true if 'header_name' is an HTTP/1.1 "Hop-by-Hop" header"""
+    return header_name.lower() in _hop_headers
 
 class RequestHeaders(dict):
     def __init__(self, meta):

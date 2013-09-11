@@ -1,10 +1,6 @@
-#!/usr/bin/python
+#!/bin/bash
 
-import os
-
-if not 'DJANGO_SETTINGS_MODULE' in os.environ:
-    os.environ['DJANGO_SETTINGS_MODULE'] = 'datastage.web.settings'
-
-if __name__ == '__main__':
-    from datastage.admin.sync_permissions import sync_permissions
-    sync_permissions()
+#Start the script with the proper python bynary from the venv
+. /usr/share/dataflow-datastage/bin/activate
+/usr/share/dataflow-datastage/bin/python /usr/share/dataflow-datastage/datastage-sync-permissions.py
+deactivate
