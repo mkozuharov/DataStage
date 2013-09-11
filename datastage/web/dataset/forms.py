@@ -59,7 +59,7 @@ class DatasetSubmissionForm(forms.ModelForm):
     identifier = forms.CharField()
     title = forms.CharField()
     #defaultrepository = get_object_or_404(Repository, id=DefaultRepository.objects.all()[0].repository_id)
-	    defrepos = DefaultRepository.objects.all()
+    defrepos = DefaultRepository.objects.all()
     if defrepos:
       defaultrepository = get_object_or_404(Repository, id=defrepos[0].repository_id)
     else:
