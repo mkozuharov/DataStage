@@ -98,8 +98,13 @@ class SubmitView(HTMLView, RedisView, ErrorCatchingView):
             raise  PermissionDenied
 
         previous_submissions = DatasetSubmission.objects.filter(path_on_disk=path_on_disk)
-        defaultrepository = get_object_or_404(Repository, id=DefaultRepository.objects.all()[0].repository_id)
-        
+        #defaultrepository = get_object_or_404(Repository, id=DefaultRepository.objects.all()[0].repository_id)
+        defrepos = DefaultRepository.objects.all()
+        if defrepos:
+            defaultrepository = get_object_or_404(Repository, id=defrepos[0].repository_id)
+        else:
+            defaultrepository = None
+
         if 'id' in request.REQUEST:
             dataset_submission = get_object_or_404(DatasetSubmission,
                                                    id=request.REQUEST['id'],
@@ -237,7 +242,12 @@ class SubmitView(HTMLView, RedisView, ErrorCatchingView):
 
         cleaned_data = form.cleaned_data
         
-        defaultrepository = get_object_or_404(Repository, id=DefaultRepository.objects.all()[0].repository_id)
+        #defaultrepository = get_object_or_404(Repository, id=DefaultRepository.objects.all()[0].repository_id)
+        defrepos = DefaultRepository.objects.all()
+        if defrepos:
+            defaultrepository = get_object_or_404(Repository, id=defrepos[0].repository_id)
+        else:
+            defaultrepository = None
         #repository = cleaned_data['repository']
         silo  =   context['silo']
         repository =  defaultrepository
@@ -471,7 +481,12 @@ class SilosView(HTMLView):
         else:
             dataset_submission = DatasetSubmission(path_on_disk=path_on_disk,
                                                    submitting_user=request.user)
-            defaultrepository = get_object_or_404(Repository, id=DefaultRepository.objects.all()[0].repository_id)
+            #defaultrepository = get_object_or_404(Repository, id=DefaultRepository.objects.all()[0].repository_id)
+            defrepos = DefaultRepository.objects.all()
+            if defrepos:
+                defaultrepository = get_object_or_404(Repository, id=defrepos[0].repository_id)
+            else:
+                defaultrepository = None
             #dataset_submission.repository_id = defaultrepository.id
             dataset_submission.repository = defaultrepository     
                                                                
