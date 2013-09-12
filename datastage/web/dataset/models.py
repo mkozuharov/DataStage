@@ -24,7 +24,7 @@
 # ---------------------------------------------------------------------
 
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.core.urlresolvers import reverse
 
 from datastage.dataset import OXDSDataset
@@ -133,3 +133,34 @@ class DatasetSubmission(models.Model):
                            description=self.description,
                            identifier=self.identifier,
                            license = self.license)
+
+
+# Not sure if this class belongs here, but it will do for now
+class Project(models.Model):
+    short_name = models.CharField(max_length=20, unique=True)
+    long_name = models.TextField(blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
+    # Every project has exactly one group for each of leaders, members and collaborators
+    leader_group = models.OneToOneField(Group, related_name='leaders_of_project')
+    member_group = models.OneToOneField(Group, related_name='members_of_project')
+    collaborator_group = models.OneToOneField(Group, related_name='collaborators_of_project')
+    #TODO: implement project archiving
+    is_archived = models.NullBooleanField()
+
+    def _get_leaders(self):
+        return self.leader_group.user_set.all()
+    leaders = property(_get_leaders)
+
+    def _get_members(self):
+        return self.member_group.user_set.all()
+    members = property(_get_members)
+
+    def _get_collaborators(self):
+        return self.collaborator_group.user_set.all()
+    collaborators = property(_get_collaborators)
+
+    def __unicode__(self):
+        return ' - '.join([self.short_name, self.long_name, self.description])
+
+    class Meta:
+        ordering = ['short_name']
