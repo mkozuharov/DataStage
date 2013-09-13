@@ -1,4 +1,3 @@
-
 # ---------------------------------------------------------------------
 #
 # Copyright (c) 2012 University of Oxford
@@ -38,12 +37,16 @@ import shutil
 import libmount
 import getpass
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
+from datastage.web.dataset.models import Project
 
 from datastage.config import settings
 from .menu_util import interactive, menu, ExitMenu
 from .util import check_pid
 from .sync_permissions import sync_permissions, get_members
+from .projects import projects_menu
+from .users import users_menu
+
 
 def get_ips():
     addrs = (re.findall(r"addr: ?([\d:.a-f]+)", subprocess.check_output('/sbin/ifconfig')))
@@ -51,31 +54,36 @@ def get_ips():
     addrs = set(addr for addr in addrs if not addr.startswith('fe80:'))
     return addrs
 
+
 def from_hex(value):
-    return ''.join(chr(int(value[i:i+2], 16)) for i in range(0, len(value), 2))
+    return ''.join(chr(int(value[i:i + 2], 16)) for i in range(0, len(value), 2))
+
 
 def parse_addr(addr):
     if all(c == '0' for c in addr):
         return None # Listening on all interfaces
     if len(addr) == 8:
-        return '.'.join(reversed([str(int(addr[i:i+2], 16)) for i in range(0, 8, 2)]))
+        return '.'.join(reversed([str(int(addr[i:i + 2], 16)) for i in range(0, 8, 2)]))
     else:
         # Turn it into a binary string
         addr = from_hex(addr)
         # Use the magic of byte-ordering to move the bytes around, producing a hex string
-        addr = ''.join(map('%08X'.__mod__, struct.unpack('<'+'l'*4, addr)))
+        addr = ''.join(map('%08X'.__mod__, struct.unpack('<' + 'l' * 4, addr)))
         # Create a list of parts of the address, e.g ['2001', 'a02', ...]
-        addr = [addr[i:i+4].lstrip('0') or '0' for i in range(0, len(addr), 4)]
+        addr = [addr[i:i + 4].lstrip('0') or '0' for i in range(0, len(addr), 4)]
         try:
-            longest_zero_run = max((j-i, i, j) for i in range(0, len(addr)) for j in range(i+1, len(addr)+1) if all(x=='0' for x in addr[i:j]))
+            longest_zero_run = max((j - i, i, j) for i in range(0, len(addr)) for j in range(i + 1, len(addr) + 1) if
+                                   all(x == '0' for x in addr[i:j]))
             start, end = longest_zero_run[1:3]
             return ':'.join(addr[:start]) + '::' + ':'.join(addr[end:])
         except ValueError:
             # No zeros in this address
             return ':'.join(addr)
 
+
 def parse_port(port):
     return struct.unpack('>H', from_hex(port))[0]
+
 
 def get_all_listening():
     listening = []
@@ -90,6 +98,7 @@ def get_all_listening():
                     continue # This isn't a listening socket
                 listening.append((proto, local_addr, local_port))
     return listening
+
 
 def check_port_listening(addrs, port):
     available_at = set()
@@ -108,15 +117,15 @@ def check_port_listening(addrs, port):
     return available_at
 
 
-
 def firewall_menu():
     print "Hello!"
     yield
-    
+
+
 def samba_menu():
     print "SAMBA configuration"
     yield
-    
+
 
 def config_menu():
     def service_check(label, check_port, pid_filenames, service_name, firewall_ports):
@@ -128,9 +137,9 @@ def config_menu():
                     listening_on |= ips
                 else:
                     listening_on.add(addr)
-                    
+
         available_at = check_port_listening(listening_on, check_port)
-        
+
         print
         pid = check_pid(*pid_filenames)
         if pid:
@@ -152,10 +161,10 @@ def config_menu():
         actions = {'refresh': lambda: None}
         listening = get_all_listening()
         ips = get_ips()
-        
+
         print
         print "Status of some services"
-        
+
         actions.update(service_check('DataStage', settings.get('server:port'),
                                      ['/var/run/datastage.pid'],
                                      'datastage', ['']))
@@ -166,17 +175,17 @@ def config_menu():
         actions.update(service_check('Apache', 80,
                                      ['/var/run/apache2.pid', '/var/run/httpd/httpd.pid'],
                                      'apache2', ['www/tcp']))
-        
+
         if os.path.exists('/etc/apache2/sites-enabled/000-default'):
             print "             Warning:      Default site exists at /etc/apache2/sites-enabled/000-default"
             print "             \033[95mAction:       Type 'defaultsite' to remove it and restart Apache\033[0m"
             actions['defaultsite'] = remove_default_apache_site()
-        
+
         actions.update(service_check('Samba', 445,
                                      ['/var/run/samba/smbd.pid'],
                                      'samba', ['netbios-ns/udp', 'netbios-dgm/udp',
                                                'netbios-ssn/tcp', 'microsoft-ds/tcp']))
-        
+
         if SambaConfigurer.needs_configuring():
             print "             Warning:      Samba is not configured to serve DataStage files"
             print "             \033[95mAction:       Type 'confsamba' to configure and restart Samba\033[0m"
@@ -189,13 +198,16 @@ def config_menu():
 
         yield menu(actions)
 
+
 def enable_service(name, label):
     def f():
         print "Enabling %s..." % label
         subprocess.call(["service", name, "start"])
         subprocess.call(["chkconfig", name, "on"])
         print "%s enabled." % label
+
     return f
+
 
 def update_firewall_service(*names):
     def f():
@@ -204,7 +216,9 @@ def update_firewall_service(*names):
             subprocess.call(["/usr/sbin/ufw", "allow", name])
         subprocess.call(["/usr/sbin/ufw", "enable"])
         print "Tweaking complete"
+
     return f
+
 
 def remove_default_apache_site():
     def f():
@@ -212,11 +226,14 @@ def remove_default_apache_site():
         os.unlink('/etc/apache2/sites-enabled/000-default')
         subprocess.call(["service", "apache2", "restart"])
         print "Done"
+
     return f
+
 
 class SambaConfigurer(object):
     BLOCK_START = '# Start of DataStage configuration, inserted by datastage-config\n'
-    BLOCK_END   = '# End of DataStage configuration\n'
+    BLOCK_END = '# End of DataStage configuration\n'
+
     def __call__(self):
         with open('/etc/samba/smb.conf') as f:
             lines = list(f)
@@ -250,8 +267,9 @@ class SambaConfigurer(object):
             lines = list(f)
         return not (cls.BLOCK_START in lines and cls.BLOCK_END in lines)
 
+
 class FilesystemAttributes(object):
-    OPTIONS = frozenset(['user_xattr','acl'])
+    OPTIONS = frozenset(['user_xattr', 'acl'])
 
     @classmethod
     def get_filesystem(cls):
@@ -276,231 +294,30 @@ class FilesystemAttributes(object):
 
         print "Filesystem configuration done."
 
-def users_menu():
-    while True:
-        print "======================="
-        print "List of Datatsage users"
-        print "======================="
-
-        leaders = get_members('datastage-leader')
-        collabs = get_members('datastage-collaborator')
-        members = get_members('datastage-member')
-
-        all_users = leaders | collabs | members
-
-        print "Username             Name                           Role"
-        print "================================================================="
-        for user in sorted(all_users):
-            pwuser = pwd.getpwnam(user)
-            role = "leader" if user in leaders \
-              else "member" if user in members \
-              else "collaborator" 
-            print "%-20s %-30s %s" % (user, pwuser.pw_gecos, role)
-        if not all_users:
-            print "--- There are currently no users defined ---"
-        print "=============="
-        print " Manage users "
-        print "=============="
-        print "Select add(a) to add a new datastage user."
-        print "Select remove(r) to remove a datastage user."
-        print "Select change_password(c) to change datastage user password." 
-        
-        yield menu({'add': add_user,
-                    'remove': remove_user,
-                    'change_password': change_passwd})
-
-def add_user():
-    username, name, email, role = None, None, None, None
-    print "================================="
-    print "Add user (press Ctrl-D to cancel)"
-    print "================================="
-    print "\nThe Role of the user needs to be provided while creating the account."
-    print "Role: Leader/Member/Collaborator"
-    print "r/w - Read/Write ; r - read only; NA - No Area"
-    print "Leader:"
-    print "The leader/head of the research group selects this role."
-    print "          Own area      Other's area"
-    print " Private:   r/w              r  "
-    print " Shared :   r/w              r  "
-    print " Collab :   r/w              r/w"
-    print "Member:"
-    print "Any member who is not the head/leader of the research group selects this role."
-    print "          Own area      Other's area"
-    print " Private:   r/w           no access"
-    print " Shared :   r/w              r  "
-    print " Collab :   r/w              r/w"
-    print "Collaborator:" 
-    print " A person from one group holds this role within another research group for collaboration."
-    print " A collaborator does not have his own private/shared/collab areas, but just holds an account on the system."
-    print "          Own area      Other's area"
-    print " Private:   NA            no access"
-    print " Shared :   NA            no access"
-    print " Collab :   NA               r/w"
-
-
-    while True:
-        print
-        if username:
-            username = raw_input("Username [%s]: " % username) or username
-        else:
-            username = raw_input("Username: ")
-        if name:
-            name = raw_input("Name [%s]: " % name) or name
-        else:
-            name = raw_input("Name: ")
-        if email:
-            email = raw_input("Email [%s]: " % email) or email
-        else:
-            email = raw_input("Email: ")
-
-        role = menu({'leader': 'leader',
-                     'collaborator': 'collaborator',
-                     'member': 'member'},
-                    with_quit=False,
-                    question="What role should this user have?",
-                    prompt="Pick one> ")
-        print "  Username: %s" % username
-        print "  Name: %s" % name
-        print "  Email: %s" % email
-        print "  Role: %s" % role
-        yield menu({'yes': create_user(username, name, email, role),
-                    'no': None},
-                   question="Is this correct?",
-                   prompt="Pick one> ")
-                   
-                   
-def change_passwd():
-    print "========================================"
-    print "Change Password (press Ctrl-D to cancel)"
-    print "========================================"
-    print "Provide a Username to change the password"
-    username = raw_input("Username: ")
-    password = getpass.getpass("Password: ")
-    with open(os.devnull, 'w') as devnull:
-        for args in (['passwd'], ['smbpasswd', '-a', '-s']):
-            passwd = subprocess.Popen(args + [username], stdin=subprocess.PIPE, stdout=devnull, stderr=devnull)
-            passwd.stdin.write('%s\n%s\n' % (password, password))
-            passwd.stdin.close()
-            passwd.wait()
-    print "Password changed successfully"
-
-def create_user(username, name, email, role):
-    data_directory = settings.DATA_DIRECTORY
-    data_private_directory = os.path.join(data_directory, 'private')
-    homedir = os.path.join(data_private_directory, username)
-    
-    result = subprocess.call(['useradd', username,
-                                         '--comment', name,
-                                         '-M',
-                                         '-d', homedir,
-                                         '-N',
-                                         '-g', str(grp.getgrnam('datastage-%s' % role).gr_gid)])
-    if result:
-        yield ExitMenu(1)
-    
-    password = ''.join(random.choice(string.letters+string.digits) for i in range(12))
-    with open(os.devnull, 'w') as devnull:
-        for args in (['passwd'], ['smbpasswd', '-a', '-s']):
-            passwd = subprocess.Popen(args + [username], stdin=subprocess.PIPE, stdout=devnull, stderr=devnull)
-            passwd.stdin.write('%s\n%s\n' % (password, password))
-            passwd.stdin.close()
-            passwd.wait()
-
-    user, _ = User.objects.get_or_create(username=username)
-    user.email = email
-    user.save()
-    
-    print "The password for the new user is:  %s" % password
-
-    sync_permissions()
-
-    yield ExitMenu(2)
-
-
-def purge_user(username):  
-    data_directory = settings.DATA_DIRECTORY
-   
-    for name in ('private', 'shared', 'collab'):
-        path = os.path.join(data_directory, name , username)
-        if os.path.exists(path):
-          shutil.rmtree(path, True)
-           
-    res = subprocess.call(['smbpasswd', username, '-x'])
-    result = subprocess.call(['userdel', username])
-    if res or result:
-        yield ExitMenu()
-
-    sync_permissions()
-        
-    yield ExitMenu(2)
-    
-    
-def delete_user(username):   
-    data_directory = settings.DATA_DIRECTORY
-   
-    datastage_orphan = pwd.getpwnam(settings.get('main:datastage_orphan'))
-    
-    for name in ('private', 'shared', 'collab'):
-        path = os.path.join(data_directory, name , username)
-        
-        collaborators = get_members('datastage-collaborator')
-        if username not in collaborators:                
-          os.chown(path, datastage_orphan.pw_uid, datastage_orphan.pw_gid)
-    
-    res = subprocess.call(['smbpasswd', username, '-x'])    
-    result = subprocess.call(['userdel', username])
-    if res or result:
-        yield ExitMenu()
-    
-    sync_permissions()
-
-    yield ExitMenu(2)
-
-def remove_user():
-    username = None
-    print "===================================="
-    print "Remove user (press Ctrl-D to cancel)"
-    print "===================================="
-    while True:
-        print
-        if username:
-            username = raw_input("Username [%s]: " % username) or username
-        else:
-            username = raw_input("Username: ")
-
-        print "\nRemoving user: %s" % username
-
-        print "\nSelect purge(p) to delete the user areas with their data and also the user account."
-        print "\nSelect yes(y) to only delete the user account and not the data. This process orphans the data."
-        yield menu({'purge': purge_user(username),
-                    'yes': delete_user(username),
-                    'cancel': ExitMenu()},
-                   question="Is this correct?",
-                   prompt="Pick one> ")
-
 
 def main_menu():
     print "Welcome to the interactive DataStage set-up system."
     print "==================================================="
-    
-    
+
     if os.getuid() != 0:
         print "This utility must be run as root."
         sys.exit(1)
-    
-    
+
     while True:
         print "========="
         print "Main Menu"
         print "========="
-        print "Using the config(c) option start/ensure that the system services are running to be able to use the datastage system. Select users(u) to add/remove the datastage users."
+        print "Using the config(c) option start/ensure that the system services are running to be able to use the datastage system."
+        print "Select users(u) to add/remove the datastage users."
+        print "Select projects(p) to add/remove research projects/groups."
         yield menu({'config': config_menu,
-                    'users': users_menu})
+                    'users': users_menu,
+                    'projects': projects_menu})
 
- 
 
 def main():
     interactive(main_menu())
+
 
 if __name__ == '__main__':
     main()
