@@ -145,7 +145,7 @@ class Project(models.Model):
     member_group = models.OneToOneField(Group, related_name='members_of_project')
     collaborator_group = models.OneToOneField(Group, related_name='collaborators_of_project')
     #TODO: implement project archiving
-    is_archived = models.NullBooleanField()
+    is_archived = models.BooleanField(default=False)
 
     def _get_leaders(self):
         return self.leader_group.user_set.all()
