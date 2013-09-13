@@ -26,27 +26,19 @@
 import grp
 import os
 import pwd
-import random
 import re
 import socket
-import string
 import struct
 import subprocess
 import sys
-import shutil
 import libmount
-import getpass
-
-from django.contrib.auth.models import User, Group
-from datastage.web.dataset.models import Project
 
 from datastage.config import settings
-from .menu_util import interactive, menu, ExitMenu
+from .menu_util import interactive, menu
 from .util import check_pid
-from .sync_permissions import sync_permissions, get_members
 from .projects import projects_menu
 from .users import users_menu
-
+from .samba_config import SambaConfigurer
 
 def get_ips():
     addrs = (re.findall(r"addr: ?([\d:.a-f]+)", subprocess.check_output('/sbin/ifconfig')))
@@ -228,44 +220,6 @@ def remove_default_apache_site():
         print "Done"
 
     return f
-
-
-class SambaConfigurer(object):
-    BLOCK_START = '# Start of DataStage configuration, inserted by datastage-config\n'
-    BLOCK_END = '# End of DataStage configuration\n'
-
-    def __call__(self):
-        with open('/etc/samba/smb.conf') as f:
-            lines = list(f)
-        try:
-            first, last = lines.index(self.BLOCK_START), lines.index(self.BLOCK_END)
-        except ValueError:
-            lines.append('\n') # Add an extra blank line before our block
-            first, last = len(lines), len(lines)
-        lines[first:last] = [self.BLOCK_START,
-                             '[datastage]\n',
-                             '  comment = DataStage file area\n',
-                             '  browseable = yes\n',
-                             '  read only = no\n',
-                             '  path = %s\n' % settings.DATA_DIRECTORY,
-                             '  unix extensions = no\n',
-                             '  create mask = 0700\n',
-                             '  force create mode = 0700\n',
-                             '  directory mask = 0700\n',
-                             '  force directory mode = 0700\n',
-                             '  valid users = @datastage-leader @datastage-member\n',
-                             self.BLOCK_END]
-        with open('/etc/samba/smb.conf', 'w') as f:
-            f.writelines(lines)
-        subprocess.call(["service", "samba", "restart"])
-
-    @classmethod
-    def needs_configuring(cls):
-        if not os.path.exists('/etc/samba/smb.conf'):
-            return False
-        with open('/etc/samba/smb.conf') as f:
-            lines = list(f)
-        return not (cls.BLOCK_START in lines and cls.BLOCK_END in lines)
 
 
 class FilesystemAttributes(object):

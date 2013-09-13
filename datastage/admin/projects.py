@@ -38,7 +38,7 @@ from datastage.config import settings
 
 from .menu_util import menu, ExitMenu
 from .sync_permissions import sync_permissions
-
+from .samba_config import SambaConfigurer
 
 def projects_menu():
     """Main menu for configuring datastage projects.
@@ -149,6 +149,9 @@ def create_project(short_name, long_name, description):
                                                collaborator_group=collab_group,
                                                is_archived=False)
     sync_permissions()
+    SambaConfigurer.add_samba_groups([project.leader_group.name,
+                                      project.member_group.name,
+                                      project.collaborator_group.name])
     print "Project %s created successfully." % short_name
     yield ExitMenu(2)
 
@@ -503,6 +506,10 @@ def purge_project(project):
     """Delete a project including all data."""
     data_directory = os.path.join(settings.DATA_DIRECTORY, project.short_name)
 
+    SambaConfigurer.remove_samba_groups([project.leader_group.name,
+                                         project.member_group.name,
+                                         project.collaborator_group.name])
+
     #remove from db
     project.leader_group.delete()
     project.member_group.delete()
@@ -514,7 +521,7 @@ def purge_project(project):
         shutil.rmtree(data_directory, True)
 
     sync_permissions()
-    yield ExitMenu(2)
+    yield ExitMenu(3)
 
 
 def delete_project(project):
@@ -524,6 +531,10 @@ def delete_project(project):
 
     """
     data_directory = os.path.join(settings.DATA_DIRECTORY, project.short_name)
+
+    SambaConfigurer.remove_samba_groups([project.leader_group.name,
+                                         project.member_group.name,
+                                         project.collaborator_group.name])
 
     #remove from db
     project.leader_group.delete()
@@ -537,4 +548,4 @@ def delete_project(project):
         os.chown(data_directory, datastage_orphan.pw_uid, datastage_orphan.pw_gid)
 
     sync_permissions()
-    yield ExitMenu(2)
+    yield ExitMenu(3)
