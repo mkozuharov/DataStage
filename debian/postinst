@@ -44,7 +44,7 @@ case "$1" in
   if ! dpkg-statoverride --list $SERVER_HOME >/dev/null
   then
       chown -R $SERVER_USER:adm $SERVER_HOME
-      chmod u=rwx,g=rxs,o= $SERVER_HOME
+      chmod u=rwx,g=rxs,o=r $SERVER_HOME
   fi
 
   # Add our four groups
@@ -106,13 +106,7 @@ case "$1" in
   configure)
 
   mkdir -p $DATA_DIRECTORY
-  mkdir -p $DATA_DIRECTORY/private
-  mkdir -p $DATA_DIRECTORY/shared
-  mkdir -p $DATA_DIRECTORY/collab
-
-  chgrp datastage-leader $DATA_DIRECTORY/private
-  chgrp datastage-member $DATA_DIRECTORY/shared
-  chgrp datastage-collaborator $DATA_DIRECTORY/collab
+  chown -R $SERVER_USER:$SERVER_GROUP $DATA_DIRECTORY
   ;;
 esac
 
