@@ -412,7 +412,7 @@ def remove_user_from_project(project):
                    prompt="Pick one> ")
 
 
-def purge_user_from_project(user, project, group):
+def purge_user_from_project(user, project, group, sync=True):
     """Remove a user from a project and delete all user data for this project.
 
     Removes the user from the project's database and OS groups.
@@ -437,13 +437,13 @@ def purge_user_from_project(user, project, group):
         path = os.path.join(data_directory, name, user.username)
         if os.path.exists(path):
             shutil.rmtree(path, True)
-
-    sync_permissions()
+    if sync:
+        sync_permissions()
 
     yield ExitMenu()
 
 
-def delete_user_from_project(user, project, group):
+def delete_user_from_project(user, project, group, sync=True):
     """Remove a user from a project while retaining the data.
 
     Removes the user from the project's database and OS groups.
@@ -469,7 +469,9 @@ def delete_user_from_project(user, project, group):
         path = os.path.join(data_directory, name, user.username)
         if os.path.exists(path):
             os.chown(path, datastage_orphan.pw_uid, datastage_orphan.pw_gid)
-    sync_permissions()
+
+    if sync:
+        sync_permissions()
     yield ExitMenu()
 
 

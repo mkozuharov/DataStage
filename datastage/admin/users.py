@@ -39,6 +39,7 @@ from django.contrib.auth.models import User
 from datastage.config import settings
 from .menu_util import menu, ExitMenu
 from .sync_permissions import sync_permissions
+from .projects import delete_user_from_project, purge_user_from_project
 
 
 def users_menu():
@@ -262,25 +263,17 @@ def purge_user(username):
     for group in groups:
         #populate list with all projects in which the user participates
         if group.name.endswith('leader'):
-            projects.append(group.leaders_of_project)
+            projects = group.leaders_of_project
         elif group.name.endswith('member'):
-            projects.append(group.members_of_project)
+            projects = group.members_of_project
         elif group.name.endswith('collab'):
-            projects.append(group.collaborators_of_project)
+            projects = group.collaborators_of_project
 
-        #remove user from project group
-        group.user_set.remove(user)
+        for project in projects:
+            purge_user_from_project(user, project, group, False)
 
     #delete the user object from the database
     user.delete()
-
-    for project in projects:
-        data_directory = os.path.join(settings.DATA_DIRECTORY, project.short_name)
-
-        for name in ('private', 'shared', 'collab'):
-            path = os.path.join(data_directory, name, username)
-            if os.path.exists(path):
-                shutil.rmtree(path, True)
 
     res = subprocess.call(['smbpasswd', username, '-x'])
     if res:
@@ -315,24 +308,14 @@ def delete_user(username):
     for group in groups:
         #populate list with all projects in which the user participates
         if group.name.endswith('leader'):
-            projects.append(group.leaders_of_project)
+            projects = group.leaders_of_project
         elif group.name.endswith('member'):
-            projects.append(group.members_of_project)
+            projects = group.members_of_project
         elif group.name.endswith('collab'):
-            projects.append(group.collaborators_of_project)
+            projects = group.collaborators_of_project
 
-    for project in projects:
-        data_directory = os.path.join(settings.DATA_DIRECTORY, project.short_name)
-
-        for name in ('private', 'shared', 'collab'):
-            path = os.path.join(data_directory, name, username)
-            collaborators = project.collaborators
-            if user not in collaborators:
-                os.chown(path, datastage_orphan.pw_uid, datastage_orphan.pw_gid)
-
-    for group in groups:
-        #remove user from project groups
-        group.user_set.remove(user)
+        for project in projects:
+            delete_user_from_project(user, project, group, False)
 
     #delete the user object from the database
     user.delete()
