@@ -30,18 +30,15 @@ import random
 import re
 import string
 import subprocess
-import sys
 import shutil
 import libmount
 import getpass
 
-from django.contrib.auth.models import User, Group
-from datastage.web.dataset.models import Project
+from django.contrib.auth.models import User
 
 from datastage.config import settings
-from .menu_util import interactive, menu, ExitMenu
-from .sync_permissions import sync_permissions, get_members
-from .projects import projects_menu
+from .menu_util import menu, ExitMenu
+from .sync_permissions import sync_permissions
 
 
 def users_menu():
@@ -94,6 +91,14 @@ def add_new_user():
             email = raw_input("Email [%s]: " % email) or email
         else:
             email = raw_input("Email: ")
+
+        #check if the username can be used for a Debian username
+        match = re.match("^[a-z_][a-z0-9_-]*[$]?$", username)
+        if not match or len(username) > 32:
+            print "Error: Invalid username."
+            print "Must be one word, less than 32 characters and must match to the following regexp:"
+            print "[a-z_][a-z0-9_-]*[$]?"
+            continue
 
         print "  Username: %s" % username
         print "  First name: %s" % first_name

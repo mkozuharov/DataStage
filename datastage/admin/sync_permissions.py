@@ -28,7 +28,6 @@ import posix1e
 import pwd
 import subprocess
 
-from django.contrib.auth.models import User
 from datastage.web.dataset.models import Project
 
 from datastage.config import settings

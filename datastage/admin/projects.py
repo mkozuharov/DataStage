@@ -31,7 +31,7 @@ import subprocess
 import shutil
 import libmount
 
-from django.contrib.auth.models import User, Group, GroupManager
+from django.contrib.auth.models import User, Group
 from datastage.web.dataset.models import Project
 
 from datastage.config import settings
