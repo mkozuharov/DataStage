@@ -1,3 +1,9 @@
+dataflow-datastage (0.4.0.2) unstable; urgency=low
+
+  * Support for projects
+
+ -- Mihail <mihail@datastage-srv>  Fri, 13 Sep 2013 13:59:54 +0300
+
 dataflow-datastage (0.4.0.1) unstable; urgency=low
 
   * Initial commit for branch venv-dstage
