@@ -510,6 +510,11 @@ def purge_project(project):
                                          project.member_group.name,
                                          project.collaborator_group.name])
 
+    #remove os groups
+    subprocess.call(['groupdel', project.leader_group.name])
+    subprocess.call(['groupdel', project.member_group.name])
+    subprocess.call(['groupdel', project.collaborator_group.name])
+
     #remove from db
     project.leader_group.delete()
     project.member_group.delete()
@@ -535,6 +540,10 @@ def delete_project(project):
     SambaConfigurer.remove_samba_groups([project.leader_group.name,
                                          project.member_group.name,
                                          project.collaborator_group.name])
+    #remove os groups
+    subprocess.call(['groupdel', project.leader_group.name])
+    subprocess.call(['groupdel', project.member_group.name])
+    subprocess.call(['groupdel', project.collaborator_group.name])
 
     #remove from db
     project.leader_group.delete()
@@ -546,6 +555,8 @@ def delete_project(project):
     datastage_orphan = pwd.getpwnam(settings.get('main:datastage_orphan'))
     if os.path.exists(data_directory):
         os.chown(data_directory, datastage_orphan.pw_uid, datastage_orphan.pw_gid)
+
+
 
     sync_permissions()
     yield ExitMenu(3)
