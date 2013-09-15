@@ -4,19 +4,20 @@ flup
 #libmount
 oauth2
 rdflib
-pylibacl
+#pylibacl
 Django<1.5
-#django-conneg>=0.5
+django-conneg>=0.5
 #django-longliving
 #python-sword-client>=0.2
 #sword2
 PyWebDAV
 lxml
 pytz
-xattr
+xattr==0.6
 pam
 -e hg+https://bitbucket.org/wnielson/django-pam#egg=dpam
 -e hg+https://bitbucket.org/richardjones/python-sword2#egg=sword2
 -e git+https://github.com/ox-it/python-libmount#egg=libmount
 -e git+https://github.com/ox-it/django-longliving#egg=django-longliving
--e git+https://github.com/ox-it/django-conneg#egg=django-conneg
+#-e git+https://github.com/ox-it/django-conneg#egg=django-conneg
+-e git+https://github.com/iustin/pylibacl#egg=pylibacl
