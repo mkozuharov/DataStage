@@ -44,14 +44,14 @@ class IndexView(BaseBrowseView):
     def dispatch(self, request, path):
 
         self.path = path
-
+        self.path = urllib.unquote(path)
         # Make sure that directories have a trailing slash.
         if os.path.isdir(self.path_on_disk) and path and not path.endswith('/'):
             abs_path =  request.build_absolute_uri(reverse('browse:index', kwargs={'path': path + '/'}))
             message = request.GET.get('message')
             uri = abs_path + "?" +  urllib.urlencode({'message': message}) if message else abs_path
             return HttpResponsePermanentRedirect(uri)
-
+       
         views = self.directory_views if os.path.isdir(self.path_on_disk) else self.file_views
 
         if request.method.lower() in DAVView.http_method_names:

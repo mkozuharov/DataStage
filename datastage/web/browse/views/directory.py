@@ -56,19 +56,22 @@ class DirectoryView(HTMLView, JSONView, BaseBrowseView):
                     continue
                 raise
             subpath['path'] = '%s%s' % (self.path, subpath['name']) if self.path else subpath['name']
-            logger.debug( 'This directory/file path: ' +  str(subpath_on_disk) + ' has the following access rights') 
-            logger.debug( 'Directroy.py - can_read : ' + str(self.can_read(subpath_on_disk)))
-            logger.debug( 'Directroy.py - can_write : ' + str(self.can_write(subpath_on_disk)))
+            logger.info('subpath[path]' + str(subpath['path']))
+            logger.info( 'This directory/file path: ' +  str(subpath_on_disk) + ' has the following access rights') 
+            logger.info( 'Directroy.py - can_read : ' + str(self.can_read(subpath_on_disk)))
+            logger.info( 'Directroy.py - can_write : ' + str(self.can_write(subpath_on_disk)))
             subpath.update({
                 'type': 'dir' if os.path.isdir(subpath_on_disk) else 'file',
                 'stat': statinfo_to_dict(subpath_stat),
                 'last_modified': datetime.datetime.fromtimestamp(subpath_stat.st_mtime),
                 'url': request.build_absolute_uri(reverse('browse:index',
-                                                          kwargs={'path': subpath['path']})),
+                                                          kwargs={'path': subpath['path']}
+                                                          )),
                 'link': self.can_read(subpath_on_disk),
                 'can_read': self.can_read(subpath_on_disk),
                 'can_write': self.can_write(subpath_on_disk),
             })
+            logger.info('url[path]' + str(subpath['url']))
             print subpath_on_disk, subpath['link']
             try:
                 pw_user = pwd.getpwuid(subpath_stat.st_uid)
