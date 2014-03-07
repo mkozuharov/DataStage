@@ -55,20 +55,31 @@ class DirectoryView(HTMLView, JSONView, BaseBrowseView):
                     subpath['type'] = 'missing'
                     continue
                 raise
+            a_path=self.path
+            a_name = subpath['name']
+            logger.info("Path = " + repr(a_path) + ", Name = " + repr(a_name) )
+#            subpath['path'] = '%s%s' % (self.path, subpath['name']) if self.path else subpath['name']
             subpath['path'] = '%s%s' % (self.path, subpath['name']) if self.path else subpath['name']
-            logger.debug( 'This directory/file path: ' +  str(subpath_on_disk) + ' has the following access rights') 
-            logger.debug( 'Directroy.py - can_read : ' + str(self.can_read(subpath_on_disk)))
-            logger.debug( 'Directroy.py - can_write : ' + str(self.can_write(subpath_on_disk)))
+            logger.info('subpath[path]' + str(subpath['path']))
+            logger.info( 'This directory/file path: ' +  str(subpath_on_disk) + ' has the following access rights') 
+            logger.info( 'Directroy.py - can_read : ' + str(self.can_read(subpath_on_disk)))
+            logger.info( 'Directroy.py - can_write : ' + str(self.can_write(subpath_on_disk)))
+          
             subpath.update({
                 'type': 'dir' if os.path.isdir(subpath_on_disk) else 'file',
                 'stat': statinfo_to_dict(subpath_stat),
                 'last_modified': datetime.datetime.fromtimestamp(subpath_stat.st_mtime),
-                'url': request.build_absolute_uri(reverse('browse:index',
-                                                          kwargs={'path': subpath['path']})),
+                #'url': request.build_absolute_uri(reverse('browse:index',
+                #                                          kwargs={'path': subpath['path'] }
+                #                                          )),
+                'url': urllib.quote( subpath['name']),
+                                                    
                 'link': self.can_read(subpath_on_disk),
                 'can_read': self.can_read(subpath_on_disk),
                 'can_write': self.can_write(subpath_on_disk),
             })
+
+            logger.info('url[path]' + str(subpath['url']))
             print subpath_on_disk, subpath['link']
             try:
                 pw_user = pwd.getpwuid(subpath_stat.st_uid)
@@ -90,7 +101,7 @@ class DirectoryView(HTMLView, JSONView, BaseBrowseView):
                 subpath['description'] = subpath['xattr'].get('user.dublincore.description')
 
         subpaths.sort(key=sort_function, reverse=sort_reverse)
-
+                     
         return subpaths, sort_name, sort_reverse
 
 
@@ -202,12 +213,12 @@ class UploadView(HTMLView, BaseBrowseView):
             try:
                 if src_file.multiple_chunks() == True:
                     for chunk in src_file.chunks():
-                        temp_file.write(chunk)
-                        temp_file.close()
+                        temp_file.write(chunk)                   
+                    fileName, fileExtension = os.path.splitext(src_file.name)      
                 else:
                     temp_file.write(src_file.read())
                     fileName, fileExtension = os.path.splitext(src_file.name)
-
+                    
                 if fileExtension == ".zip":
                     msg =  "The package: ' " + src_file.name + " ' has been successfully unpacked!"
 
@@ -215,7 +226,7 @@ class UploadView(HTMLView, BaseBrowseView):
                     parent_acl.applyto(temp_path)
 
                     zip_ref = zipfile.ZipFile(temp_file, 'r')
-                    zip_ref.extractall(self.path_on_disk)
+                    zip_ref.extractall(path.encode('utf-8'))
                     zip_ref.close()
                 else:
                     msg =  "The file: ' " + src_file.name + " ' has been successfully uploaded!"
@@ -235,7 +246,7 @@ class UploadView(HTMLView, BaseBrowseView):
                 elif e.errno == errno.EACCES:
                     msg = "Files can only be uploaded in your own area!"
                 else:
-                    msg = "Upload was unsuccessful !"
+                    msg = "Upload was unsuccessful !" 
             except Exception, e:
                 msg = "Upload was unsuccessful !"
             msgcontext={'message': msg }

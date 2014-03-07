@@ -17,11 +17,12 @@ class BaseBrowseView(ErrorCatchingView):
         try:
             return self._path_on_disk
         except AttributeError:
+            self.path = urllib.unquote(self.path)
             data_directory, path = settings.DATA_DIRECTORY, self.path
-
             path_parts = path.rstrip('/').split('/')
             if path and any(part in ('.', '..', '') for part in path_parts):
                 raise Http404
+#            self._path_on_disk = os.path.normpath(os.path.join(data_directory, *path_parts))
             self._path_on_disk = os.path.normpath(os.path.join(data_directory, *path_parts))
             return self._path_on_disk
 
