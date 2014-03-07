@@ -13,7 +13,7 @@ django-conneg>=0.5
 PyWebDAV
 lxml
 pytz
-xattr==0.6
+xattr
 pam
 -e hg+https://bitbucket.org/wnielson/django-pam#egg=dpam
 -e hg+https://bitbucket.org/richardjones/python-sword2#egg=sword2
