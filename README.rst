@@ -1,6 +1,16 @@
-
 DataStage
 =========
+
+This is a fork of the DataStage project. The original one can be found on https://github.com/dataflow/DataStage.
+
+The main goals of this fork are:
+ - adding support for multiple projects on one DataStage server
+ - running DataStage python code in a pithon virtual environment
+
+Some additional items, which would be nice to have:
+ - mainstreaming the installation process from a debian package, includinc promtping for some installation parameters
+ - porting to newer versions of Django and Ubuntu
+----------
 
 This project is part of the `DataFlow Project <http://www.dataflow.ox.ac.uk/>`_,
 aiming to create a two-stage data management infrastructure. DataStage allows
