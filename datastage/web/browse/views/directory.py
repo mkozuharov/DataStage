@@ -145,10 +145,10 @@ class DirectoryView(HTMLView, JSONView, BaseBrowseView):
             for field in ('title', 'description'):
                 key = 'user.dublincore.' + field
                 value = request.POST.get('meta-%s-%s' % (field, part))
-                if value == "" and field in subpath_xattr:
+                if value == "" and key in subpath_xattr:
                     del subpath_xattr[key]
                 elif value:
-                    subpath_xattr[key] = value
+                    subpath_xattr[key] = value.encode('utf8')
         if request.is_ajax():
             return HttpResponse('', status=httplib.NO_CONTENT)
         else:
