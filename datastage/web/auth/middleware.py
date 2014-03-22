@@ -27,6 +27,7 @@ import base64
 import ctypes
 import os
 import pwd
+import grp
 
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.auth import authenticate, login
@@ -80,6 +81,9 @@ class DropPrivilegesMiddleware(object):
             username = settings['main:datastage_user']
 
         user = pwd.getpwnam(username)
+		
+        gids = [g.gr_gid for g in grp.getgrall() if username in g.gr_mem]
+        os.setgroups(gids)
 
         self._libc.setfsuid(user.pw_uid)
         self._libc.setfsgid(user.pw_gid)
