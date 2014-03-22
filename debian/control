@@ -38,7 +38,9 @@ Depends: python,
 		 liblzo2-dev,
 		 libxml2,
 		 libxml2-dev,
-		 libxslt-dev
+		 libxslt-dev,
+		 net-tools,
+		 sudo
 Description: DataStage allows research groups to manage research data locally,
              which can then be pushed to an institutional data repository.
 
