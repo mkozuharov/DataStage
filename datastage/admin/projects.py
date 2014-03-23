@@ -153,8 +153,7 @@ def create_project(short_name, long_name, description):
                                       project.member_group.name,
                                       project.collaborator_group.name])
     print "Project %s created successfully." % short_name
-    yield ExitMenu(2)
-
+    yield menu({'print proj':project_info(project)}, False)
 
 def select_project():
     """Configuration screen for a single project.
@@ -176,6 +175,11 @@ def select_project():
         except Project.DoesNotExist:
             print "Error: No project with name", project_name, "found"
             continue
+
+        yield menu({'print proj':project_info(project)}, False)
+
+def project_info(project):
+    while True:
         print "======================="
         print
         print project.long_name
@@ -205,7 +209,6 @@ def select_project():
                     'remove user': remove_user_from_project(project),
                     'edit project info': edit_project(project),
                     'delete project': remove_project(project)})
-
 
 def add_user_to_project(project):
     """Configuration screen for adding a user to a project.
@@ -260,11 +263,11 @@ def add_user_to_project(project):
             user = User.objects.get(username=username)
         except User.DoesNotExist:
             print "Error: Username %s not found!" % username
-            yield ExitMenu(2)
+            yield ExitMenu(1)
 
         if user in ( project.leaders | project.members | project.collaborators):
             print "Error: User %s already is a member of project %s!" % (username, project.short_name)
-            yield ExitMenu(2)
+            yield ExitMenu(1)
 
         print "Select role for user %s:" % username
         yield menu({'leader': map_user_with_project(project, user, 'leader'),
@@ -297,7 +300,7 @@ def map_user_with_project(project, user, role):
     group.user_set.add(user)
     sync_permissions()
     print "User", user.username, "added successfully to project", project.short_name
-    yield ExitMenu(3)
+    yield ExitMenu(2)
 
 
 def edit_project(project):
@@ -346,7 +349,7 @@ def modify_project(project, long_name, description):
     project.long_name = long_name
     project.description = description
     project.save()
-    ExitMenu(2)
+    yield ExitMenu(2)
 
 
 def remove_user_from_project(project):
@@ -382,7 +385,7 @@ def remove_user_from_project(project):
             print "%-20s %-30s %s" % (user.username, pwuser.pw_gecos, role)
         if not all_users:
             print "--- There are currently no users defined ---"
-            yield ExitMenu(2)
+            yield ExitMenu(1)
 
         print
         if username:
@@ -526,7 +529,7 @@ def purge_project(project):
         shutil.rmtree(data_directory, True)
 
     sync_permissions()
-    yield ExitMenu(3)
+    yield ExitMenu(4)
 
 
 def delete_project(project):
@@ -559,4 +562,4 @@ def delete_project(project):
 
 
     sync_permissions()
-    yield ExitMenu(3)
+    yield ExitMenu(4)

@@ -47,10 +47,14 @@ def menu(options,
                 else:
                     return NotUnique
         return found
-        
+    
     names = sorted(options)
     max_length = max(map(len, names))
     columns = 80 // (max_length + 8)
+
+    #single option, no quit - redirect to next menu
+    if ( len(names) == 1 and not with_quit ):
+        return options[names[0]]
 
     prefix_lengths = {}    
     for name in names:
