@@ -72,7 +72,8 @@ def projects_menu():
         print "Select select(s) to view and edit a datastage project."
 
         yield menu({'add': add_project,
-                    'select': select_project})
+                    'select': select_project},
+                    True)
 
 
 def add_project():
@@ -208,7 +209,8 @@ def project_info(project):
         yield menu({'add user': add_user_to_project(project),
                     'remove user': remove_user_from_project(project),
                     'edit project info': edit_project(project),
-                    'delete project': remove_project(project)})
+                    'delete project': remove_project(project)},
+                    True)
 
 def add_user_to_project(project):
     """Configuration screen for adding a user to a project.
