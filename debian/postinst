@@ -59,8 +59,8 @@ case "$1" in
   
   #Setup the python virtual environment
   echo "Setting python environment"
-  virtualenv /usr/share/dataflow-datastage/
-  cd /usr/share/dataflow-datastage/
+  virtualenv $SERVER_HOME
+  cd $SERVER_HOME
   . bin/activate
   
   easy_install -U distribute
@@ -68,7 +68,8 @@ case "$1" in
   
   python setup.py install
   
-  chown -R datastage:adm /usr/share/dataflow-datastage
+  chown -R $SERVER_USER:$SERVER_GROUP $SERVER_HOME
+  chmod 755 $SERVER_HOME
   ;;
 esac
 
@@ -93,10 +94,10 @@ case "$1" in
     sudo -u postgres psql $DATABASE_NAME -c "GRANT ALL ON DATABASE $DATABASE_NAME TO $SERVER_USER"
   fi
 
-  cd /usr/share/dataflow-datastage
-  sudo -u datastage /usr/share/dataflow-datastage/bin/django-admin.py syncdb --settings=datastage.web.settings --noinput
+  cd $SERVER_HOME
+  sudo -u datastage $SERVER_HOME/bin/django-admin.py syncdb --settings=datastage.web.settings --noinput
   
-  ln -s /usr/share/dataflow-datastage/datastage/web/static/ /usr/share/dataflow-datastage/static
+  ln -s $SERVER_HOME/datastage/web/static/ $SERVER_HOME/static
   ;;
 esac
 
@@ -122,6 +123,6 @@ case "$1" in
     ;;
 esac
 
-/usr/share/dataflow-datastage/bin/django-admin.py collectstatic --settings=datastage.web.settings --noinput --link
+$SERVER_HOME/bin/django-admin.py collectstatic --settings=datastage.web.settings --noinput --link
 
 echo "Run datastage-config to complete the set-up"
