@@ -4,6 +4,11 @@
 # the build requires the following packages - debhelper , python-all and python-setuptools
 # repository creation needs the reprepro package
 
+# execute the following commands to update the apt repository and install the required packages:
+sudo apt-get update
+sudo apt-get install git debhelper python-all python-setuptools reprepro
+
+
 DIR=${PWD}
 mkdir -p ./build #contains the github clone with the source code
 mkdir -p ./repo/conf #contains the apt-get repository
