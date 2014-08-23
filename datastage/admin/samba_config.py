@@ -41,7 +41,7 @@ class SambaConfigurer(object):
             lines.append('\n') # Add an extra blank line before our block
             first, last = len(lines), len(lines)
         lines[first:last] = [self.BLOCK_START,
-                             '[data]\n',
+                             '[datastage]\n',
                              '  comment = DataStage file area\n',
                              '  browseable = yes\n',
                              '  read only = no\n',
