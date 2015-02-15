@@ -6,7 +6,7 @@ oauth2
 rdflib
 #pylibacl
 Django<1.5
-django-conneg>=0.5
+django-conneg=0.9.5
 #django-longliving
 #python-sword-client>=0.2
 #sword2
